@@ -26,11 +26,13 @@ public class CHelloHandler implements PacketHandler<ClientboundHelloPacket, Clie
             return null;
         }
         final String sharedSecret = SessionServerApi.INSTANCE.getSharedSecret(packet.getServerId(), packet.getPublicKey(), key);
-        try {
-            SessionServerApi.INSTANCE.joinServer(profile.getId(), accessToken, sharedSecret);
-        } catch (Exception e) {
-            session.disconnect("Login failed: Authentication service unavailable.", e);
-            return null;
+        if (packet.isShouldAuthenticate()) {
+            try {
+                SessionServerApi.INSTANCE.joinServer(profile.getId(), accessToken, sharedSecret);
+            } catch (Exception e) {
+                session.disconnect("Login failed: Authentication service unavailable.", e);
+                return null;
+            }
         }
         session.send(new ServerboundKeyPacket(packet.getPublicKey(), key, packet.getChallenge()));
         session.enableEncryption(key);

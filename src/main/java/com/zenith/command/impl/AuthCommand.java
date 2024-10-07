@@ -43,13 +43,14 @@ public class AuthCommand extends Command {
                 "clear",
                 "attempts <int>",
                 "alwaysRefreshOnLogin on/off",
-                "type <deviceCode/emailAndPassword/deviceCode2/prism>",
+                "type <deviceCode/emailAndPassword/deviceCode2/prism/offline>",
                 "email <email>",
                 "password <password>",
                 "mention on/off",
                 "openBrowser on/off",
                 "maxRefreshIntervalMins <minutes>",
-                "useClientConnectionProxy on/off"
+                "useClientConnectionProxy on/off",
+                "offlineUsername <username>"
             )
         );
     }
@@ -119,6 +120,15 @@ public class AuthCommand extends Command {
                           Proxy.getInstance().cancelLogin();
                           Proxy.getInstance().getAuthenticator().clearAuthCache();
                           return 1;
+                      }))
+                      .then(literal("offline").executes(c -> {
+                          CONFIG.authentication.accountType = Config.Authentication.AccountType.OFFLINE;
+                          c.getSource().getEmbed()
+                              .title("Authentication Type Set")
+                              .primaryColor();
+                          Proxy.getInstance().cancelLogin();
+                          Proxy.getInstance().getAuthenticator().clearAuthCache();
+                          return 1;
                       })))
             .then(literal("email").requires(this::validateTerminalSource)
                       .then(argument("email", wordWithChars()).executes(c -> {
@@ -182,6 +192,13 @@ public class AuthCommand extends Command {
                     .title("Use Client Connection Proxy " + toggleStrCaps(CONFIG.authentication.useClientConnectionProxy))
                     .primaryColor();
                 return 1;
+            })))
+            .then(literal("offlineUserName").then(argument("username", wordWithChars()).executes(c -> {
+                CONFIG.authentication.username = getString(c, "username").trim();
+                c.getSource().getEmbed()
+                    .title("Offline Username Set")
+                    .primaryColor();
+                return 1;
             })));
     }
 
@@ -202,7 +219,8 @@ public class AuthCommand extends Command {
             .addField("Mention", toggleStr(CONFIG.discord.mentionRoleOnDeviceCodeAuth), false)
             .addField("Open Browser", toggleStr(CONFIG.authentication.openBrowserOnLogin), false)
             .addField("Max Refresh Interval", CONFIG.authentication.maxRefreshIntervalMins + " minutes", false)
-            .addField("Use Client Connection Proxy", toggleStr(CONFIG.authentication.useClientConnectionProxy), false);
+            .addField("Use Client Connection Proxy", toggleStr(CONFIG.authentication.useClientConnectionProxy), false)
+            .addField("Offline Username", CONFIG.authentication.username, false);
     }
 
     private String authTypeToString(Config.Authentication.AccountType type) {
@@ -211,6 +229,7 @@ public class AuthCommand extends Command {
             case MSA -> "emailAndPassword";
             case DEVICE_CODE_WITHOUT_DEVICE_TOKEN -> "deviceCode2";
             case PRISM -> "prism";
+            case OFFLINE -> "offline";
         };
     }
 }

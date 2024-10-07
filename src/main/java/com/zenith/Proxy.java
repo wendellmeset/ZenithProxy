@@ -20,7 +20,6 @@ import com.zenith.network.server.ProxyServerListener;
 import com.zenith.network.server.ServerSession;
 import com.zenith.network.server.handler.ProxyServerLoginHandler;
 import com.zenith.util.ComponentSerializer;
-import com.zenith.util.Config;
 import com.zenith.util.FastArrayList;
 import com.zenith.util.Wait;
 import com.zenith.via.ZenithClientChannelInitializer;
@@ -73,6 +72,9 @@ import java.util.stream.Stream;
 
 import static com.github.rfresh2.EventConsumer.of;
 import static com.zenith.Shared.*;
+import static com.zenith.util.Config.Authentication.AccountType.MSA;
+import static com.zenith.util.Config.Authentication.AccountType.OFFLINE;
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 
@@ -484,7 +486,7 @@ public class Proxy {
         var uuid = minecraftProtocol.getProfile().getId();
         CACHE.getChatCache().setPlayerCertificates(minecraftProtocol.getProfile().getPlayerCertificates());
         AUTH_LOG.info("Logged in as {} [{}].", username, uuid);
-        if (CONFIG.server.extra.whitelist.autoAddClient)
+        if (CONFIG.server.extra.whitelist.autoAddClient && CONFIG.authentication.accountType != OFFLINE)
             if (PLAYER_LISTS.getWhitelist().add(username, uuid))
                 SERVER_LOG.info("Auto added {} [{}] to whitelist", username, uuid);
         EXECUTOR.execute(this::updateFavicon);
@@ -512,7 +514,7 @@ public class Proxy {
 
     public MinecraftProtocol retrieveLoginTaskResult(Future<MinecraftProtocol> loginTask) {
         try {
-            var maxWait = CONFIG.authentication.accountType == Config.Authentication.AccountType.MSA ? 10 : 300;
+            var maxWait = CONFIG.authentication.accountType == MSA ? 10 : 300;
             for (int currentWait = 0; currentWait < maxWait; currentWait++) {
                 if (loginTask.isDone()) break;
                 if (!loggingIn.get()) {

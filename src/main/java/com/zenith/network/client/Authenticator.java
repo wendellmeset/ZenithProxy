@@ -10,6 +10,7 @@ import net.lenni0451.commons.httpclient.HttpClient;
 import net.lenni0451.commons.httpclient.proxy.ProxyHandler;
 import net.lenni0451.commons.httpclient.proxy.ProxyType;
 import net.raphimc.minecraftauth.MinecraftAuth;
+import net.raphimc.minecraftauth.step.java.StepMCProfile;
 import net.raphimc.minecraftauth.step.java.session.StepFullJavaSession;
 import net.raphimc.minecraftauth.step.java.session.StepFullJavaSession.FullJavaSession;
 import net.raphimc.minecraftauth.step.msa.StepCredentialsMsaCode;
@@ -26,11 +27,13 @@ import java.security.KeyPairGenerator;
 import java.time.Duration;
 import java.util.Base64;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import static com.zenith.Shared.*;
+import static com.zenith.util.Config.Authentication.AccountType.OFFLINE;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 @Getter
@@ -96,6 +99,10 @@ public class Authenticator {
 
     @SneakyThrows
     public MinecraftProtocol login()  {
+        if (CONFIG.authentication.accountType == OFFLINE) {
+            AUTH_LOG.warn("Using offline account: '{}'. Offline accounts will not receive user support.", CONFIG.authentication.username);
+            return createMinecraftProtocol(offlineLogin());
+        }
         var cachedAuth = loadAuthCache()
             .flatMap(this::checkAuthCacheMatchesConfig);
         // throws on failed login
@@ -145,7 +152,8 @@ public class Authenticator {
         var javaProfile = authSession.getMcProfile();
         var gameProfile = new GameProfile(javaProfile.getId(), javaProfile.getName());
         gameProfile.setPlayerCertificates(authSession.getPlayerCertificates());
-        var accessToken = javaProfile.getMcToken().getAccessToken();
+        var mcToken = javaProfile.getMcToken();
+        var accessToken = mcToken != null ? mcToken.getAccessToken() : null;
         return new MinecraftProtocol(MinecraftCodec.CODEC, gameProfile, accessToken);
     }
 
@@ -185,6 +193,7 @@ public class Authenticator {
             case DEVICE_CODE -> getDeviceCodeAuthStep();
             case DEVICE_CODE_WITHOUT_DEVICE_TOKEN -> getDeviceCodeAuthWithoutDeviceTokenStep();
             case PRISM -> getPrismDeviceCodeAuthStep();
+            case OFFLINE -> null;
         };
     }
 
@@ -194,7 +203,12 @@ public class Authenticator {
             case DEVICE_CODE -> deviceCodeLogin();
             case DEVICE_CODE_WITHOUT_DEVICE_TOKEN -> withoutDeviceTokenLogin();
             case PRISM -> prismDeviceCodeLogin();
+            case OFFLINE -> offlineLogin();
         };
+    }
+
+    private FullJavaSession offlineLogin() {
+        return new FullJavaSession(new StepMCProfile.MCProfile(UUID.randomUUID(), CONFIG.authentication.username, null, null), null);
     }
 
     private void onDeviceCode(final StepMsaDeviceCode.MsaDeviceCode code) {
