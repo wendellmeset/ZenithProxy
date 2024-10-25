@@ -42,7 +42,7 @@ public class DebugCommand extends Command {
                 "teleportResync on/off",
                 "ncpStrictInventory on/off",
                 "debugLogs on/off",
-                "restartReconnect on/off"
+                "serverRestartReconnect on/off"
             )
         );
     }
@@ -171,7 +171,7 @@ public class DebugCommand extends Command {
             .then(literal("serverRestartReconnect").then(argument("toggle", toggle()).executes(c -> {
                 CONFIG.client.extra.serverRestartReconnect = getToggle(c, "toggle");
                 c.getSource().getEmbed()
-                    .title("Restart Reconnect " + toggleStrCaps(CONFIG.client.extra.serverRestartReconnect));
+                    .title("Server Restart Reconnect " + toggleStrCaps(CONFIG.client.extra.serverRestartReconnect));
                 return OK;
             })));
     }
