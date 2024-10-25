@@ -29,7 +29,7 @@ public class KillAuraCommand extends Command {
                                  """
                                  Attacks entities near the player.
                                  
-                                 Custom targets list: https://gg.gg/19i5rc
+                                 Custom targets list: https://t.ly/RLreZ
                                  """,
                                  asList("on/off",
                                         "attackDelay <ticks>",
