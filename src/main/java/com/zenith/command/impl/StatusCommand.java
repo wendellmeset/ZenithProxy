@@ -53,7 +53,7 @@ public class StatusCommand extends Command {
     private String getCurrentClientUserName() {
         ServerSession currentConnection = Proxy.getInstance().getCurrentPlayer().get();
         if (nonNull(currentConnection)) {
-            return currentConnection.getProfileCache().getProfile().getName();
+            return currentConnection.getProfileCache().getProfile().getName() + " [" + currentConnection.getPing() + "ms]";
         } else {
             return "None";
         }
@@ -61,7 +61,7 @@ public class StatusCommand extends Command {
 
     private List<String> getSpectatorUserNames() {
         return Proxy.getInstance().getSpectatorConnections().stream()
-                .map(connection -> connection.getProfileCache().getProfile().getName())
+                .map(connection -> connection.getProfileCache().getProfile().getName() + " [" + connection.getPing() + "ms]")
                 .collect(Collectors.toList());
     }
 
@@ -142,7 +142,7 @@ public class StatusCommand extends Command {
                                : CONFIG.theme.error.discord())
                     .thumbnail(Proxy.getInstance().getAvatarURL(CONFIG.authentication.username).toString())
                     .addField("Status", getStatus(), true)
-                    .addField("Controlling Player", getCurrentClientUserName(), true)
+                    .addField("Connected Player", getCurrentClientUserName(), true)
                     .addField("Online For", getOnlineTime(), true)
                     // end row 1
                     .addField("Health",  (CACHE.getPlayerCache().getThePlayer().getHealth()), true)
