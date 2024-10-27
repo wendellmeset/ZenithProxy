@@ -585,7 +585,7 @@ public class Proxy {
 
     public void updatePrioBanStatus() {
         if (!CONFIG.client.extra.prioBan2b2tCheck || !isOn2b2t()) return;
-        this.isPrioBanned = PriobanApi.INSTANCE.checkPrioBan();
+        this.isPrioBanned = PriobanApi.INSTANCE.checkPrioBan(CONFIG.authentication.username);
         if (this.isPrioBanned.isPresent() && !this.isPrioBanned.get().equals(CONFIG.authentication.prioBanned)) {
             EVENT_BUS.postAsync(new PrioBanStatusUpdateEvent(this.isPrioBanned.get()));
             CONFIG.authentication.prioBanned = this.isPrioBanned.get();
