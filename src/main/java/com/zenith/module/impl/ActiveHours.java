@@ -82,7 +82,7 @@ public class ActiveHours extends Module {
                         proxy.disconnect(SYSTEM_DISCONNECT);
                         if (proxy.isOn2b2t()) {
                             info("Waiting 1 minute to avoid reconnect queue skip");
-                            EXECUTOR.schedule(proxy::connectAndCatchExceptions, 1, TimeUnit.MINUTES);
+                            MODULE.get(AutoReconnect.class).scheduleAutoReconnect(60);
                             return;
                         }
                     }

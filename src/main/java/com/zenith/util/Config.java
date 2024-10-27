@@ -107,7 +107,6 @@ public final class Config {
             public final AntiKick antiKick = new AntiKick();
             public final ReplayMod replayMod = new ReplayMod();
             public final ArrayList<PlayerEntry> friendsList = new ArrayList<>();
-            public boolean clientConnectionMessages = true;
             public boolean autoConnectOnLogin = true;
             public boolean prioBan2b2tCheck = true;
             public boolean prioStatusChangeMention = true;
@@ -199,6 +198,7 @@ public final class Config {
                 public int healthThreshold = 10;
                 public int hungerThreshold = 10;
                 public boolean warning = true;
+                public boolean warningMention = false;
             }
 
             public static final class Stalk {
@@ -284,6 +284,7 @@ public final class Config {
                     public boolean cancelAutoReconnect = true;
                     // checks friends list, whitelist, and spectator whitelist
                     public boolean onUnknownPlayerInVisualRange = false;
+                    public boolean mentionOnDisconnect = false;
                 }
 
                 public static final class ActiveHours {
@@ -543,6 +544,19 @@ public final class Config {
         public String visualRangeMentionRoleId = "";
         public String prefix = ".";
         public boolean reportCoords = true;
+        public boolean mentionRoleOnConnect = false;
+        public boolean mentionRoleOnPlayerOnline = false;
+        public boolean mentionRoleOnDisconnect = false;
+        public boolean mentionRoleOnStartQueue = false;
+        public boolean mentionRoleOnDeath = false;
+        public boolean mentionRoleOnServerRestart = false;
+        public boolean mentionRoleOnLoginFailed = false;
+        public boolean clientConnectionMessages = true;
+        public boolean mentionOnClientConnected = false;
+        public boolean mentionOnSpectatorConnected = false;
+        public boolean mentionOnClientDisconnected = false;
+        public boolean mentionOnNonWhitelistedClientConnected = false;
+        public boolean mentionOnSpectatorDisconnected = false;
         public boolean mentionRoleOnPrioUpdate = true;
         public boolean mentionRoleOnPrioBanUpdate = true;
         public boolean mentionRoleOnDeviceCodeAuth = true;

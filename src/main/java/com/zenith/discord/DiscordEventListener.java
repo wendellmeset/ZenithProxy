@@ -91,27 +91,36 @@ public class DiscordEventListener {
     }
 
     public void handleConnectEvent(ConnectEvent event) {
-        sendEmbedMessage(Embed.builder()
-                             .title("Proxy Connected")
-                             .inQueueColor()
-                             .addField("Server", CONFIG.client.server.address, true)
-                             .addField("Proxy IP", CONFIG.server.getProxyAddress(), false));
+        var embed = Embed.builder()
+            .title("Connected")
+            .inQueueColor()
+            .addField("Server", CONFIG.client.server.address, true)
+            .addField("Proxy IP", CONFIG.server.getProxyAddress(), false);
+        if (CONFIG.discord.mentionRoleOnConnect) {
+            sendEmbedMessage(mentionAccountOwner(), embed);
+        } else {
+            sendEmbedMessage(embed);
+        }
         updatePresence(bot.defaultConnectedPresence.get());
     }
 
     public void handlePlayerOnlineEvent(PlayerOnlineEvent event) {
         var embedBuilder = Embed.builder()
-            .title("Proxy Online")
+            .title("Online")
             .successColor();
         event.queueWait()
             .ifPresent(duration -> embedBuilder.addField("Queue Duration", formatDuration(duration), true));
-        sendEmbedMessage(embedBuilder);
+        if (CONFIG.discord.mentionRoleOnPlayerOnline) {
+            sendEmbedMessage(mentionAccountOwner(), embedBuilder);
+        } else {
+            sendEmbedMessage(embedBuilder);
+        }
     }
 
     public void handleDisconnectEvent(DisconnectEvent event) {
         var category = DisconnectReasonInfo.getDisconnectCategory(event.reason());
         var embed = Embed.builder()
-            .title("Proxy Disconnected")
+            .title("Disconnected")
             .addField("Reason", event.reason(), false)
             .addField("Why?", category.getWikiURL(), false)
             .addField("Category", category.toString(), false)
@@ -135,8 +144,11 @@ public class DiscordEventListener {
                               """);
             }
         }
-
-        sendEmbedMessage(embed);
+        if (CONFIG.discord.mentionRoleOnDisconnect) {
+            sendEmbedMessage(mentionAccountOwner(), embed);
+        } else {
+            sendEmbedMessage(embed);
+        }
         EXECUTOR.execute(() -> updatePresence(bot.disconnectedPresence));
     }
 
@@ -152,10 +164,15 @@ public class DiscordEventListener {
     }
 
     public void handleAutoEatOutOfFoodEvent(final AutoEatOutOfFoodEvent event) {
-        sendEmbedMessage(Embed.builder()
-                             .title("AutoEat Out Of Food")
-                             .description("AutoEat threshold met but player has no food")
-                             .errorColor());
+        var embed = Embed.builder()
+            .title("AutoEat Out Of Food")
+            .description("AutoEat threshold met but player has no food")
+            .errorColor();
+        if (CONFIG.client.extra.autoEat.warningMention) {
+            sendEmbedMessage(mentionAccountOwner(), embed);
+        } else {
+            sendEmbedMessage(embed);
+        }
     }
 
     public void handleQueueCompleteEvent(QueueCompleteEvent event) {
@@ -163,20 +180,30 @@ public class DiscordEventListener {
     }
 
     public void handleStartQueueEvent(StartQueueEvent event) {
-        sendEmbedMessage(Embed.builder()
-                             .title("Started Queuing")
-                             .inQueueColor()
-                             .addField("Regular Queue", Queue.getQueueStatus().regular(), true)
-                             .addField("Priority Queue", Queue.getQueueStatus().prio(), true));
+        var embed = Embed.builder()
+            .title("Started Queuing")
+            .inQueueColor()
+            .addField("Regular Queue", Queue.getQueueStatus().regular(), true)
+            .addField("Priority Queue", Queue.getQueueStatus().prio(), true);
+        if (CONFIG.discord.mentionRoleOnStartQueue) {
+            sendEmbedMessage(mentionAccountOwner(), embed);
+        } else {
+            sendEmbedMessage(embed);
+        }
         updatePresence(bot.getQueuePresence());
     }
 
     public void handleDeathEvent(DeathEvent event) {
-        sendEmbedMessage(Embed.builder()
-                             .title("Player Death")
-                             .errorColor()
-                             .addField("Coordinates", getCoordinates(CACHE.getPlayerCache()), false)
-                             .addField("Dimension", CACHE.getChunkCache().getCurrentDimension().name(), false));
+        var embed = Embed.builder()
+            .title("Player Death")
+            .errorColor()
+            .addField("Coordinates", getCoordinates(CACHE.getPlayerCache()), false)
+            .addField("Dimension", CACHE.getChunkCache().getCurrentDimension().name(), false);
+        if (CONFIG.discord.mentionRoleOnDeath) {
+            sendEmbedMessage(mentionAccountOwner(), embed);
+        } else {
+            sendEmbedMessage(embed);
+        }
     }
 
     public void handleSelfDeathMessageEvent(SelfDeathMessageEvent event) {
@@ -187,42 +214,59 @@ public class DiscordEventListener {
     }
 
     public void handleHealthAutoDisconnectEvent(HealthAutoDisconnectEvent event) {
-        sendEmbedMessage(Embed.builder()
-                             .title("Health AutoDisconnect Triggered")
-                             .addField("Health", CACHE.getPlayerCache().getThePlayer().getHealth(), true)
-                             .primaryColor());
+        var embed = Embed.builder()
+            .title("Health AutoDisconnect Triggered")
+            .addField("Health", CACHE.getPlayerCache().getThePlayer().getHealth(), true)
+            .primaryColor();
+        if (CONFIG.client.extra.utility.actions.autoDisconnect.mentionOnDisconnect) {
+            sendEmbedMessage(mentionAccountOwner(), embed);
+        } else {
+            sendEmbedMessage(embed);
+        }
     }
 
     public void handleProxyClientConnectedEvent(ProxyClientConnectedEvent event) {
-        if (CONFIG.client.extra.clientConnectionMessages) {
-            sendEmbedMessage(Embed.builder()
-                                 .title("Client Connected")
-                                 .addField("Username", event.clientGameProfile().getName(), true)
-                                 .primaryColor());
+        if (!CONFIG.discord.clientConnectionMessages) return;
+        var embed = Embed.builder()
+            .title("Client Connected")
+            .addField("Username", event.clientGameProfile().getName(), true)
+            .primaryColor();
+        if (CONFIG.discord.mentionOnClientConnected) {
+            sendEmbedMessage(mentionAccountOwner(), embed);
+        } else {
+            sendEmbedMessage(embed);
         }
     }
 
     public void handleProxySpectatorConnectedEvent(ProxySpectatorConnectedEvent event) {
-        if (CONFIG.client.extra.clientConnectionMessages) {
-            sendEmbedMessage(Embed.builder()
-                                 .title("Spectator Connected")
-                                 .addField("Username", escape(event.clientGameProfile().getName()), true)
-                                 .primaryColor());
+        if (!CONFIG.discord.clientConnectionMessages) return;
+        var embed = Embed.builder()
+            .title("Spectator Connected")
+            .addField("Username", escape(event.clientGameProfile().getName()), true)
+            .primaryColor();
+        if (CONFIG.discord.mentionOnSpectatorConnected) {
+            sendEmbedMessage(mentionAccountOwner(), embed);
+        } else {
+            sendEmbedMessage(embed);
         }
     }
 
     public void handleProxyClientDisconnectedEvent(ProxyClientDisconnectedEvent event) {
-        if (!CONFIG.client.extra.clientConnectionMessages) return;
-        var builder = Embed.builder()
+        if (!CONFIG.discord.clientConnectionMessages) return;
+        var embed = Embed.builder()
             .title("Client Disconnected")
             .errorColor();
         if (nonNull(event.clientGameProfile())) {
-            builder = builder.addField("Username", escape(event.clientGameProfile().getName()), false);
+            embed = embed.addField("Username", escape(event.clientGameProfile().getName()), false);
         }
         if (nonNull(event.reason())) {
-            builder = builder.addField("Reason", escape(event.reason()), false);
+            embed = embed.addField("Reason", escape(event.reason()), false);
         }
-        sendEmbedMessage(builder);
+        if (CONFIG.discord.mentionOnClientDisconnected) {
+            sendEmbedMessage(mentionAccountOwner(), embed);
+        } else {
+            sendEmbedMessage(embed);
+        }
     }
 
     public void handleVisualRangeEnterEvent(VisualRangeEnterEvent event) {
@@ -312,14 +356,14 @@ public class DiscordEventListener {
     }
 
     public void handleNonWhitelistedPlayerConnectedEvent(NonWhitelistedPlayerConnectedEvent event) {
-        var builder = Embed.builder()
+        var embed = Embed.builder()
             .title("Non-Whitelisted Player Connected")
             .errorColor();
         if (nonNull(event.remoteAddress()) && CONFIG.discord.showNonWhitelistLoginIP) {
-            builder = builder.addField("IP", escape(event.remoteAddress().toString()), false);
+            embed = embed.addField("IP", escape(event.remoteAddress().toString()), false);
         }
         if (nonNull(event.gameProfile()) && nonNull(event.gameProfile().getId()) && nonNull(event.gameProfile().getName())) {
-            builder
+            embed
                 .addField("Username", escape(event.gameProfile().getName()), false)
                 .addField("Player UUID", ("[" + event.gameProfile().getId().toString() + "](https://namemc.com/profile/" + event.gameProfile().getId().toString() + ")"), true)
                 .thumbnail(Proxy.getInstance().getAvatarURL(event.gameProfile().getId()).toString());
@@ -328,9 +372,11 @@ public class DiscordEventListener {
             final Function<ButtonInteractionEvent, Publisher<Mono<?>>> mapper = e -> {
                 if (e.getCustomId().equals(buttonId)) {
                     if (validateButtonInteractionEventFromAccountOwner(e)) {
-                        DISCORD_LOG.info(e.getInteraction().getMember()
-                                             .map(User::getTag).orElse("Unknown")
-                                             + " whitelisted " + event.gameProfile().getName() + " [" + event.gameProfile().getId().toString() + "]");
+                        DISCORD_LOG.info("{} whitelisted {} [{}]",
+                                         e.getInteraction().getMember()
+                                             .map(User::getTag).orElse("Unknown"),
+                                         event.gameProfile().getName(),
+                                         event.gameProfile().getId().toString());
                         PLAYER_LISTS.getWhitelist().add(event.gameProfile().getName());
                         e.reply().withEmbeds(Embed.builder()
                                                  .title("Player Whitelisted")
@@ -341,9 +387,11 @@ public class DiscordEventListener {
                                                  .toSpec()).block();
                         saveConfigAsync();
                     } else {
-                        DISCORD_LOG.error(e.getInteraction().getMember()
-                                              .map(User::getTag).orElse("Unknown")
-                                              + " attempted to whitelist " + event.gameProfile().getName() + " [" + event.gameProfile().getId().toString() + "] but was not authorized to do so!");
+                        DISCORD_LOG.error("{} attempted to whitelist {} [{}] but was not authorized to do so!",
+                                          e.getInteraction().getMember()
+                                              .map(User::getTag).orElse("Unknown"),
+                                          event.gameProfile().getName(),
+                                          event.gameProfile().getId().toString());
                         e.reply().withEmbeds(Embed.builder()
                                                  .title("Not Authorized!")
                                                  .errorColor()
@@ -355,25 +403,32 @@ public class DiscordEventListener {
                 }
                 return Mono.empty();
             };
-            sendEmbedMessageWithButtons(builder, buttons, mapper, Duration.ofHours(1L));
+            sendEmbedMessageWithButtons(embed, buttons, mapper, Duration.ofHours(1L));
         } else { // shouldn't be possible if verifyUsers is enabled
             if (nonNull(event.gameProfile())) {
-                builder
+                embed
                     .addField("Username", escape(event.gameProfile().getName()), false);
             }
-            sendEmbedMessage(builder);
+            if (CONFIG.discord.mentionOnNonWhitelistedClientConnected) {
+                sendEmbedMessage(mentionAccountOwner(), embed);
+            } else {
+                sendEmbedMessage(embed);
+            }
         }
     }
 
     public void handleProxySpectatorDisconnectedEvent(ProxySpectatorDisconnectedEvent event) {
-        if (CONFIG.client.extra.clientConnectionMessages) {
-            var builder = Embed.builder()
-                .title("Spectator Disconnected")
-                .errorColor();
-            if (nonNull(event.clientGameProfile())) {
-                builder = builder.addField("Username", escape(event.clientGameProfile().getName()), false);
-            }
-            sendEmbedMessage(builder);
+        if (!CONFIG.discord.clientConnectionMessages) return;
+        var embed = Embed.builder()
+            .title("Spectator Disconnected")
+            .errorColor();
+        if (nonNull(event.clientGameProfile())) {
+            embed = embed.addField("Username", escape(event.clientGameProfile().getName()), false);
+        }
+        if (CONFIG.discord.mentionOnSpectatorDisconnected) {
+            sendEmbedMessage(mentionAccountOwner(), embed);
+        } else {
+            sendEmbedMessage(embed);
         }
     }
 
@@ -557,17 +612,27 @@ public class DiscordEventListener {
     }
 
     public void handleServerRestartingEvent(ServerRestartingEvent event) {
-        sendEmbedMessage(Embed.builder()
-                             .title("Server Restarting")
-                             .errorColor()
-                             .addField("Message", event.message(), true));
+        var embed = Embed.builder()
+            .title("Server Restarting")
+            .errorColor()
+            .addField("Message", event.message(), true);
+        if (CONFIG.discord.mentionRoleOnServerRestart) {
+            sendEmbedMessage(mentionAccountOwner(), embed);
+        } else {
+            sendEmbedMessage(embed);
+        }
     }
 
     public void handleProxyLoginFailedEvent(ProxyLoginFailedEvent event) {
-        sendEmbedMessage(Embed.builder()
-                             .title("Login Failed")
-                             .errorColor()
-                             .addField("Help", "Try waiting and connecting again.", false));
+        var embed = Embed.builder()
+            .title("Login Failed")
+            .errorColor()
+            .addField("Help", "Try waiting and connecting again.", false);
+        if (CONFIG.discord.mentionRoleOnLoginFailed) {
+            sendEmbedMessage(mentionAccountOwner(), embed);
+        } else {
+            sendEmbedMessage(embed);
+        }
     }
 
     public void handleStartConnectEvent(StartConnectEvent event) {
@@ -578,33 +643,41 @@ public class DiscordEventListener {
 
     public void handlePrioStatusUpdateEvent(PrioStatusUpdateEvent event) {
         if (!CONFIG.client.extra.prioStatusChangeMention) return;
-        var embedCreateSpec = Embed.builder();
+        var embed = Embed.builder();
         if (event.prio()) {
-            embedCreateSpec
+            embed
                 .title("Prio Queue Status Detected")
                 .successColor();
         } else {
-            embedCreateSpec
+            embed
                 .title("Prio Queue Status Lost")
                 .errorColor();
         }
-        embedCreateSpec.addField("User", escape(CONFIG.authentication.username), false);
-        sendEmbedMessage((CONFIG.discord.mentionRoleOnPrioUpdate ? mentionAccountOwner() : ""), embedCreateSpec);
+        embed.addField("User", escape(CONFIG.authentication.username), false);
+        if (CONFIG.discord.mentionRoleOnPrioUpdate) {
+            sendEmbedMessage(mentionAccountOwner(), embed);
+        } else {
+            sendEmbedMessage(embed);
+        }
     }
 
     public void handlePrioBanStatusUpdateEvent(PrioBanStatusUpdateEvent event) {
-        var embedCreateSpec = Embed.builder();
+        var embed = Embed.builder();
         if (event.prioBanned()) {
-            embedCreateSpec
+            embed
                 .title("Prio Ban Detected")
                 .errorColor();
         } else {
-            embedCreateSpec
+            embed
                 .title("Prio Unban Detected")
                 .successColor();
         }
-        embedCreateSpec.addField("User", escape(CONFIG.authentication.username), false);
-        sendEmbedMessage((CONFIG.discord.mentionRoleOnPrioBanUpdate ? mentionAccountOwner() : ""), embedCreateSpec);
+        embed.addField("User", escape(CONFIG.authentication.username), false);
+        if (CONFIG.discord.mentionRoleOnPrioBanUpdate) {
+            sendEmbedMessage(mentionAccountOwner(), embed);
+        } else {
+            sendEmbedMessage(embed);
+        }
     }
 
     public void handleAutoReconnectEvent(final AutoReconnectEvent event) {
@@ -637,17 +710,17 @@ public class DiscordEventListener {
     }
 
     public void handleUpdateAvailableEvent(final UpdateAvailableEvent event) {
-        var embedBuilder = Embed.builder()
+        var embed = Embed.builder()
             .title("Update Available!")
             .primaryColor();
-        event.getVersion().ifPresent(v -> embedBuilder
+        event.getVersion().ifPresent(v -> embed
             .addField("Current", "`" + escape(LAUNCH_CONFIG.version) + "`", false)
             .addField("New", "`" + escape(v) + "`", false));
-        embedBuilder.addField(
+        embed.addField(
             "Info",
             "Update will be applied after the next disconnect.\nOr apply now: `update`",
             false);
-        sendEmbedMessage(embedBuilder);
+        sendEmbedMessage(embed);
     }
 
     public void handleReplayStartedEvent(final ReplayStartedEvent event) {
