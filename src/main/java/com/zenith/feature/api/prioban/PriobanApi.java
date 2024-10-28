@@ -18,6 +18,11 @@ public class PriobanApi extends Api {
         super("https://shop.2b2t.org");
     }
 
+    /**
+     * Note: the webstore is behind Cloudflare, so its highly likely it receives a cloudflare challenge
+     * which we do not currently handle at all
+     * This might not happen on home internet connections, but from VPS's it is very likely
+     */
     public Optional<Boolean> checkPrioBan(String playerName) {
         HttpRequest request = buildBaseRequest("/checkout/packages/add/1994962/single")
             .POST(HttpRequest.BodyPublishers.ofString("ign=" + playerName))
@@ -27,6 +32,11 @@ public class PriobanApi extends Api {
             var r = client
                 .send(request, HttpResponse.BodyHandlers.ofString());
             try {
+                var cfMitigatedHeader = r.headers().map().get("cf-mitigated");
+                if (cfMitigatedHeader != null && cfMitigatedHeader.contains("challenge")) {
+                    DEFAULT_LOG.warn("[PrioBan Check] Received Cloudflare challenge, unable to proceed");
+                    return Optional.empty();
+                }
                 List<String> cookies = r.headers().map().get("Set-Cookie");
                 Optional<String> buycraftBasketCookie = cookies.stream()
                     .filter(c -> c.startsWith("buycraft_basket"))
@@ -39,15 +49,15 @@ public class PriobanApi extends Api {
                 else if (bannedCookie.isPresent())
                     return Optional.of(true);
                 else {
-                    DEFAULT_LOG.warn("Unexpected response from 2b2t webstore: {}\n{}", cookies);
+                    DEFAULT_LOG.warn("[PrioBan Check] Unexpected response from 2b2t webstore: {}\n{}", r.statusCode(), cookies);
                     return Optional.empty();
                 }
             } catch (final Exception e) {
-                DEFAULT_LOG.error("Unable to parse response cookies from 2b2t webstore", e);
+                DEFAULT_LOG.error("[PrioBan Check] Unable to parse response cookies from 2b2t webstore", e);
                 return Optional.empty();
             }
         } catch (Exception e) {
-            DEFAULT_LOG.error("Failed to parse response", e);
+            DEFAULT_LOG.error("[PrioBan Check] Failed to parse response", e);
             return Optional.empty();
         }
     }
