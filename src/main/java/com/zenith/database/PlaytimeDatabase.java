@@ -153,7 +153,7 @@ public class PlaytimeDatabase extends LockingDatabase {
                         final var event = events.get(i);
                         if (lastType == event.type()) {
                             DATABASE_LOG.error("consecutive events of the same type: {} - {}", lastType, event.type());
-                            continue;
+                            break;
                         }
                         lastType = event.type();
                         switch (event.type()) {
@@ -164,13 +164,13 @@ public class PlaytimeDatabase extends LockingDatabase {
                                 } else {
                                     if (CACHE.getTabListCache().get(playerUuid).isEmpty()) {
                                         DATABASE_LOG.error("last join event player not in tablist: {} - {}", playerUuid, playerName);
-                                        continue;
+                                        break;
                                     }
                                     // last event and player is currently online
-                                    long playtimeDelta = nowSeconds - prevTime;
+                                    long playtimeDelta = nowSeconds - event.time();
                                     if (playtimeDelta < 0) {
                                         DATABASE_LOG.error("last join playtime delta is negative: {} - {} - {}", playtimeDelta, nowSeconds, prevTime);
-                                        continue;
+                                        break;
                                     }
                                     batch.bind("player_uuid", playerUuid)
                                         .bind("player_name", playerName)
@@ -183,7 +183,7 @@ public class PlaytimeDatabase extends LockingDatabase {
                                 long playtimeDelta = event.time() - prevTime;
                                 if (playtimeDelta < 0) {
                                     DATABASE_LOG.error("leave playtime delta is negative: {} - {} - {}", playtimeDelta, nowSeconds, prevTime);
-                                    continue;
+                                    break;
                                 }
                                 batch.bind("player_uuid", playerUuid)
                                     .bind("player_name", playerName)
