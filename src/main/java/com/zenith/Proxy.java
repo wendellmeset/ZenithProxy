@@ -90,7 +90,6 @@ public class Proxy {
     @Setter @Nullable private Instant connectTime;
     private Instant disconnectTime = Instant.now();
     private Optional<Boolean> isPrio = Optional.empty();
-    private Optional<Boolean> isPrioBanned = Optional.empty();
     @Getter private final AtomicBoolean loggingIn = new AtomicBoolean(false);
     @Setter @NotNull private AutoUpdater autoUpdater = NoOpAutoUpdater.INSTANCE;
     private LanBroadcaster lanBroadcaster;
