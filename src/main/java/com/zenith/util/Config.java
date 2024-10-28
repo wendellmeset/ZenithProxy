@@ -609,54 +609,23 @@ public final class Config {
         public int port = 5432;
         public String username = "";
         public String password = "";
-        public final QueueWait queueWait = new QueueWait();
-        public final Connections connections = new Connections();
-        public final Chats chats = new Chats();
-        public final Deaths deaths = new Deaths();
-        public final QueueLength queueLength = new QueueLength();
-        public final Restarts restarts = new Restarts();
-        public final PlayerCount playerCount = new PlayerCount();
-        public final Tablist tablist = new Tablist();
+        public boolean queueWaitEnabled = true;
+        public boolean connectionsEnabled = true;
+        public boolean chatsEnabled = true;
+        public boolean deathsEnabled = true;
+        public boolean unknownDeathDiscordMsg = true;
+        public boolean queueLengthEnabled = true;
+        public boolean restartsEnabled = true;
+        public boolean playerCountEnabled = true;
+        public boolean tablistEnabled = true;
+        public boolean playtimeEnabled = true;
         public final Lock lock = new Lock();
-
-        public static final class QueueWait {
-            public boolean enabled = true;
-        }
 
         public static final class Lock {
             // use "rediss://" for SSL connection
             public String redisAddress = "redis://localhost:7181";
             public String redisUsername = "";
             public String redisPassword = "";
-        }
-
-        public static final class Connections {
-            public boolean enabled = true;
-        }
-
-        public static final class Chats {
-            public boolean enabled = true;
-        }
-
-        public static final class Deaths {
-            public boolean enabled = true;
-            public boolean unknownDeathDiscordMsg = false;
-        }
-
-        public static final class QueueLength {
-            public boolean enabled = true;
-        }
-
-        public static final class Restarts {
-            public boolean enabled = true;
-        }
-
-        public static final class PlayerCount {
-            public boolean enabled = true;
-        }
-
-        public static final class Tablist {
-            public boolean enabled = true;
         }
     }
 

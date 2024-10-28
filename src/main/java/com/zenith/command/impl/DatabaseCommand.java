@@ -33,7 +33,8 @@ public class DatabaseCommand extends Command {
                 "deathMessages on/off",
                 "restarts on/off",
                 "playerCount on/off",
-                "tablist on/off"
+                "tablist on/off",
+                "playtime on/off"
             ),
             asList("db")
         );
@@ -53,89 +54,99 @@ public class DatabaseCommand extends Command {
             }))
             .then(literal("queueWait")
                       .then(argument("toggle", toggle()).executes(c -> {
-                            CONFIG.database.queueWait.enabled = getToggle(c, "toggle");
-                            if (CONFIG.database.queueWait.enabled) DATABASE.startQueueWaitDatabase();
-                            else DATABASE.stopQueueWaitDatabase();
-                            c.getSource().getEmbed()
-                                .title("Queue Wait Database " + toggleStrCaps(CONFIG.database.queueWait.enabled));
-                            return OK;
+                          CONFIG.database.queueWaitEnabled = getToggle(c, "toggle");
+                          if (CONFIG.database.queueWaitEnabled) DATABASE.startQueueWaitDatabase();
+                          else DATABASE.stopQueueWaitDatabase();
+                          c.getSource().getEmbed()
+                              .title("Queue Wait Database " + toggleStrCaps(CONFIG.database.queueWaitEnabled));
+                          return OK;
                       })))
             .then(literal("queueLength")
                       .then(argument("toggle", toggle()).executes(c -> {
-                            CONFIG.database.queueLength.enabled = getToggle(c, "toggle");
-                            if (CONFIG.database.queueLength.enabled) DATABASE.startQueueLengthDatabase();
-                            else DATABASE.stopQueueLengthDatabase();
-                            c.getSource().getEmbed()
-                                .title("Queue Length Database " + toggleStrCaps(CONFIG.database.queueLength.enabled));
-                            return OK;
+                          CONFIG.database.queueLengthEnabled = getToggle(c, "toggle");
+                          if (CONFIG.database.queueLengthEnabled) DATABASE.startQueueLengthDatabase();
+                          else DATABASE.stopQueueLengthDatabase();
+                          c.getSource().getEmbed()
+                              .title("Queue Length Database " + toggleStrCaps(CONFIG.database.queueLengthEnabled));
+                          return OK;
                       })))
             .then(literal("publicChat")
                       .then(argument("toggle", toggle()).executes(c -> {
-                            CONFIG.database.chats.enabled = getToggle(c, "toggle");
-                            if (CONFIG.database.chats.enabled) DATABASE.startChatsDatabase();
-                            else DATABASE.stopChatsDatabase();
-                            c.getSource().getEmbed()
-                                .title("Public Chat Database " + toggleStrCaps(CONFIG.database.chats.enabled));
-                            return OK;
+                          CONFIG.database.chatsEnabled = getToggle(c, "toggle");
+                          if (CONFIG.database.chatsEnabled) DATABASE.startChatsDatabase();
+                          else DATABASE.stopChatsDatabase();
+                          c.getSource().getEmbed()
+                              .title("Public Chat Database " + toggleStrCaps(CONFIG.database.chatsEnabled));
+                          return OK;
                       })))
             .then(literal("joinLeave")
                       .then(argument("toggle", toggle()).executes(c -> {
-                            CONFIG.database.connections.enabled = getToggle(c, "toggle");
-                            if (CONFIG.database.connections.enabled) DATABASE.startConnectionsDatabase();
-                            else DATABASE.stopConnectionsDatabase();
-                            c.getSource().getEmbed()
-                                .title("Connections Database " + toggleStrCaps(CONFIG.database.connections.enabled));
-                            return OK;
+                          CONFIG.database.connectionsEnabled = getToggle(c, "toggle");
+                          if (CONFIG.database.connectionsEnabled) DATABASE.startConnectionsDatabase();
+                          else DATABASE.stopConnectionsDatabase();
+                          c.getSource().getEmbed()
+                              .title("Connections Database " + toggleStrCaps(CONFIG.database.connectionsEnabled));
+                          return OK;
                       })))
             .then(literal("deathMessages")
                       .then(argument("toggle", toggle()).executes(c -> {
-                            CONFIG.database.deaths.enabled = getToggle(c, "toggle");
-                            if (CONFIG.database.deaths.enabled) DATABASE.startDeathsDatabase();
-                            else DATABASE.stopDeathsDatabase();
-                            c.getSource().getEmbed()
-                                .title("Death Messages Database " + toggleStrCaps(CONFIG.database.deaths.enabled));
-                            return OK;
+                          CONFIG.database.deathsEnabled = getToggle(c, "toggle");
+                          if (CONFIG.database.deathsEnabled) DATABASE.startDeathsDatabase();
+                          else DATABASE.stopDeathsDatabase();
+                          c.getSource().getEmbed()
+                              .title("Death Messages Database " + toggleStrCaps(CONFIG.database.deathsEnabled));
+                          return OK;
                       })))
             .then(literal("restarts")
-                        .then(argument("toggle", toggle()).executes(c -> {
-                                CONFIG.database.restarts.enabled = getToggle(c, "toggle");
-                                if (CONFIG.database.restarts.enabled) DATABASE.startRestartsDatabase();
-                                else DATABASE.stopRestartsDatabase();
-                                c.getSource().getEmbed()
-                                    .title("Restarts Database " + toggleStrCaps(CONFIG.database.restarts.enabled));
-                                return OK;
-                        })))
+                      .then(argument("toggle", toggle()).executes(c -> {
+                          CONFIG.database.restartsEnabled = getToggle(c, "toggle");
+                          if (CONFIG.database.restartsEnabled) DATABASE.startRestartsDatabase();
+                          else DATABASE.stopRestartsDatabase();
+                          c.getSource().getEmbed()
+                              .title("Restarts Database " + toggleStrCaps(CONFIG.database.restartsEnabled));
+                          return OK;
+                      })))
             .then(literal("playerCount")
-                        .then(argument("toggle", toggle()).executes(c -> {
-                                CONFIG.database.playerCount.enabled = getToggle(c, "toggle");
-                                if (CONFIG.database.playerCount.enabled) DATABASE.startPlayerCountDatabase();
-                                else DATABASE.stopPlayerCountDatabase();
-                                c.getSource().getEmbed()
-                                    .title("Player Count Database " + toggleStrCaps(CONFIG.database.playerCount.enabled));
-                                return OK;
-                        })))
+                      .then(argument("toggle", toggle()).executes(c -> {
+                          CONFIG.database.playerCountEnabled = getToggle(c, "toggle");
+                          if (CONFIG.database.playerCountEnabled) DATABASE.startPlayerCountDatabase();
+                          else DATABASE.stopPlayerCountDatabase();
+                          c.getSource().getEmbed()
+                              .title("Player Count Database " + toggleStrCaps(CONFIG.database.playerCountEnabled));
+                          return OK;
+                      })))
             .then(literal("tablist")
-                        .then(argument("toggle", toggle()).executes(c -> {
-                                CONFIG.database.tablist.enabled = getToggle(c, "toggle");
-                                if (CONFIG.database.tablist.enabled) DATABASE.startTablistDatabase();
-                                else DATABASE.stopTablistDatabase();
-                                c.getSource().getEmbed()
-                                    .title("Tablist Database " + toggleStrCaps(CONFIG.database.tablist.enabled));
-                                return OK;
-                        })));
+                      .then(argument("toggle", toggle()).executes(c -> {
+                          CONFIG.database.tablistEnabled = getToggle(c, "toggle");
+                          if (CONFIG.database.tablistEnabled) DATABASE.startTablistDatabase();
+                          else DATABASE.stopTablistDatabase();
+                          c.getSource().getEmbed()
+                              .title("Tablist Database " + toggleStrCaps(CONFIG.database.tablistEnabled));
+                          return OK;
+                      })))
+            .then(literal("playtime")
+                      .then(argument("toggle", toggle()).executes(c -> {
+                          CONFIG.database.playtimeEnabled = getToggle(c, "toggle");
+                          if (CONFIG.database.playtimeEnabled) DATABASE.startPlaytimeDatabase();
+                          else DATABASE.stopPlaytimeDatabase();
+                          c.getSource().getEmbed()
+                              .title("Playtime Database " + toggleStrCaps(CONFIG.database.playtimeEnabled));
+                          return OK;
+                      })));
     }
 
     @Override
     public void postPopulate(final Embed builder) {
         builder
-            .addField("Queue Wait", toggleStr(CONFIG.database.queueWait.enabled), false)
-            .addField("Queue Length", toggleStr(CONFIG.database.queueLength.enabled), false)
-            .addField("Public Chat", toggleStr(CONFIG.database.chats.enabled), false)
-            .addField("Join/Leave", toggleStr(CONFIG.database.connections.enabled), false)
-            .addField("Death Messages", toggleStr(CONFIG.database.deaths.enabled), false)
-            .addField("Restarts", toggleStr(CONFIG.database.restarts.enabled), false)
-            .addField("Player Count", toggleStr(CONFIG.database.playerCount.enabled), false)
-            .addField("Tablist", toggleStr(CONFIG.database.tablist.enabled), false)
+            .addField("Queue Wait", toggleStr(CONFIG.database.queueWaitEnabled), false)
+            .addField("Queue Length", toggleStr(CONFIG.database.queueLengthEnabled), false)
+            .addField("Public Chat", toggleStr(CONFIG.database.chatsEnabled), false)
+            .addField("Join/Leave", toggleStr(CONFIG.database.connectionsEnabled), false)
+            .addField("Death Messages", toggleStr(CONFIG.database.deathsEnabled), false)
+            .addField("Restarts", toggleStr(CONFIG.database.restartsEnabled), false)
+            .addField("Player Count", toggleStr(CONFIG.database.playerCountEnabled), false)
+            .addField("Tablist", toggleStr(CONFIG.database.tablistEnabled), false)
+            .addField("Playtime", toggleStr(CONFIG.database.playtimeEnabled), false)
             .primaryColor();
     }
 }

@@ -2283,87 +2283,7 @@
       ]
     },
     {
-      "type": "com.zenith.util.Config$Database$Chats",
-      "allDeclaredFields": true,
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "type": "com.zenith.util.Config$Database$Connections",
-      "allDeclaredFields": true,
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "type": "com.zenith.util.Config$Database$Deaths",
-      "allDeclaredFields": true,
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
       "type": "com.zenith.util.Config$Database$Lock",
-      "allDeclaredFields": true,
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "type": "com.zenith.util.Config$Database$PlayerCount",
-      "allDeclaredFields": true,
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "type": "com.zenith.util.Config$Database$QueueLength",
-      "allDeclaredFields": true,
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "type": "com.zenith.util.Config$Database$QueueWait",
-      "allDeclaredFields": true,
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "type": "com.zenith.util.Config$Database$Restarts",
-      "allDeclaredFields": true,
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "type": "com.zenith.util.Config$Database$Tablist",
       "allDeclaredFields": true,
       "methods": [
         {
@@ -3679,6 +3599,9 @@
       ]
     },
     {
+      "type": "java.util.Collections"
+    },
+    {
       "type": "java.util.Collections$UnmodifiableMap",
       "methods": [
         {
@@ -3897,6 +3820,12 @@
         {
           "name": "getConnectionId",
           "parameterTypes": []
+        },
+        {
+          "name": "getDefaultDomain",
+          "parameterTypes": [
+            "javax.security.auth.Subject"
+          ]
         },
         {
           "name": "isInstanceOf",
@@ -6429,6 +6358,13 @@
           ]
         }
       ]
+    },
+    {
+      "type": {
+        "proxy": [
+          "java.sql.Connection"
+        ]
+      }
     }
   ],
   "serialization": [

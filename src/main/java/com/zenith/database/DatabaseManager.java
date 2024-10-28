@@ -25,6 +25,7 @@ public class DatabaseManager {
     private RestartsDatabase restartsDatabase;
     private PlayerCountDatabase playerCountDatabase;
     private TablistDatabase tablistDatabase;
+    private PlaytimeDatabase playtimeDatabase;
     private QueryExecutor queryExecutor;
     private RedisClient redisClient;
     private ScheduledFuture<?> databaseTickFuture;
@@ -36,38 +37,41 @@ public class DatabaseManager {
     public void start() {
         try {
             this.queryExecutor = new QueryExecutor(getJdbi());
-            if (CONFIG.database.queueWait.enabled) {
+            if (CONFIG.database.queueWaitEnabled) {
                 startQueueWaitDatabase();
             }
-            if (CONFIG.database.connections.enabled) {
+            if (CONFIG.database.connectionsEnabled) {
                 startConnectionsDatabase();
             }
-            if (CONFIG.database.chats.enabled) {
+            if (CONFIG.database.chatsEnabled) {
                 startChatsDatabase();
             }
-            if (CONFIG.database.deaths.enabled) {
+            if (CONFIG.database.deathsEnabled) {
                 startDeathsDatabase();
             }
-            if (CONFIG.database.queueLength.enabled) {
+            if (CONFIG.database.queueLengthEnabled) {
                 startQueueLengthDatabase();
             }
-            if (CONFIG.database.restarts.enabled) {
+            if (CONFIG.database.restartsEnabled) {
                 startRestartsDatabase();
             }
-            if (CONFIG.database.playerCount.enabled) {
+            if (CONFIG.database.playerCountEnabled) {
                 startPlayerCountDatabase();
             }
-            if (CONFIG.database.tablist.enabled) {
+            if (CONFIG.database.tablistEnabled) {
                 startTablistDatabase();
+            }
+            if (CONFIG.database.playtimeEnabled) {
+                startPlaytimeDatabase();
             }
             if (databaseTickFuture != null) {
                 databaseTickFuture.cancel(false);
             }
             databaseTickFuture = EXECUTOR
                 .scheduleAtFixedRate(this::postDatabaseTick,
-                                     1L,
-                                        5L,
-                                        TimeUnit.MINUTES);
+                                     DatabaseTickEvent.TICK_INTERVAL_SECONDS,
+                                     DatabaseTickEvent.TICK_INTERVAL_SECONDS,
+                                     TimeUnit.SECONDS);
         } catch (final Exception e) {
             DATABASE_LOG.error("Failed starting databases", e);
         }
@@ -84,6 +88,7 @@ public class DatabaseManager {
             stopRestartsDatabase();
             stopPlayerCountDatabase();
             stopTablistDatabase();
+            stopPlaytimeDatabase();
         } catch (final Exception e) {
             DATABASE_LOG.error("Failed stopping databases", e);
         }
@@ -217,6 +222,21 @@ public class DatabaseManager {
     public void stopTablistDatabase() {
         if (nonNull(this.tablistDatabase)) {
             this.tablistDatabase.stop();
+        }
+    }
+
+    public void startPlaytimeDatabase() {
+        if (nonNull(this.playtimeDatabase)) {
+            this.playtimeDatabase.start();
+        } else {
+            this.playtimeDatabase = new PlaytimeDatabase(queryExecutor, getRedisClient());
+            this.playtimeDatabase.start();
+        }
+    }
+
+    public void stopPlaytimeDatabase() {
+        if (nonNull(this.playtimeDatabase)) {
+            this.playtimeDatabase.stop();
         }
     }
 
