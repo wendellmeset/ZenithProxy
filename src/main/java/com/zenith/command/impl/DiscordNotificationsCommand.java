@@ -9,6 +9,8 @@ import com.zenith.discord.Embed;
 import discord4j.common.util.Snowflake;
 import discord4j.core.util.MentionUtil;
 
+import java.util.regex.Pattern;
+
 import static com.zenith.Shared.CONFIG;
 import static com.zenith.Shared.DISCORD_LOG;
 import static com.zenith.command.brigadier.CustomStringArgumentType.getString;
@@ -18,6 +20,8 @@ import static com.zenith.command.brigadier.ToggleArgumentType.toggle;
 import static java.util.Arrays.asList;
 
 public class DiscordNotificationsCommand extends Command {
+    private static final Pattern ROLE_ID_PATTERN = Pattern.compile("<@&\\d+>");
+
     @Override
     public CommandUsage commandUsage() {
         return CommandUsage.full(
@@ -52,8 +56,12 @@ public class DiscordNotificationsCommand extends Command {
             .then(literal("role").requires(Command::validateAccountOwner)
                       .then(literal("set").then(argument("roleId", wordWithChars()).executes(c -> {
                           var roleStr = getString(c, "roleId");
+                          if (ROLE_ID_PATTERN.matcher(roleStr).matches()) {
+                              roleStr = roleStr.substring(3, roleStr.length() - 1);
+                          }
                           try {
                               Snowflake.of(roleStr);
+                              if (roleStr.length() < 5) throw new NumberFormatException();
                           } catch (final Exception e) {
                               c.getSource().getEmbed()
                                   .title("Invalid role ID");
