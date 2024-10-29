@@ -20,7 +20,7 @@ public class PlaytimeDatabase extends LockingDatabase {
     private final Map<GameProfile, List<ConnectionEvent>> connectionEvents = new ConcurrentHashMap<>();
     private Instant prevSyncTime = Instant.now();
 
-    private record ConnectionEvent(Connectiontype type, Long time) {}
+    private record ConnectionEvent(Connectiontype type, long time) {}
 
     public PlaytimeDatabase(final QueryExecutor queryExecutor, final RedisClient redisClient) {
         super(queryExecutor, redisClient);
@@ -37,7 +37,7 @@ public class PlaytimeDatabase extends LockingDatabase {
     public Instant getLastEntryTime() {
         try (var handle = this.queryExecutor.jdbi().open()) {
             // todo: add index to last_updated
-            var result = handle.select("SELECT last_updated FROM playtime ORDER BY last_updated DESC LIMIT 1;")
+            var result = handle.select("SELECT end_time FROM playtime_events ORDER BY end_time DESC LIMIT 1;")
                 .mapTo(OffsetDateTime.class)
                 .findOne();
             if (result.isEmpty()) {
@@ -111,13 +111,14 @@ public class PlaytimeDatabase extends LockingDatabase {
     }
 
     private void updatePlaytime() {
-        var beforeTime = prevSyncTime.getEpochSecond();
+        var beforeTime = prevSyncTime.atOffset(ZoneOffset.UTC);
+        var beforeTimeLong = prevSyncTime.getEpochSecond();
         prevSyncTime = Instant.now();
         var now = Instant.now().atOffset(ZoneOffset.UTC);
         var nowSeconds = now.toEpochSecond();
-        var timeDelta = nowSeconds - beforeTime;
+        var timeDelta = nowSeconds - beforeTimeLong;
         if (timeDelta < 0) {
-            DATABASE_LOG.error("playtime interval delta is negative: {} - {} - {}", timeDelta, now.toEpochSecond(), beforeTime);
+            DATABASE_LOG.error("playtime interval delta is negative: {} - {} - {}", timeDelta, now.toEpochSecond(), beforeTimeLong);
             return;
         }
         try (var handle = this.queryExecutor.jdbi().open()) {
@@ -125,11 +126,7 @@ public class PlaytimeDatabase extends LockingDatabase {
                 var tablistEntries = CACHE.getTabListCache().getEntries();
                 var batch = transaction.prepareBatch(
                     """
-                    INSERT INTO playtime (player_uuid, player_name, playtime_seconds, last_updated) VALUES (:player_uuid, :player_name, :playtime_seconds, :last_updated) \
-                    ON CONFLICT (player_uuid) DO UPDATE SET \
-                      playtime_seconds = playtime.playtime_seconds + excluded.playtime_seconds, \
-                      player_name = excluded.player_name, \
-                      last_updated = excluded.last_updated;
+                    INSERT INTO playtime_events (player_uuid, player_name, playtime_seconds, start_time, end_time) VALUES (:player_uuid, :player_name, :playtime_seconds, :start_time, :end_time);
                     """);
                 for (var entry : tablistEntries) {
                     if (connectionEvents.containsKey(entry.getProfile())) continue;
@@ -139,7 +136,8 @@ public class PlaytimeDatabase extends LockingDatabase {
                     batch.bind("player_uuid", playerUuid)
                         .bind("player_name", playerName)
                         .bind("playtime_seconds", timeDelta)
-                        .bind("last_updated", now)
+                        .bind("start_time", beforeTime)
+                        .bind("end_time", now)
                         .add();
                 }
                 for (var entry : connectionEvents.entrySet()) {
@@ -147,7 +145,7 @@ public class PlaytimeDatabase extends LockingDatabase {
                     var playerUuid = gameProfile.getId();
                     var playerName = gameProfile.getName();
                     var events = entry.getValue();
-                    long prevTime = beforeTime;
+                    long prevTime = beforeTimeLong;
                     Connectiontype lastType = null;
                     for (int i = 0; i < events.size(); i++) {
                         final var event = events.get(i);
@@ -175,7 +173,8 @@ public class PlaytimeDatabase extends LockingDatabase {
                                     batch.bind("player_uuid", playerUuid)
                                         .bind("player_name", playerName)
                                         .bind("playtime_seconds", playtimeDelta)
-                                        .bind("last_updated", now)
+                                        .bind("start_time", Instant.ofEpochSecond(event.time()).atOffset(ZoneOffset.UTC))
+                                        .bind("end_time", now)
                                         .add();
                                 }
                             }
@@ -188,7 +187,8 @@ public class PlaytimeDatabase extends LockingDatabase {
                                 batch.bind("player_uuid", playerUuid)
                                     .bind("player_name", playerName)
                                     .bind("playtime_seconds", playtimeDelta)
-                                    .bind("last_updated", Instant.ofEpochSecond(event.time()).atOffset(ZoneOffset.UTC))
+                                    .bind("start_time", Instant.ofEpochSecond(prevTime).atOffset(ZoneOffset.UTC))
+                                    .bind("end_time", Instant.ofEpochSecond(event.time()).atOffset(ZoneOffset.UTC))
                                     .add();
                             }
                         }
