@@ -6,8 +6,13 @@ import com.zenith.command.CommandUsage;
 import com.zenith.command.brigadier.CommandCategory;
 import com.zenith.command.brigadier.CommandContext;
 import com.zenith.discord.Embed;
+import discord4j.common.util.Snowflake;
+import discord4j.core.util.MentionUtil;
 
 import static com.zenith.Shared.CONFIG;
+import static com.zenith.Shared.DISCORD_LOG;
+import static com.zenith.command.brigadier.CustomStringArgumentType.getString;
+import static com.zenith.command.brigadier.CustomStringArgumentType.wordWithChars;
 import static com.zenith.command.brigadier.ToggleArgumentType.getToggle;
 import static com.zenith.command.brigadier.ToggleArgumentType.toggle;
 import static java.util.Arrays.asList;
@@ -22,6 +27,8 @@ public class DiscordNotificationsCommand extends Command {
             Configures various discord notifications regarding player and proxy connections, deaths, and more.
             """,
             asList(
+                "role set <roleId>",
+                "role reset",
                 "connect mention on/off",
                 "online mention on/off",
                 "disconnect mention on/off",
@@ -35,13 +42,34 @@ public class DiscordNotificationsCommand extends Command {
                 "spectatorDisconnect mention on/off",
                 "nonWhitelistedConnect mention on/off"
             ),
-            asList("on/off")
+            asList("alerts", "notifications")
         );
     }
 
     @Override
     public LiteralArgumentBuilder<CommandContext> register() {
         return command("discordNotifications")
+            .then(literal("role").requires(Command::validateAccountOwner)
+                      .then(literal("set").then(argument("roleId", wordWithChars()).executes(c -> {
+                          var roleStr = getString(c, "roleId");
+                          try {
+                              Snowflake.of(roleStr);
+                          } catch (final Exception e) {
+                              c.getSource().getEmbed()
+                                  .title("Invalid role ID");
+                              return OK;
+                          }
+                          CONFIG.discord.notificationMentionRoleId = roleStr;
+                          c.getSource().getEmbed()
+                              .title("Notification Role Set");
+                          return OK;
+                      })))
+                      .then(literal("reset").executes(c -> {
+                            CONFIG.discord.notificationMentionRoleId = "";
+                            c.getSource().getEmbed()
+                                .title("Notification Role Reset");
+                            return OK;
+                      })))
             .then(literal("connect").then(literal("mention").then(argument("toggle", toggle()).executes(c -> {
                 CONFIG.discord.mentionRoleOnConnect = getToggle(c, "toggle");
                 c.getSource().getEmbed()
@@ -120,6 +148,9 @@ public class DiscordNotificationsCommand extends Command {
     public void postPopulate(final Embed builder) {
         builder
             .primaryColor()
+            .addField("Notification Role", CONFIG.discord.notificationMentionRoleId.isEmpty()
+                ? getRoleMention(CONFIG.discord.accountOwnerRoleId) + " (Manager)"
+                : getRoleMention(CONFIG.discord.notificationMentionRoleId), false)
             .addField("Connect Mention", toggleStr(CONFIG.discord.mentionRoleOnConnect), false)
             .addField("Online Mention", toggleStr(CONFIG.discord.mentionRoleOnPlayerOnline), false)
             .addField("Disconnect Mention", toggleStr(CONFIG.discord.mentionRoleOnDisconnect), false)
@@ -132,5 +163,14 @@ public class DiscordNotificationsCommand extends Command {
             .addField("Spectator Connect Mention", toggleStr(CONFIG.discord.mentionOnSpectatorConnected), false)
             .addField("Spectator Disconnect Mention", toggleStr(CONFIG.discord.mentionOnSpectatorDisconnected), false)
             .addField("Non Whitelisted Connect Mention", toggleStr(CONFIG.discord.mentionOnNonWhitelistedClientConnected), false);
+    }
+
+    private String getRoleMention(final String roleId) {
+        try {
+            return MentionUtil.forRole(Snowflake.of(roleId));
+        } catch (final NumberFormatException e) {
+            DISCORD_LOG.error("Unable to generate mention for role ID: {}", roleId, e);
+            return "";
+        }
     }
 }

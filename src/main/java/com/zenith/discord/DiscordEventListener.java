@@ -97,7 +97,7 @@ public class DiscordEventListener {
             .addField("Server", CONFIG.client.server.address, true)
             .addField("Proxy IP", CONFIG.server.getProxyAddress(), false);
         if (CONFIG.discord.mentionRoleOnConnect) {
-            sendEmbedMessage(mentionAccountOwner(), embed);
+            sendEmbedMessage(notificationMention(), embed);
         } else {
             sendEmbedMessage(embed);
         }
@@ -111,7 +111,7 @@ public class DiscordEventListener {
         event.queueWait()
             .ifPresent(duration -> embedBuilder.addField("Queue Duration", formatDuration(duration), true));
         if (CONFIG.discord.mentionRoleOnPlayerOnline) {
-            sendEmbedMessage(mentionAccountOwner(), embedBuilder);
+            sendEmbedMessage(notificationMention(), embedBuilder);
         } else {
             sendEmbedMessage(embedBuilder);
         }
@@ -145,7 +145,7 @@ public class DiscordEventListener {
             }
         }
         if (CONFIG.discord.mentionRoleOnDisconnect) {
-            sendEmbedMessage(mentionAccountOwner(), embed);
+            sendEmbedMessage(notificationMention(), embed);
         } else {
             sendEmbedMessage(embed);
         }
@@ -169,7 +169,7 @@ public class DiscordEventListener {
             .description("AutoEat threshold met but player has no food")
             .errorColor();
         if (CONFIG.client.extra.autoEat.warningMention) {
-            sendEmbedMessage(mentionAccountOwner(), embed);
+            sendEmbedMessage(notificationMention(), embed);
         } else {
             sendEmbedMessage(embed);
         }
@@ -186,7 +186,7 @@ public class DiscordEventListener {
             .addField("Regular Queue", Queue.getQueueStatus().regular(), true)
             .addField("Priority Queue", Queue.getQueueStatus().prio(), true);
         if (CONFIG.discord.mentionRoleOnStartQueue) {
-            sendEmbedMessage(mentionAccountOwner(), embed);
+            sendEmbedMessage(notificationMention(), embed);
         } else {
             sendEmbedMessage(embed);
         }
@@ -200,7 +200,7 @@ public class DiscordEventListener {
             .addField("Coordinates", getCoordinates(CACHE.getPlayerCache()), false)
             .addField("Dimension", CACHE.getChunkCache().getCurrentDimension().name(), false);
         if (CONFIG.discord.mentionRoleOnDeath) {
-            sendEmbedMessage(mentionAccountOwner(), embed);
+            sendEmbedMessage(notificationMention(), embed);
         } else {
             sendEmbedMessage(embed);
         }
@@ -219,7 +219,7 @@ public class DiscordEventListener {
             .addField("Health", CACHE.getPlayerCache().getThePlayer().getHealth(), true)
             .primaryColor();
         if (CONFIG.client.extra.utility.actions.autoDisconnect.mentionOnDisconnect) {
-            sendEmbedMessage(mentionAccountOwner(), embed);
+            sendEmbedMessage(notificationMention(), embed);
         } else {
             sendEmbedMessage(embed);
         }
@@ -232,7 +232,7 @@ public class DiscordEventListener {
             .addField("Username", event.clientGameProfile().getName(), true)
             .primaryColor();
         if (CONFIG.discord.mentionOnClientConnected) {
-            sendEmbedMessage(mentionAccountOwner(), embed);
+            sendEmbedMessage(notificationMention(), embed);
         } else {
             sendEmbedMessage(embed);
         }
@@ -245,7 +245,7 @@ public class DiscordEventListener {
             .addField("Username", escape(event.clientGameProfile().getName()), true)
             .primaryColor();
         if (CONFIG.discord.mentionOnSpectatorConnected) {
-            sendEmbedMessage(mentionAccountOwner(), embed);
+            sendEmbedMessage(notificationMention(), embed);
         } else {
             sendEmbedMessage(embed);
         }
@@ -263,7 +263,7 @@ public class DiscordEventListener {
             embed = embed.addField("Reason", escape(event.reason()), false);
         }
         if (CONFIG.discord.mentionOnClientDisconnected) {
-            sendEmbedMessage(mentionAccountOwner(), embed);
+            sendEmbedMessage(notificationMention(), embed);
         } else {
             sendEmbedMessage(embed);
         }
@@ -306,10 +306,7 @@ public class DiscordEventListener {
         };
         if (CONFIG.client.extra.visualRange.enterAlertMention)
             if (!event.isFriend())
-                if (CONFIG.discord.visualRangeMentionRoleId.length() > 3)
-                    sendEmbedMessageWithButtons(mentionRole(CONFIG.discord.visualRangeMentionRoleId), embedCreateSpec, buttons, mapper, Duration.ofHours(1));
-                else
-                    sendEmbedMessageWithButtons(mentionAccountOwner(), embedCreateSpec, buttons, mapper, Duration.ofHours(1));
+                sendEmbedMessageWithButtons(notificationMention(), embedCreateSpec, buttons, mapper, Duration.ofHours(1));
             else
                 sendEmbedMessage(embedCreateSpec);
         else
@@ -410,7 +407,7 @@ public class DiscordEventListener {
                     .addField("Username", escape(event.gameProfile().getName()), false);
             }
             if (CONFIG.discord.mentionOnNonWhitelistedClientConnected) {
-                sendEmbedMessage(mentionAccountOwner(), embed);
+                sendEmbedMessage(notificationMention(), embed);
             } else {
                 sendEmbedMessage(embed);
             }
@@ -426,7 +423,7 @@ public class DiscordEventListener {
             embed = embed.addField("Username", escape(event.clientGameProfile().getName()), false);
         }
         if (CONFIG.discord.mentionOnSpectatorDisconnected) {
-            sendEmbedMessage(mentionAccountOwner(), embed);
+            sendEmbedMessage(notificationMention(), embed);
         } else {
             sendEmbedMessage(embed);
         }
@@ -461,14 +458,14 @@ public class DiscordEventListener {
                             && CONFIG.discord.chatRelay.mentionRoleOnWhisper
                             && !message.toLowerCase(Locale.ROOT).contains("discord.gg/")
                             && event.sender().map(s -> !PLAYER_LISTS.getIgnoreList().contains(s.getName())).orElse(true)) {
-                            ping = mentionAccountOwner();
+                            ping = notificationMention();
                         }
                     } else {
                         if (CONFIG.discord.chatRelay.mentionRoleOnNameMention) {
                             if (event.sender().filter(sender -> sender.getName().equals(CONFIG.authentication.username)).isEmpty()
                                 && event.sender().map(s -> !PLAYER_LISTS.getIgnoreList().contains(s.getName())).orElse(true)
                                 && Arrays.asList(message.toLowerCase().split(" ")).contains(CONFIG.authentication.username.toLowerCase())) {
-                                ping = mentionAccountOwner();
+                                ping = notificationMention();
                             }
                         }
                     }
@@ -530,7 +527,7 @@ public class DiscordEventListener {
                                       .timestamp(Instant.now()));
         }
         if (CONFIG.client.extra.stalk.enabled && PLAYER_LISTS.getStalkList().contains(event.playerEntry().getProfile())) {
-            sendEmbedMessage(mentionAccountOwner(), Embed.builder()
+            sendEmbedMessage(notificationMention(), Embed.builder()
                 .title("Stalked Player Online!")
                 .successColor()
                 .addField("Player Name", event.playerEntry().getName(), true)
@@ -549,7 +546,7 @@ public class DiscordEventListener {
                                       .timestamp(Instant.now()));
         }
         if (CONFIG.client.extra.stalk.enabled && PLAYER_LISTS.getStalkList().contains(event.playerEntry().getProfile())) {
-            sendEmbedMessage(mentionAccountOwner(), Embed.builder()
+            sendEmbedMessage(notificationMention(), Embed.builder()
                 .title("Stalked Player Offline!")
                 .errorColor()
                 .addField("Player Name", event.playerEntry().getName(), true)
@@ -617,7 +614,7 @@ public class DiscordEventListener {
             .errorColor()
             .addField("Message", event.message(), true);
         if (CONFIG.discord.mentionRoleOnServerRestart) {
-            sendEmbedMessage(mentionAccountOwner(), embed);
+            sendEmbedMessage(notificationMention(), embed);
         } else {
             sendEmbedMessage(embed);
         }
@@ -629,7 +626,7 @@ public class DiscordEventListener {
             .errorColor()
             .addField("Help", "Try waiting and connecting again.", false);
         if (CONFIG.discord.mentionRoleOnLoginFailed) {
-            sendEmbedMessage(mentionAccountOwner(), embed);
+            sendEmbedMessage(notificationMention(), embed);
         } else {
             sendEmbedMessage(embed);
         }
@@ -655,7 +652,7 @@ public class DiscordEventListener {
         }
         embed.addField("User", escape(CONFIG.authentication.username), false);
         if (CONFIG.discord.mentionRoleOnPrioUpdate) {
-            sendEmbedMessage(mentionAccountOwner(), embed);
+            sendEmbedMessage(notificationMention(), embed);
         } else {
             sendEmbedMessage(embed);
         }
@@ -674,7 +671,7 @@ public class DiscordEventListener {
         }
         embed.addField("User", escape(CONFIG.authentication.username), false);
         if (CONFIG.discord.mentionRoleOnPrioBanUpdate) {
-            sendEmbedMessage(mentionAccountOwner(), embed);
+            sendEmbedMessage(notificationMention(), embed);
         } else {
             sendEmbedMessage(embed);
         }
@@ -692,7 +689,7 @@ public class DiscordEventListener {
             .primaryColor()
             .description("Login Here: " + event.deviceCode().getDirectVerificationUri() + " \nCode: " + event.deviceCode().getUserCode());
         if (CONFIG.discord.mentionRoleOnDeviceCodeAuth)
-            sendEmbedMessage(mentionAccountOwner(), embed);
+            sendEmbedMessage(notificationMention(), embed);
         else
             sendEmbedMessage(embed);
     }
@@ -755,7 +752,7 @@ public class DiscordEventListener {
             .addField("Totems Left", event.totemsRemaining(), false)
             .errorColor();
         if (CONFIG.client.extra.autoTotem.totemPopAlertMention)
-            sendEmbedMessage(mentionAccountOwner(), embed);
+            sendEmbedMessage(notificationMention(), embed);
         else
             sendEmbedMessage(embed);
     }
@@ -765,7 +762,7 @@ public class DiscordEventListener {
             .title("Player Out of Totems")
             .errorColor();
         if (CONFIG.client.extra.autoTotem.noTotemsAlertMention)
-            sendEmbedMessage(mentionAccountOwner(), embed);
+            sendEmbedMessage(notificationMention(), embed);
         else
             sendEmbedMessage(embed);
     }

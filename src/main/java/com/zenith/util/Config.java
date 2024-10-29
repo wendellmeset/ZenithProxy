@@ -541,7 +541,7 @@ public final class Config {
         public String token = "";
         public String channelId = "";
         public String accountOwnerRoleId = "";
-        public String visualRangeMentionRoleId = "";
+        public String notificationMentionRoleId = "";
         public String prefix = ".";
         public boolean reportCoords = true;
         public boolean mentionRoleOnConnect = false;
