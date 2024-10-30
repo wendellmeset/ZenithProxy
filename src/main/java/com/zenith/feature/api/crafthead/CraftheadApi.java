@@ -12,7 +12,7 @@ import java.util.UUID;
 import static com.zenith.Shared.DEFAULT_LOG;
 
 public class CraftheadApi extends Api {
-    public static CraftheadApi INSTANCE = new CraftheadApi();
+    public static final CraftheadApi INSTANCE = new CraftheadApi();
 
     public CraftheadApi() {
         super("https://crafthead.net");

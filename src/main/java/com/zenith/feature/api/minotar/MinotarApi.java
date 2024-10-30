@@ -11,7 +11,7 @@ import java.util.UUID;
 import static com.zenith.Shared.DEFAULT_LOG;
 
 public class MinotarApi extends Api {
-    public static MinotarApi INSTANCE = new MinotarApi();
+    public static final MinotarApi INSTANCE = new MinotarApi();
 
     public MinotarApi() {
         super("https://minotar.net");

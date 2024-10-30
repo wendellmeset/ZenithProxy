@@ -12,7 +12,7 @@ import java.util.Optional;
 import static com.zenith.Shared.DEFAULT_LOG;
 
 public class PriobanApi extends Api {
-    public static PriobanApi INSTANCE = new PriobanApi();
+    public static final PriobanApi INSTANCE = new PriobanApi();
 
     public PriobanApi() {
         super("https://shop.2b2t.org");

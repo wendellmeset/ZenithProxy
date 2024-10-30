@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class MinetoolsApi extends Api {
-    public static MinetoolsApi INSTANCE = new MinetoolsApi();
+    public static final MinetoolsApi INSTANCE = new MinetoolsApi();
 
     public MinetoolsApi() {
         super("https://api.minetools.eu");
