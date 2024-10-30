@@ -45,7 +45,7 @@ public class LoginHandler implements PacketHandler<ClientboundLoginPacket, Clien
         CACHE.getChunkCache().setServerViewDistance(packet.getViewDistance());
         CACHE.getChunkCache().setServerSimulationDistance(packet.getSimulationDistance());
 
-        session.send(new ServerboundClientInformationPacket(
+        session.sendAsync(new ServerboundClientInformationPacket(
             "en_US",
             25,
             ChatVisibility.FULL,

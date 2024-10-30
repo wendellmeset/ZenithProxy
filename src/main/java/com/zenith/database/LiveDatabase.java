@@ -1,21 +1,37 @@
 package com.zenith.database;
 
-import lombok.Getter;
+import com.zenith.event.proxy.RedisRestartEvent;
 import org.jdbi.v3.core.HandleConsumer;
 import org.redisson.api.RBoundedBlockingQueue;
 
 import java.time.Instant;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.zenith.Shared.DATABASE_LOG;
-import static com.zenith.Shared.OBJECT_MAPPER;
+import static com.github.rfresh2.EventConsumer.of;
+import static com.zenith.Shared.*;
 
 public abstract class LiveDatabase extends LockingDatabase {
 
-    @Getter(lazy = true)
-    private final RBoundedBlockingQueue<String> queue = buildQueue();
+    private RBoundedBlockingQueue<String> queue;
+    private final Object eventListener = new Object();
+    private final AtomicBoolean redisRestarted = new AtomicBoolean(false);
 
     public LiveDatabase(final QueryExecutor queryExecutor, final RedisClient redisClient) {
         super(queryExecutor, redisClient);
+    }
+
+    @Override
+    public void start() {
+        super.start();
+        EVENT_BUS.subscribe(eventListener, of(RedisRestartEvent.class, e -> redisRestarted.set(true)));
+        queue = buildQueue();
+    }
+
+    @Override
+    public void stop() {
+        super.stop();
+        EVENT_BUS.unsubscribe(eventListener);
+        queue = null;
     }
 
     private RBoundedBlockingQueue<String> buildQueue() {
@@ -37,11 +53,14 @@ public abstract class LiveDatabase extends LockingDatabase {
 
     void liveQueueRunnable(Object pojo) {
         try {
+            if (queue == null || redisRestarted.getAndSet(false)) {
+                queue = buildQueue();
+            }
             String json = OBJECT_MAPPER.writeValueAsString(pojo);
-            getQueue().offerAsync(json).thenAcceptAsync((success) -> {
+            queue.offerAsync(json).thenAcceptAsync((success) -> {
                 if (!success) {
                     DATABASE_LOG.warn("{} reached capacity, flushing queue", getQueueKey());
-                    getQueue().clear();
+                    queue.clear();
                 }
             });
         } catch (final Exception e) {

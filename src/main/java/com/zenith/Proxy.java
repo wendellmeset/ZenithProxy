@@ -7,7 +7,6 @@ import com.zenith.event.proxy.*;
 import com.zenith.feature.api.crafthead.CraftheadApi;
 import com.zenith.feature.api.mcsrvstatus.MCSrvStatusApi;
 import com.zenith.feature.api.minotar.MinotarApi;
-import com.zenith.feature.api.prioban.PriobanApi;
 import com.zenith.feature.autoupdater.AutoUpdater;
 import com.zenith.feature.autoupdater.NoOpAutoUpdater;
 import com.zenith.feature.autoupdater.RestAutoUpdater;
@@ -91,7 +90,6 @@ public class Proxy {
     @Setter @Nullable private Instant connectTime;
     private Instant disconnectTime = Instant.now();
     private Optional<Boolean> isPrio = Optional.empty();
-    private Optional<Boolean> isPrioBanned = Optional.empty();
     @Getter private final AtomicBoolean loggingIn = new AtomicBoolean(false);
     @Setter @NotNull private AutoUpdater autoUpdater = NoOpAutoUpdater.INSTANCE;
     private LanBroadcaster lanBroadcaster;
@@ -174,7 +172,6 @@ public class Proxy {
             CACHE.reset(CacheResetType.FULL);
             EXECUTOR.scheduleAtFixedRate(this::serverHealthCheck, 1L, 5L, TimeUnit.MINUTES);
             EXECUTOR.scheduleAtFixedRate(this::tablistUpdate, 20L, 3L, TimeUnit.SECONDS);
-            EXECUTOR.scheduleAtFixedRate(this::updatePrioBanStatus, 0L, 1L, TimeUnit.DAYS);
             EXECUTOR.scheduleAtFixedRate(this::twoB2tTimeLimitKickWarningTick, twoB2tTimeLimit.minusMinutes(10L).toMinutes(), 1L, TimeUnit.MINUTES);
             EXECUTOR.scheduleAtFixedRate(this::maxPlaytimeTick, CONFIG.client.maxPlaytimeReconnectMins, 1L, TimeUnit.MINUTES);
             EXECUTOR.schedule(this::serverConnectionTest, 10L, TimeUnit.SECONDS);
@@ -583,17 +580,6 @@ public class Proxy {
         return this.isPrio.orElse(CONFIG.authentication.prio);
     }
 
-    public void updatePrioBanStatus() {
-        if (!CONFIG.client.extra.prioBan2b2tCheck || !isOn2b2t()) return;
-        this.isPrioBanned = PriobanApi.INSTANCE.checkPrioBan();
-        if (this.isPrioBanned.isPresent() && !this.isPrioBanned.get().equals(CONFIG.authentication.prioBanned)) {
-            EVENT_BUS.postAsync(new PrioBanStatusUpdateEvent(this.isPrioBanned.get()));
-            CONFIG.authentication.prioBanned = this.isPrioBanned.get();
-            saveConfigAsync();
-            CLIENT_LOG.info("Prio Ban Change Detected: " + this.isPrioBanned.get());
-        }
-    }
-
     public void kickNonWhitelistedPlayers() {
         var connections = Proxy.getInstance().getActiveConnections().getArray();
         for (int i = 0; i < connections.length; i++) {
@@ -733,7 +719,6 @@ public class Proxy {
     public void handleStartQueueEvent(StartQueueEvent event) {
         this.inQueue = true;
         this.queuePosition = 0;
-        updatePrioBanStatus();
     }
 
     public void handleQueuePositionUpdateEvent(QueuePositionUpdateEvent event) {

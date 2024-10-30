@@ -3,10 +3,10 @@ package com.zenith.database;
 import com.zenith.event.proxy.DatabaseTickEvent;
 
 import java.time.Instant;
-import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
-import static com.zenith.Shared.*;
+import static com.zenith.Shared.CACHE;
+import static com.zenith.Shared.EVENT_BUS;
 
 public class TablistDatabase extends LockingDatabase {
     public TablistDatabase(final QueryExecutor queryExecutor, final RedisClient redisClient) {
@@ -27,16 +27,7 @@ public class TablistDatabase extends LockingDatabase {
 
     @Override
     public Instant getLastEntryTime() {
-        try (var handle = this.queryExecutor.jdbi().open()) {
-            var result = handle.select("SELECT time FROM tablist ORDER BY time DESC LIMIT 1;")
-                .mapTo(OffsetDateTime.class)
-                .findOne();
-            if (result.isEmpty()) {
-                DATABASE_LOG.warn("Tablist database unable to sync. Database empty?");
-                return Instant.EPOCH;
-            }
-            return result.get().toInstant();
-        }
+        return Instant.now();
     }
 
     private void handleTickEvent(DatabaseTickEvent event) {

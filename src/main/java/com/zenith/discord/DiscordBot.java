@@ -371,10 +371,18 @@ public class DiscordBot {
     }
 
     void sendQueueWarning() {
-        sendEmbedMessage((CONFIG.discord.queueWarning.mentionRole ? mentionAccountOwner() : ""), Embed.builder()
+        sendEmbedMessage((CONFIG.discord.queueWarning.mentionRole ? notificationMention() : ""), Embed.builder()
             .title("Queue Warning")
             .addField("Queue Position", "[" + queuePositionStr() + "]", false)
             .inQueueColor());
+    }
+
+    static String notificationMention() {
+        return DiscordBot.mentionRole(
+            CONFIG.discord.notificationMentionRoleId.isEmpty()
+                ? CONFIG.discord.accountOwnerRoleId
+                : CONFIG.discord.notificationMentionRoleId
+        );
     }
 
     static String mentionAccountOwner() {

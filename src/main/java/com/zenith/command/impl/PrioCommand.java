@@ -9,6 +9,8 @@ import com.zenith.discord.Embed;
 import com.zenith.feature.api.prioban.PriobanApi;
 
 import static com.zenith.Shared.CONFIG;
+import static com.zenith.command.brigadier.CustomStringArgumentType.getString;
+import static com.zenith.command.brigadier.CustomStringArgumentType.wordWithChars;
 import static com.zenith.command.brigadier.ToggleArgumentType.getToggle;
 import static com.zenith.command.brigadier.ToggleArgumentType.toggle;
 import static java.util.Arrays.asList;
@@ -23,7 +25,8 @@ public class PrioCommand extends Command {
             asList(
                 "mentions on/off",
                 "banMentions on/off",
-                "check"
+                "banCheck",
+                "banCheck <playerName>"
             )
         );
     }
@@ -45,12 +48,26 @@ public class PrioCommand extends Command {
                                 .title("Prio Ban Mentions " + toggleStrCaps(CONFIG.discord.mentionRoleOnPrioBanUpdate));
                             return OK;
                         })))
-            .then(literal("check").executes(c -> {
-                c.getSource().getEmbed()
-                    .title("Checking Prio ban");
-                c.getSource().getEmbed()
-                    .addField("Banned", (PriobanApi.INSTANCE.checkPrioBan().map(Object::toString).orElse("unknown")), true);
-            }));
+            .then(literal("banCheck")
+                      .then(argument("name", wordWithChars()).executes(c -> {
+                          String playerName = getString(c, "name");
+                          String status = PriobanApi.INSTANCE.checkPrioBan(playerName)
+                              .map(Object::toString)
+                              .orElse("unknown");
+                          c.getSource().getEmbed()
+                              .title("Checking Prio ban")
+                              .addField("Banned", status, true);
+                          return OK;
+                      }))
+                      .executes(c -> {
+                          String status = PriobanApi.INSTANCE.checkPrioBan(CONFIG.authentication.username)
+                              .map(Object::toString)
+                              .orElse("unknown");
+                          c.getSource().getEmbed()
+                              .title("Checking Prio ban")
+                              .addField("Banned", status, true);
+                          return OK;
+                      }));
     }
 
     @Override
