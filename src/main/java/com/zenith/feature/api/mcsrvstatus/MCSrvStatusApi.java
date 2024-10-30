@@ -6,7 +6,7 @@ import com.zenith.feature.api.mcsrvstatus.model.MCSrvStatusResponse;
 import java.util.Optional;
 
 public class MCSrvStatusApi extends Api {
-    public static MCSrvStatusApi INSTANCE = new MCSrvStatusApi();
+    public static final MCSrvStatusApi INSTANCE = new MCSrvStatusApi();
 
     public MCSrvStatusApi() {
         super("https://api.mcsrvstat.us/3");

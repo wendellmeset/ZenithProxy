@@ -21,7 +21,7 @@ import java.util.UUID;
 import static com.zenith.Shared.*;
 
 public class SessionServerApi extends Api {
-    public static SessionServerApi INSTANCE = new SessionServerApi();
+    public static final SessionServerApi INSTANCE = new SessionServerApi();
 
     public SessionServerApi() {
         super("https://sessionserver.mojang.com");

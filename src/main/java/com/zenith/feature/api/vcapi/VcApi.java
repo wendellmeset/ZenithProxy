@@ -6,7 +6,7 @@ import com.zenith.feature.api.vcapi.model.*;
 import java.util.Optional;
 
 public class VcApi extends Api {
-    public static VcApi INSTANCE = new VcApi();
+    public static final VcApi INSTANCE = new VcApi();
 
     public VcApi() {
         super("https://api.2b2t.vc");
