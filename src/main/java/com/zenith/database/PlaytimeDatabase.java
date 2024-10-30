@@ -36,8 +36,7 @@ public class PlaytimeDatabase extends LockingDatabase {
     @Override
     public Instant getLastEntryTime() {
         try (var handle = this.queryExecutor.jdbi().open()) {
-            // todo: add index to last_updated
-            var result = handle.select("SELECT end_time FROM playtime_events ORDER BY end_time DESC LIMIT 1;")
+            var result = handle.select("SELECT end_time FROM playtime ORDER BY end_time DESC LIMIT 1;")
                 .mapTo(OffsetDateTime.class)
                 .findOne();
             if (result.isEmpty()) {
@@ -126,7 +125,7 @@ public class PlaytimeDatabase extends LockingDatabase {
                 var tablistEntries = CACHE.getTabListCache().getEntries();
                 var batch = transaction.prepareBatch(
                     """
-                    INSERT INTO playtime_events (player_uuid, player_name, playtime_seconds, start_time, end_time) VALUES (:player_uuid, :player_name, :playtime_seconds, :start_time, :end_time);
+                    INSERT INTO playtime (player_uuid, player_name, playtime_seconds, start_time, end_time) VALUES (:player_uuid, :player_name, :playtime_seconds, :start_time, :end_time);
                     """);
                 for (var entry : tablistEntries) {
                     if (connectionEvents.containsKey(entry.getProfile())) continue;
@@ -147,6 +146,7 @@ public class PlaytimeDatabase extends LockingDatabase {
                     var events = entry.getValue();
                     long prevTime = beforeTimeLong;
                     Connectiontype lastType = null;
+                    long playtime = 0;
                     for (int i = 0; i < events.size(); i++) {
                         final var event = events.get(i);
                         if (lastType == event.type()) {
@@ -170,12 +170,7 @@ public class PlaytimeDatabase extends LockingDatabase {
                                         DATABASE_LOG.error("last join playtime delta is negative: {} - {} - {}", playtimeDelta, nowSeconds, prevTime);
                                         break;
                                     }
-                                    batch.bind("player_uuid", playerUuid)
-                                        .bind("player_name", playerName)
-                                        .bind("playtime_seconds", playtimeDelta)
-                                        .bind("start_time", Instant.ofEpochSecond(event.time()).atOffset(ZoneOffset.UTC))
-                                        .bind("end_time", now)
-                                        .add();
+                                    playtime += playtimeDelta;
                                 }
                             }
                             case LEAVE -> {
@@ -184,14 +179,17 @@ public class PlaytimeDatabase extends LockingDatabase {
                                     DATABASE_LOG.error("leave playtime delta is negative: {} - {} - {}", playtimeDelta, nowSeconds, prevTime);
                                     break;
                                 }
-                                batch.bind("player_uuid", playerUuid)
-                                    .bind("player_name", playerName)
-                                    .bind("playtime_seconds", playtimeDelta)
-                                    .bind("start_time", Instant.ofEpochSecond(prevTime).atOffset(ZoneOffset.UTC))
-                                    .bind("end_time", Instant.ofEpochSecond(event.time()).atOffset(ZoneOffset.UTC))
-                                    .add();
+                                playtime += playtimeDelta;
                             }
                         }
+                    }
+                    if (playtime > 0) {
+                        batch.bind("player_uuid", playerUuid)
+                            .bind("player_name", playerName)
+                            .bind("playtime_seconds", playtime)
+                            .bind("start_time", beforeTime)
+                            .bind("end_time", now)
+                            .add();
                     }
                 }
                 return batch.execute();
