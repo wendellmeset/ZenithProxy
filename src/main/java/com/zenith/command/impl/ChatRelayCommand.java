@@ -95,7 +95,7 @@ public class ChatRelayCommand extends Command {
                         .errorColor();
                     return 1;
                 }
-                CONFIG.discord.channelId = channelId;
+                CONFIG.discord.chatRelay.channelId = channelId;
                 c.getSource().getEmbed()
                     .title("Channel set!")
                     .primaryColor()
