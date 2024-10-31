@@ -29,7 +29,7 @@ public class SetActionBarTextHandler implements ClientEventLoopPacketHandler<Cli
                 .map(title -> ComponentSerializer.serializePlain(title.getText()))
                 .filter(text -> text.toLowerCase().contains("restart"))
                 .ifPresent(text -> {
-                    if (lastRestartEvent.isBefore(Instant.now().minus(15, ChronoUnit.MINUTES))) {
+                    if (lastRestartEvent.isBefore(Instant.now().minus(1, ChronoUnit.MINUTES))) {
                         lastRestartEvent = Instant.now();
                         EVENT_BUS.postAsync(new ServerRestartingEvent(text));
                     }
