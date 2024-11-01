@@ -9,6 +9,7 @@ import com.zenith.util.Wait;
 import lombok.NonNull;
 import org.geysermc.mcprotocollib.auth.GameProfile;
 import org.geysermc.mcprotocollib.protocol.MinecraftConstants;
+import org.geysermc.mcprotocollib.protocol.data.ProtocolState;
 import org.geysermc.mcprotocollib.protocol.packet.login.clientbound.ClientboundGameProfilePacket;
 
 import java.util.Optional;
@@ -121,6 +122,7 @@ public class SGameProfileOutgoingHandler implements PacketHandler<ClientboundGam
         if (!onlySpectator.orElse(false) && Proxy.getInstance().getCurrentPlayer().compareAndSet(null, session)) {
             SERVER_LOG.info("Logging in {} [{}] as controlling player", clientGameProfile.getName(), clientGameProfile.getId().toString());
             session.sendAsync(new ClientboundGameProfilePacket(CACHE.getProfileCache().getProfile(), false));
+            session.switchOutboundState(ProtocolState.CONFIGURATION);
             return;
         }
         if (onlySpectator.isPresent() && !onlySpectator.get()) { // the above operation failed and we don't want to be put into spectator
@@ -143,6 +145,7 @@ public class SGameProfileOutgoingHandler implements PacketHandler<ClientboundGam
         }
         session.getSpectatorFakeProfileCache().setProfile(spectatorFakeProfile);
         session.sendAsync(new ClientboundGameProfilePacket(spectatorFakeProfile, false));
+        session.switchOutboundState(ProtocolState.CONFIGURATION);
         return;
     }
 }
