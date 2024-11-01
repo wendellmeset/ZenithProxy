@@ -234,7 +234,7 @@ public class DiscordEventListener {
         if (!CONFIG.discord.clientConnectionMessages) return;
         var embed = Embed.builder()
             .title("Client Connected")
-            .addField("Username", event.clientGameProfile().getName(), true)
+            .addField("Username", escape(event.clientGameProfile().getName()), true)
             .primaryColor();
         if (CONFIG.discord.mentionOnClientConnected) {
             sendEmbedMessage(notificationMention(), embed);
