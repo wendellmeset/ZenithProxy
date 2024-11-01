@@ -88,14 +88,14 @@ public class ChatRelayCommand extends Command {
                         .errorColor();
                     return 1;
                 }
-                if (channelId.equals(CONFIG.discord.chatRelay.channelId)) {
+                if (channelId.equals(CONFIG.discord.channelId)) {
                     c.getSource().getEmbed()
                         .title("Invalid Channel ID")
                         .description("Cannot use the same channel ID for both the relay and main channel")
                         .errorColor();
                     return 1;
                 }
-                CONFIG.discord.channelId = channelId;
+                CONFIG.discord.chatRelay.channelId = channelId;
                 c.getSource().getEmbed()
                     .title("Channel set!")
                     .primaryColor()

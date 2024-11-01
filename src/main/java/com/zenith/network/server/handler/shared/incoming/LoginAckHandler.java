@@ -14,8 +14,11 @@ import static com.zenith.Shared.CACHE;
 public class LoginAckHandler implements PacketHandler<ServerboundLoginAcknowledgedPacket, ServerSession> {
     @Override
     public ServerboundLoginAcknowledgedPacket apply(final ServerboundLoginAcknowledgedPacket packet, final ServerSession session) {
-        session.getPacketProtocol().setOutboundState(ProtocolState.CONFIGURATION);
         session.switchInboundState(ProtocolState.CONFIGURATION);
+        if (session.getPacketProtocol().getOutboundState() != ProtocolState.CONFIGURATION || !session.isWhitelistChecked()) {
+            session.disconnect("Attempted to enter configuration too early");
+            return null;
+        }
         // todo: handle this more gracefully, connect and wait until we have configuration set (assuming session is auth'd)
         if (!Proxy.getInstance().isConnected()) {
             session.disconnect("Proxy is not connected to a server.");

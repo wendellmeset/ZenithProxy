@@ -120,7 +120,6 @@ public class Proxy {
             of(QueuePositionUpdateEvent.class, this::handleQueuePositionUpdateEvent),
             of(QueueCompleteEvent.class, this::handleQueueCompleteEvent),
             of(PlayerOnlineEvent.class, this::handlePlayerOnlineEvent),
-            of(ServerRestartingEvent.class, this::handleServerRestartingEvent),
             of(PrioStatusEvent.class, this::handlePrioStatusEvent),
             of(ServerPlayerConnectedEvent.class, this::handleServerPlayerConnectedEvent),
             of(ServerPlayerDisconnectedEvent.class, this::handleServerPlayerDisconnectedEvent),
@@ -734,29 +733,6 @@ public class Proxy {
         if (this.isPrio.isEmpty())
             // assume we are prio if we skipped queuing
             EVENT_BUS.postAsync(new PrioStatusEvent(true));
-    }
-
-    public void handleServerRestartingEvent(ServerRestartingEvent event) {
-        if (!CONFIG.client.extra.serverRestartReconnect
-            || !CONFIG.client.extra.autoReconnect.enabled
-            || !isOn2b2t()
-            || isPrio()
-            || hasActivePlayer()
-            || isInQueue()) return;
-        EXECUTOR.schedule(() -> {
-            if (hasActivePlayer()) return;
-            if (DISCORD.isRunning()) {
-                DISCORD.sendEmbedMessage(
-                    Embed.builder()
-                        .title("Server Restart Reconnect")
-                        .description("AutoReconnecting to end of queue to get back into server as quick as possible")
-                        .successColor());
-            } else {
-                CLIENT_LOG.warn("AutoReconnecting to end of queue to get back into server as quick as possible");
-            }
-            disconnect(SYSTEM_DISCONNECT);
-            MODULE.get(AutoReconnect.class).scheduleAutoReconnect(60);
-        }, ((int) (Math.random() * 20)), TimeUnit.SECONDS);
     }
 
     public void handlePrioStatusEvent(PrioStatusEvent event) {

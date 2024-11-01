@@ -185,6 +185,11 @@ public class DiscordEventListener {
             .inQueueColor()
             .addField("Regular Queue", Queue.getQueueStatus().regular(), true)
             .addField("Priority Queue", Queue.getQueueStatus().prio(), true);
+        if (event.wasOnline()) {
+            embed
+                .addField("Info", "Detected that the client was kicked to queue", false)
+                .addField("Online Duration", formatDuration(event.wasOnlineDuration()), false);
+        }
         if (CONFIG.discord.mentionRoleOnStartQueue) {
             sendEmbedMessage(notificationMention(), embed);
         } else {
@@ -229,7 +234,7 @@ public class DiscordEventListener {
         if (!CONFIG.discord.clientConnectionMessages) return;
         var embed = Embed.builder()
             .title("Client Connected")
-            .addField("Username", event.clientGameProfile().getName(), true)
+            .addField("Username", escape(event.clientGameProfile().getName()), true)
             .primaryColor();
         if (CONFIG.discord.mentionOnClientConnected) {
             sendEmbedMessage(notificationMention(), embed);
