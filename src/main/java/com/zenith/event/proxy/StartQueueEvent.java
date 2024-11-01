@@ -1,3 +1,5 @@
 package com.zenith.event.proxy;
 
-public record StartQueueEvent() { }
+import java.time.Duration;
+
+public record StartQueueEvent(boolean wasOnline, Duration wasOnlineDuration) { }

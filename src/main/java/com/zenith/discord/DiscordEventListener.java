@@ -185,6 +185,11 @@ public class DiscordEventListener {
             .inQueueColor()
             .addField("Regular Queue", Queue.getQueueStatus().regular(), true)
             .addField("Priority Queue", Queue.getQueueStatus().prio(), true);
+        if (event.wasOnline()) {
+            embed
+                .addField("Info", "Detected that the client was kicked to queue", false)
+                .addField("Online Duration", formatDuration(event.wasOnlineDuration()), false);
+        }
         if (CONFIG.discord.mentionRoleOnStartQueue) {
             sendEmbedMessage(notificationMention(), embed);
         } else {
