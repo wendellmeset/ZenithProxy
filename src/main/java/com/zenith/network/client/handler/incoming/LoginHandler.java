@@ -13,7 +13,6 @@ import org.geysermc.mcprotocollib.protocol.packet.common.serverbound.Serverbound
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundLoginPacket;
 
 import java.util.List;
-import java.util.UUID;
 
 import static com.zenith.Shared.*;
 import static java.util.Arrays.asList;
@@ -23,18 +22,15 @@ public class LoginHandler implements PacketHandler<ClientboundLoginPacket, Clien
     public ClientboundLoginPacket apply(@NonNull ClientboundLoginPacket packet, @NonNull ClientSession session) {
         CACHE.reset(CacheResetType.LOGIN);
         CACHE.getSectionCountProvider().updateDimension(packet.getCommonPlayerSpawnInfo());
-        UUID uuid;
         var serverProfile = CACHE.getProfileCache().getProfile();
         if (serverProfile == null) {
             CLIENT_LOG.warn("No server profile found, something has gone wrong. Using expected player UUID");
-            uuid = session.getPacketProtocol().getProfile().getId();
-        } else {
-            uuid = serverProfile.getId();
+            CACHE.getProfileCache().setProfile(session.getPacketProtocol().getProfile());
         }
         CACHE.getPlayerCache()
             .setHardcore(packet.isHardcore())
             .setEntityId(packet.getEntityId())
-            .setUuid(uuid)
+            .setUuid(CACHE.getProfileCache().getProfile().getId())
             .setLastDeathPos(packet.getCommonPlayerSpawnInfo().getLastDeathPos())
             .setPortalCooldown(packet.getCommonPlayerSpawnInfo().getPortalCooldown())
             .setMaxPlayers(packet.getMaxPlayers())
