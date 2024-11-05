@@ -14,6 +14,7 @@ import java.util.Optional;
 import static com.zenith.Shared.*;
 
 public class DisguisedChatHandler implements PacketHandler<ClientboundDisguisedChatPacket, ClientSession> {
+
     @Override
     public ClientboundDisguisedChatPacket apply(final ClientboundDisguisedChatPacket packet, final ClientSession session) {
         var senderPlayerEntry = CACHE.getTabListCache().getFromName(ComponentSerializer.serializePlain(packet.getName()));

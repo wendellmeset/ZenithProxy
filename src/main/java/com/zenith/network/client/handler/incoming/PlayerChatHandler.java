@@ -16,9 +16,6 @@ public class PlayerChatHandler implements PacketHandler<ClientboundPlayerChatPac
 
     @Override
     public ClientboundPlayerChatPacket apply(ClientboundPlayerChatPacket packet, ClientSession session) {
-        // we shouldn't receive any of these packets on 2b or any anarchy server due to no chat reports plugins
-        // and this does not pass these packets through to our normal chat handlers
-        // so no chat relay, chat events, and other stuff
         var senderPlayerEntry = CACHE.getTabListCache().get(packet.getSender());
         var chatType = CACHE.getChatCache().getChatTypeRegistry().getChatType(packet.getChatType().id());
         if (chatType != null) {

@@ -6,6 +6,7 @@ import com.zenith.Proxy;
 import com.zenith.feature.queue.Queue;
 import com.zenith.util.ComponentSerializer;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.geysermc.mcprotocollib.auth.GameProfile;
 import org.geysermc.mcprotocollib.network.Session;
 import org.geysermc.mcprotocollib.protocol.codec.MinecraftCodec;
@@ -106,37 +107,37 @@ public class CustomServerInfoBuilder implements ServerInfoBuilder {
         }
     }
 
-    public Component getMotd() {
-        var sb = new StringBuilder(150);
-        sb.append("<white>[<aqua>").append(CONFIG.authentication.username).append("<white>] <reset>- ");
-        if (Proxy.getInstance().isConnected()) {
-            sb
-                .append(getMotdStatus())
-                .append("<reset>\n<aqua>Online for: <white>[<reset>").append(Proxy.getInstance().getOnlineTimeString()).append("<white>]");
-        } else sb.append("<red>Disconnected");
-        return ComponentSerializer.minimessage(sb.toString());
-    }
+    private static final String motdMM = """
+        <white>[<aqua><username><white>] <reset>- <motd_body>
+        """;
+    private static final String motdDisconnectedBody = "<red>Disconnected";
+    private static final String motdConnectedBody = """
+        <motd_status><reset>
+        <aqua>Online for: <white>[<reset><online_time><white>]
+        """;
+    private static final String motdStatusInGame = "<green>In Game";
+    private static final String motdStatusInQueue = """
+        <in_queue> <white>[<aqua><queue_pos><white>] <queue_eta>
+        """;
+    private static final String motdInPrioQueue = "<red>In Prio Queue";
+    private static final String motdInQueue = "<red>In Queue";
+    private static final String motdQueuePosGeneric = "Queueing";
+    private static final String motdQueueEta = "<reset>- <red>ETA <white>[<aqua><eta><white>]";
 
-    private String getMotdStatus() { // in minedown formatted string
-        var proxy = Proxy.getInstance();
-        if (proxy.isInQueue()) {
-            var sb = new StringBuilder(100);
-            var prio = proxy.isPrio();
-            if (prio) sb.append("<red>In Prio Queue");
-            else sb.append("<red>In Queue");
-            sb.append(" <white>[<aqua>");
-            var qPos = proxy.getQueuePosition();
-            var qUndefined = qPos == Integer.MAX_VALUE;
-            if (!qUndefined) {
-                sb.append(qPos).append(" / ");
-                sb.append(prio ? Queue.getQueueStatus().prio() : Queue.getQueueStatus().regular());
-            } else sb.append("Queueing");
-            sb.append("<white>]");
-            if (!qUndefined)
-                sb.append(" <reset>- <red>ETA <white>[<aqua>").append(Queue.getQueueEta(qPos)).append("<white>]");
-            return sb.toString();
-        } else {
-            return "<green>In Game";
-        }
+    public Component getMotd() {
+        var prio = Proxy.getInstance().isPrio();
+        var qPos = Proxy.getInstance().getQueuePosition();
+        var qUndefined = qPos == Integer.MAX_VALUE;
+        return ComponentSerializer.minimessage(
+            motdMM,
+            Placeholder.unparsed("username", CONFIG.authentication.username),
+            Placeholder.parsed("motd_body", Proxy.getInstance().isConnected() ? motdConnectedBody : motdDisconnectedBody),
+            Placeholder.parsed("motd_status", Proxy.getInstance().isInQueue() ? motdStatusInQueue : motdStatusInGame),
+            Placeholder.unparsed("online_time", Proxy.getInstance().getOnlineTimeString()),
+            Placeholder.parsed("in_queue", prio ? motdInPrioQueue : motdInQueue),
+            Placeholder.unparsed("queue_pos", qUndefined ? motdQueuePosGeneric : qPos + " / " + (prio ? Queue.getQueueStatus().prio() : Queue.getQueueStatus().regular())),
+            Placeholder.unparsed("queue_eta", qUndefined ? "" : motdQueueEta),
+            Placeholder.parsed("eta", Queue.getQueueEta(qPos))
+        );
     }
 }
