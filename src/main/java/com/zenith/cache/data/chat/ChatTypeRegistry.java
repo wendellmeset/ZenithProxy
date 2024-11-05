@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import lombok.Data;
 import org.geysermc.mcprotocollib.protocol.data.game.RegistryEntry;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -34,7 +35,7 @@ public class ChatTypeRegistry {
         }
     }
 
-    public ChatType getChatType(int id) {
+    public @Nullable ChatType getChatType(int id) {
         return chatTypes.get(id);
     }
 

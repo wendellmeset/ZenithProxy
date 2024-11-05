@@ -21,28 +21,32 @@ public class PlayerChatHandler implements PacketHandler<ClientboundPlayerChatPac
         // so no chat relay, chat events, and other stuff
         var senderPlayerEntry = CACHE.getTabListCache().get(packet.getSender());
         var chatType = CACHE.getChatCache().getChatTypeRegistry().getChatType(packet.getChatType().id());
-        Component chatComponent = chatType.render(
-            packet.getName(),
-            Component.text(packet.getContent()),
-            packet.getTargetName());
-        if (CONFIG.client.extra.logChatMessages) {
-            CLIENT_LOG.info("{}", ComponentSerializer.serializeJson(chatComponent));
+        if (chatType != null) {
+            Component chatComponent = chatType.render(
+                packet.getName(),
+                Component.text(packet.getContent()),
+                packet.getTargetName());
+            if (CONFIG.client.extra.logChatMessages) {
+                CLIENT_LOG.info("{}", ComponentSerializer.serializeJson(chatComponent));
+            }
+            Optional<PlayerListEntry> whisperTarget = Optional.empty();
+            if ("commands.message.display.incoming".equals(chatType.translationKey())) {
+                whisperTarget = CACHE.getTabListCache().get(CACHE.getProfileCache().getProfile().getId());
+            } else if ("commands.message.display.outgoing".equals(chatType.translationKey())) {
+                whisperTarget = CACHE.getTabListCache().getFromName( // ???
+                     ComponentSerializer.serializePlain(packet.getTargetName())
+                );
+            }
+            EVENT_BUS.postAsync(new ServerChatReceivedEvent(
+                senderPlayerEntry,
+                chatComponent,
+                ComponentSerializer.serializePlain(chatComponent),
+                whisperTarget,
+                Optional.empty()
+            ));
+        } else {
+            CLIENT_LOG.warn("Unknown chat type: {}", packet.getChatType().id());
         }
-        Optional<PlayerListEntry> whisperTarget = Optional.empty();
-        if ("commands.message.display.incoming".equals(chatType.translationKey())) {
-            whisperTarget = CACHE.getTabListCache().get(CACHE.getProfileCache().getProfile().getId());
-        } else if ("commands.message.display.outgoing".equals(chatType.translationKey())) {
-            whisperTarget = CACHE.getTabListCache().getFromName( // ???
-                ComponentSerializer.serializePlain(packet.getTargetName())
-            );
-        }
-        EVENT_BUS.postAsync(new ServerChatReceivedEvent(
-            senderPlayerEntry,
-            chatComponent,
-            ComponentSerializer.serializePlain(chatComponent),
-            whisperTarget,
-            Optional.empty()
-        ));
         return packet;
     }
 }

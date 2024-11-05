@@ -25,10 +25,6 @@ import static com.zenith.Shared.CACHE;
 public class ChatSession {
     private final UUID sessionId;
     protected StepPlayerCertificates.PlayerCertificates playerCertificates;
-    protected LastSeenTrackedEntry[] lastSeenTrackedEntries;
-    protected int offset;
-    protected int tail;
-    protected LastSeenTrackedEntry lastTrackedMessage;
     protected int chainIndex = 0;
 
     public void sign(ServerboundChatPacket packet) {
