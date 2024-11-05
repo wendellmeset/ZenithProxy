@@ -97,7 +97,11 @@ public class TabListDataHandler implements ClientEventLoopPacketHandler<Clientbo
                      * prio:
                      * "This account has priority status and will be placed in a shorter queue."
                      */
-                    EVENT_BUS.postAsync(new PrioStatusEvent(!messageString.contains("shop.2b2t.org")));
+                    if (messageString.contains("purchase priority queue")) {
+                        EVENT_BUS.postAsync(new PrioStatusEvent(false));
+                    } else if (messageString.contains("has priority status")) {
+                        EVENT_BUS.postAsync(new PrioStatusEvent(true));
+                    }
                 });
     }
 
