@@ -11,6 +11,7 @@ import org.geysermc.mcprotocollib.protocol.data.game.setting.ChatVisibility;
 import org.geysermc.mcprotocollib.protocol.data.game.setting.SkinPart;
 import org.geysermc.mcprotocollib.protocol.packet.common.serverbound.ServerboundClientInformationPacket;
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundLoginPacket;
+import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.ServerboundChatSessionUpdatePacket;
 
 import java.util.List;
 
@@ -47,6 +48,24 @@ public class LoginHandler implements PacketHandler<ClientboundLoginPacket, Clien
         );
         CACHE.getChunkCache().setServerViewDistance(packet.getViewDistance());
         CACHE.getChunkCache().setServerSimulationDistance(packet.getSimulationDistance());
+        CACHE.getChatCache().setEnforcesSecureChat(packet.isEnforcesSecureChat());
+        if (packet.isEnforcesSecureChat()) {
+            if (CONFIG.client.chatSigning.enabled) {
+                if (CACHE.getChatCache().canUseChatSigning()) {
+                    var chatSession = CACHE.getChatCache().startNewChatSession();
+                    session.sendAsync(new ServerboundChatSessionUpdatePacket(
+                        chatSession.getSessionId(),
+                        chatSession.getPlayerCertificates().getExpireTimeMs(),
+                        chatSession.getPlayerCertificates().getPublicKey(),
+                        chatSession.getPlayerCertificates().getPublicKeySignature()
+                    ));
+                } else {
+                    CLIENT_LOG.warn("Server enforces secure chat, but we cannot sign chat messages");
+                }
+            } else {
+                CLIENT_LOG.warn("Server enforces secure chat, but zenith chat signing is disabled");
+            }
+        }
 
         session.sendAsync(new ServerboundClientInformationPacket(
             "en_US",

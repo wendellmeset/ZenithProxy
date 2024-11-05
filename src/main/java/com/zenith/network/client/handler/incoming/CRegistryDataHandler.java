@@ -12,6 +12,8 @@ public class CRegistryDataHandler implements PacketHandler<ClientboundRegistryDa
         CACHE.getConfigurationCache().getRegistryEntries().put(packet.getRegistry(), packet.getEntries());
         if ("minecraft:dimension_type".equals(packet.getRegistry())) {
             CACHE.getChunkCache().updateDimensionRegistry(packet.getEntries());
+        } else if ("minecraft:chat_type".equals(packet.getRegistry())) {
+            CACHE.getChatCache().initializeChatTypeRegistry(packet.getEntries());
         }
         return packet;
     }

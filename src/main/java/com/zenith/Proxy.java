@@ -487,6 +487,7 @@ public class Proxy {
         if (minecraftProtocol == null) throw new RuntimeException("Auth failed");
         var username = minecraftProtocol.getProfile().getName();
         var uuid = minecraftProtocol.getProfile().getId();
+        CACHE.getChatCache().setPlayerCertificates(minecraftProtocol.getProfile().getPlayerCertificates());
         AUTH_LOG.info("Logged in as {} [{}].", username, uuid);
         if (CONFIG.server.extra.whitelist.autoAddClient)
             if (PLAYER_LISTS.getWhitelist().add(username, uuid))

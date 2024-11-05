@@ -42,7 +42,15 @@ public class Authenticator {
         .deviceCode()
         .withDeviceToken("Win32")
         .sisuTitleAuthentication(MicrosoftConstants.JAVA_XSTS_RELYING_PARTY)
-        .buildMinecraftJavaProfileStep(false); // for chat signing stuff which we don't implement (yet)
+        .buildMinecraftJavaProfileStep(false);
+    @Getter(lazy = true) private final StepFullJavaSession deviceCodeChatSigningAuthStep = MinecraftAuth.builder()
+        .withTimeout(300)
+        .withClientId(MicrosoftConstants.JAVA_TITLE_ID)
+        .withScope(MicrosoftConstants.SCOPE_TITLE_AUTH)
+        .deviceCode()
+        .withDeviceToken("Win32")
+        .sisuTitleAuthentication(MicrosoftConstants.JAVA_XSTS_RELYING_PARTY)
+        .buildMinecraftJavaProfileStep(true);
     @Getter(lazy = true) private final StepFullJavaSession deviceCodeAuthWithoutDeviceTokenStep = MinecraftAuth.builder()
         .withTimeout(300)
         .withClientId(MicrosoftConstants.JAVA_TITLE_ID)
@@ -50,7 +58,7 @@ public class Authenticator {
         .deviceCode()
         .withoutDeviceToken()
         .regularAuthentication(MicrosoftConstants.JAVA_XSTS_RELYING_PARTY)
-        .buildMinecraftJavaProfileStep(false); // for chat signing stuff which we don't implement (yet)
+        .buildMinecraftJavaProfileStep(false);
     @Getter(lazy = true) private final StepFullJavaSession msaAuthStep = MinecraftAuth.builder()
         .withClientId(MicrosoftConstants.JAVA_TITLE_ID).withScope(MicrosoftConstants.SCOPE_TITLE_AUTH)
         .credentials()
@@ -140,6 +148,7 @@ public class Authenticator {
     private MinecraftProtocol createMinecraftProtocol(FullJavaSession authSession) {
         var javaProfile = authSession.getMcProfile();
         var gameProfile = new GameProfile(javaProfile.getId(), javaProfile.getName());
+        gameProfile.setPlayerCertificates(authSession.getPlayerCertificates());
         var accessToken = javaProfile.getMcToken().getAccessToken();
         return new MinecraftProtocol(MinecraftCodec.CODEC, gameProfile, accessToken);
     }
@@ -147,6 +156,11 @@ public class Authenticator {
     @SneakyThrows
     private FullJavaSession deviceCodeLogin() {
         return getDeviceCodeAuthStep().getFromInput(createHttpClient(), new StepMsaDeviceCode.MsaDeviceCodeCallback(this::onDeviceCode));
+    }
+
+    @SneakyThrows
+    private FullJavaSession deviceCodeChatSigningLogin() {
+        return getDeviceCodeChatSigningAuthStep().getFromInput(createHttpClient(), new StepMsaDeviceCode.MsaDeviceCodeCallback(this::onDeviceCode));
     }
 
     @SneakyThrows
@@ -178,6 +192,7 @@ public class Authenticator {
         return switch (CONFIG.authentication.accountType) {
             case MSA -> getMsaAuthStep();
             case DEVICE_CODE -> getDeviceCodeAuthStep();
+            case DEVICE_CODE_CHAT_SIGNING -> getDeviceCodeChatSigningAuthStep();
             case DEVICE_CODE_WITHOUT_DEVICE_TOKEN -> getDeviceCodeAuthWithoutDeviceTokenStep();
             case PRISM -> getPrismDeviceCodeAuthStep();
         };
@@ -187,6 +202,7 @@ public class Authenticator {
         return switch (CONFIG.authentication.accountType) {
             case MSA -> msaLogin();
             case DEVICE_CODE -> deviceCodeLogin();
+            case DEVICE_CODE_CHAT_SIGNING -> deviceCodeChatSigningLogin();
             case DEVICE_CODE_WITHOUT_DEVICE_TOKEN -> withoutDeviceTokenLogin();
             case PRISM -> prismDeviceCodeLogin();
         };
@@ -279,7 +295,13 @@ public class Authenticator {
         try (Reader reader = new FileReader(AUTH_CACHE_FILE)) {
             final JsonObject json = GSON.fromJson(reader, JsonObject.class);
             return Optional.of(getAuthStep().fromJson(json));
-        } catch (IOException e) {
+        } catch (final NullPointerException e) {
+            if (e.getMessage().contains("com.google.gson.JsonObject")) {
+                AUTH_LOG.warn("Auth cache incompatible with current auth method");
+                return Optional.empty();
+            }
+            throw e;
+        } catch (Exception e) {
             AUTH_LOG.debug("Unable to load auth cache!", e);
             return Optional.empty();
         }

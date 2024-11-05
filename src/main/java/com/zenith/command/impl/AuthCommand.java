@@ -43,7 +43,7 @@ public class AuthCommand extends Command {
                 "clear",
                 "attempts <int>",
                 "alwaysRefreshOnLogin on/off",
-                "type <deviceCode/emailAndPassword/deviceCode2/prism>",
+                "type <deviceCode/deviceCodeChatSigning/emailAndPassword/deviceCode2/prism>",
                 "email <email>",
                 "password <password>",
                 "mention on/off",
@@ -86,6 +86,15 @@ public class AuthCommand extends Command {
             .then(literal("type").requires(this::validateDiscordOrTerminalSource)
                       .then(literal("deviceCode").executes(c -> {
                           CONFIG.authentication.accountType = Config.Authentication.AccountType.DEVICE_CODE;
+                          c.getSource().getEmbed()
+                              .title("Authentication Type Set")
+                              .primaryColor();
+                          Proxy.getInstance().cancelLogin();
+                          Proxy.getInstance().getAuthenticator().clearAuthCache();
+                          return 1;
+                      }))
+                      .then(literal("deviceCodeChatSigning").executes(c -> {
+                          CONFIG.authentication.accountType = Config.Authentication.AccountType.DEVICE_CODE_CHAT_SIGNING;
                           c.getSource().getEmbed()
                               .title("Authentication Type Set")
                               .primaryColor();
@@ -208,6 +217,7 @@ public class AuthCommand extends Command {
     private String authTypeToString(Config.Authentication.AccountType type) {
         return switch (type) {
             case DEVICE_CODE -> "deviceCode";
+            case DEVICE_CODE_CHAT_SIGNING -> "deviceCodeChatSigning";
             case MSA -> "emailAndPassword";
             case DEVICE_CODE_WITHOUT_DEVICE_TOKEN -> "deviceCode2";
             case PRISM -> "prism";
