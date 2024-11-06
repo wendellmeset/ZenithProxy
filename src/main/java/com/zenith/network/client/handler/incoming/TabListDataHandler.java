@@ -106,6 +106,7 @@ public class TabListDataHandler implements ClientEventLoopPacketHandler<Clientbo
     }
 
     private synchronized void parse2bPing(final ClientboundTabListPacket packet, ClientSession session) {
+        if (CONFIG.client.ping.mode != Config.Client.Ping.Mode.TABLIST) return;
         Optional.of(packet.getFooter())
                 .map(ComponentSerializer::serializePlain)
                 .map(textRaw -> textRaw.replace("\n", ""))
@@ -118,12 +119,8 @@ public class TabListDataHandler implements ClientEventLoopPacketHandler<Clientbo
                         final String pingSection = hyphenSplit.getLast();
                         final List<String> pingSectionSpaceSplit = Arrays.asList(pingSection.split(" "));
                         if (!pingSectionSpaceSplit.isEmpty()) {
-                            final String ping = pingSectionSpaceSplit.get(1);
                             try {
-                                int pingInt = Integer.parseInt(ping);
-                                if (CONFIG.client.ping.mode == Config.Client.Ping.Mode.TABLIST) {
-                                    session.setPing(pingInt);
-                                }
+                                session.setPing(Integer.parseInt(pingSectionSpaceSplit.get(1)));
                             } catch (final Exception e) {
                                 // f
                             }
