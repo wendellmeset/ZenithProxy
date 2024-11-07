@@ -45,14 +45,6 @@ public class Authenticator {
         .withDeviceToken("Win32")
         .sisuTitleAuthentication(MicrosoftConstants.JAVA_XSTS_RELYING_PARTY)
         .buildMinecraftJavaProfileStep(true);
-    @Getter(lazy = true) private final StepFullJavaSession deviceCodeChatSigningAuthStep = MinecraftAuth.builder()
-        .withTimeout(300)
-        .withClientId(MicrosoftConstants.JAVA_TITLE_ID)
-        .withScope(MicrosoftConstants.SCOPE_TITLE_AUTH)
-        .deviceCode()
-        .withDeviceToken("Win32")
-        .sisuTitleAuthentication(MicrosoftConstants.JAVA_XSTS_RELYING_PARTY)
-        .buildMinecraftJavaProfileStep(true);
     @Getter(lazy = true) private final StepFullJavaSession deviceCodeAuthWithoutDeviceTokenStep = MinecraftAuth.builder()
         .withTimeout(300)
         .withClientId(MicrosoftConstants.JAVA_TITLE_ID)
@@ -163,11 +155,6 @@ public class Authenticator {
     }
 
     @SneakyThrows
-    private FullJavaSession deviceCodeChatSigningLogin() {
-        return getDeviceCodeChatSigningAuthStep().getFromInput(createHttpClient(), new StepMsaDeviceCode.MsaDeviceCodeCallback(this::onDeviceCode));
-    }
-
-    @SneakyThrows
     private FullJavaSession withoutDeviceTokenLogin() {
         return getDeviceCodeAuthWithoutDeviceTokenStep().getFromInput(createHttpClient(), new StepMsaDeviceCode.MsaDeviceCodeCallback(this::onDeviceCode));
     }
@@ -196,7 +183,6 @@ public class Authenticator {
         return switch (CONFIG.authentication.accountType) {
             case MSA -> getMsaAuthStep();
             case DEVICE_CODE -> getDeviceCodeAuthStep();
-            case DEVICE_CODE_CHAT_SIGNING -> getDeviceCodeChatSigningAuthStep();
             case DEVICE_CODE_WITHOUT_DEVICE_TOKEN -> getDeviceCodeAuthWithoutDeviceTokenStep();
             case PRISM -> getPrismDeviceCodeAuthStep();
         };
@@ -206,7 +192,6 @@ public class Authenticator {
         return switch (CONFIG.authentication.accountType) {
             case MSA -> msaLogin();
             case DEVICE_CODE -> deviceCodeLogin();
-            case DEVICE_CODE_CHAT_SIGNING -> deviceCodeChatSigningLogin();
             case DEVICE_CODE_WITHOUT_DEVICE_TOKEN -> withoutDeviceTokenLogin();
             case PRISM -> prismDeviceCodeLogin();
         };
