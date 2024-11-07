@@ -22,7 +22,9 @@ import org.geysermc.mcprotocollib.protocol.codec.MinecraftCodec;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.security.KeyPairGenerator;
 import java.time.Duration;
+import java.util.Base64;
 import java.util.Optional;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadLocalRandom;
@@ -42,7 +44,7 @@ public class Authenticator {
         .deviceCode()
         .withDeviceToken("Win32")
         .sisuTitleAuthentication(MicrosoftConstants.JAVA_XSTS_RELYING_PARTY)
-        .buildMinecraftJavaProfileStep(false);
+        .buildMinecraftJavaProfileStep(true);
     @Getter(lazy = true) private final StepFullJavaSession deviceCodeChatSigningAuthStep = MinecraftAuth.builder()
         .withTimeout(300)
         .withClientId(MicrosoftConstants.JAVA_TITLE_ID)
@@ -58,20 +60,20 @@ public class Authenticator {
         .deviceCode()
         .withoutDeviceToken()
         .regularAuthentication(MicrosoftConstants.JAVA_XSTS_RELYING_PARTY)
-        .buildMinecraftJavaProfileStep(false);
+        .buildMinecraftJavaProfileStep(true);
     @Getter(lazy = true) private final StepFullJavaSession msaAuthStep = MinecraftAuth.builder()
         .withClientId(MicrosoftConstants.JAVA_TITLE_ID).withScope(MicrosoftConstants.SCOPE_TITLE_AUTH)
         .credentials()
         .withDeviceToken("Win32")
         .sisuTitleAuthentication(MicrosoftConstants.JAVA_XSTS_RELYING_PARTY)
-        .buildMinecraftJavaProfileStep(false);
+        .buildMinecraftJavaProfileStep(true);
     @Getter(lazy = true) private final StepFullJavaSession prismDeviceCodeAuthStep = MinecraftAuth.builder()
         .withTimeout(300)
         .withClientId("c36a9fb6-4f2a-41ff-90bd-ae7cc92031eb")
         .deviceCode()
         .withoutDeviceToken()
         .regularAuthentication(MicrosoftConstants.JAVA_XSTS_RELYING_PARTY)
-        .buildMinecraftJavaProfileStep(false);
+        .buildMinecraftJavaProfileStep(true);
 
     static {
         MinecraftAuth.LOGGER = new Slf4jConsoleLogger(AUTH_LOG);
@@ -142,6 +144,8 @@ public class Authenticator {
     }
 
     private boolean shouldUseCachedSessionWithoutRefresh(FullJavaSession session) {
+        var playerCertificates = session.getPlayerCertificates();
+        if (playerCertificates != null && playerCertificates.getExpireTimeMs() < System.currentTimeMillis()) return false;
         return session.getMcProfile().getMcToken().getExpireTimeMs() > System.currentTimeMillis();
     }
 
@@ -264,7 +268,10 @@ public class Authenticator {
     }
 
     private void saveAuthCache(final FullJavaSession session) {
-        final JsonObject json = getAuthStep().toJson(session);
+        saveAuthCacheJson(getAuthStep().toJson(session));
+    }
+
+    private void saveAuthCacheJson(JsonObject json) {
         try {
             final File tempFile = new File(AUTH_CACHE_FILE.getAbsolutePath() + ".tmp");
             if (tempFile.exists()) tempFile.delete();
@@ -292,18 +299,56 @@ public class Authenticator {
 
     private Optional<FullJavaSession> loadAuthCache() {
         if (!AUTH_CACHE_FILE.exists()) return Optional.empty();
+        fixupAuthCacheIfPlayerCertsMissing();
+        return readAuthCacheJson()
+            .map(json -> getAuthStep().fromJson(json));
+    }
+
+    private Optional<JsonObject> readAuthCacheJson() {
         try (Reader reader = new FileReader(AUTH_CACHE_FILE)) {
             final JsonObject json = GSON.fromJson(reader, JsonObject.class);
-            return Optional.of(getAuthStep().fromJson(json));
+            return Optional.of(json);
         } catch (final NullPointerException e) {
+            AUTH_LOG.debug("Unable to load auth cache!", e);
             if (e.getMessage().contains("com.google.gson.JsonObject")) {
-                AUTH_LOG.warn("Auth cache incompatible with current auth method");
-                return Optional.empty();
+                AUTH_LOG.warn("Auth cache incompatible with current auth type");
             }
-            throw e;
+            return Optional.empty();
         } catch (Exception e) {
             AUTH_LOG.debug("Unable to load auth cache!", e);
             return Optional.empty();
+        }
+    }
+
+    private void fixupAuthCacheIfPlayerCertsMissing() {
+        var jsonOptional = readAuthCacheJson();
+        if (jsonOptional.isEmpty()) return;
+        var json = jsonOptional.get();
+        try {
+            var playerCertificatesJson = json.getAsJsonObject("playerCertificates");
+            if (playerCertificatesJson != null) return;
+        } catch (Exception e) {
+            AUTH_LOG.warn("Error reading auth cache while fixing up player certs in auth cache", e);
+            return;
+        }
+        AUTH_LOG.info("Found auth cache without player certs, inserting dummy data fixup");
+        try {
+            var certsJson = new JsonObject();
+            certsJson.addProperty("expireTimeMs", 0);
+            var generator = KeyPairGenerator.getInstance("RSA");
+            generator.initialize(2048);
+            var keypair = generator.generateKeyPair();
+            var dummyPubKey = keypair.getPublic().getEncoded();
+            var dummyPrivKey = keypair.getPrivate().getEncoded();
+            certsJson.addProperty("publicKey", Base64.getEncoder().encodeToString(dummyPubKey));
+            certsJson.addProperty("privateKey", Base64.getEncoder().encodeToString(dummyPrivKey));
+            certsJson.addProperty("publicKeySignature", Base64.getEncoder().encodeToString("foo".getBytes()));
+            certsJson.addProperty("legacyPublicKeySignature", Base64.getEncoder().encodeToString("bar".getBytes()));
+            json.add("playerCertificates", certsJson);
+            saveAuthCacheJson(json);
+            AUTH_LOG.info("Auth cache fixup dummy data write completed");
+        } catch (final Exception e) {
+            AUTH_LOG.warn("Error writing auth cache while fixing up player certs in auth cache", e);
         }
     }
 
