@@ -121,8 +121,6 @@ public class Proxy {
             of(QueueCompleteEvent.class, this::handleQueueCompleteEvent),
             of(PlayerOnlineEvent.class, this::handlePlayerOnlineEvent),
             of(PrioStatusEvent.class, this::handlePrioStatusEvent),
-            of(ServerPlayerConnectedEvent.class, this::handleServerPlayerConnectedEvent),
-            of(ServerPlayerDisconnectedEvent.class, this::handleServerPlayerDisconnectedEvent),
             of(PrivateMessageSendEvent.class, this::handlePrivateMessageSendEvent)
         );
     }
@@ -751,20 +749,6 @@ public class Proxy {
             CONFIG.authentication.prio = event.prio();
             saveConfigAsync();
         }
-    }
-
-    public void handleServerPlayerConnectedEvent(ServerPlayerConnectedEvent event) {
-        if (!CONFIG.client.extra.chat.showConnectionMessages) return;
-        var serverConnection = getCurrentPlayer().get();
-        if (nonNull(serverConnection) && serverConnection.isLoggedIn())
-            serverConnection.send(new ClientboundSystemChatPacket(ComponentSerializer.minimessage("<aqua" + event.playerEntry().getName() + "<yellow> connected"), false));
-    }
-
-    public void handleServerPlayerDisconnectedEvent(ServerPlayerDisconnectedEvent event) {
-        if (!CONFIG.client.extra.chat.showConnectionMessages) return;
-        var serverConnection = getCurrentPlayer().get();
-        if (nonNull(serverConnection) && serverConnection.isLoggedIn())
-            serverConnection.send(new ClientboundSystemChatPacket(ComponentSerializer.minimessage("<aqua>" + event.playerEntry().getName() + "<yellow> disconnected"), false));
     }
 
     public void handlePrivateMessageSendEvent(PrivateMessageSendEvent event) {

@@ -16,7 +16,6 @@ import com.zenith.network.client.handler.postoutgoing.*;
 import com.zenith.network.server.ServerSession;
 import com.zenith.network.server.handler.player.incoming.*;
 import com.zenith.network.server.handler.player.outgoing.ClientCommandsOutgoingHandler;
-import com.zenith.network.server.handler.player.outgoing.SystemChatOutgoingHandler;
 import com.zenith.network.server.handler.player.postoutgoing.LoginPostHandler;
 import com.zenith.network.server.handler.shared.incoming.*;
 import com.zenith.network.server.handler.shared.outgoing.KeepAliveOutgoingHandler;
@@ -227,13 +226,12 @@ public final class ZenithHandlerCodec {
                 .build())
             .state(ProtocolState.GAME, PacketHandlerStateCodec.<ServerSession>builder()
                 .registerInbound(ServerboundChatCommandPacket.class, new ChatCommandHandler())
-                .registerOutbound(ServerboundChatCommandSignedPacket.class, new SignedChatCommandHandler())
+                .registerInbound(ServerboundChatCommandSignedPacket.class, new SignedChatCommandHandler())
                 .registerInbound(ServerboundChatPacket.class, new ChatHandler())
                 .registerInbound(ServerboundClientInformationPacket.class, ClientInformationHandler.INSTANCE)
                 .registerInbound(ServerboundCommandSuggestionPacket.class, new CommandSuggestionHandler())
                 .registerInbound(ServerboundClientCommandPacket.class, new ClientCommandHandler())
                 .registerOutbound(ClientboundCommandsPacket.class, new ClientCommandsOutgoingHandler())
-                .registerOutbound(ClientboundSystemChatPacket.class, new SystemChatOutgoingHandler())
                 .registerPostOutbound(ClientboundLoginPacket.class, new LoginPostHandler())
                 .build())
             .build();
