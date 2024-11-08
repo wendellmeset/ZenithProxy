@@ -400,6 +400,7 @@ public final class Config {
 
             public static final class Cache {
                 public boolean unlockAllRecipes = true;
+                public boolean fullbrightChunkSkylight = true;
             }
         }
     }

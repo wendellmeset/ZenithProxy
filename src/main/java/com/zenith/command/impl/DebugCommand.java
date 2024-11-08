@@ -41,7 +41,8 @@ public class DebugCommand extends Command {
                 "dc",
                 "teleportResync on/off",
                 "ncpStrictInventory on/off",
-                "debugLogs on/off"
+                "debugLogs on/off",
+                "chunkCacheFullbright on/off"
             )
         );
     }
@@ -166,6 +167,12 @@ public class DebugCommand extends Command {
                 c.getSource().getEmbed()
                     .title("Debug Logs " + toggleStrCaps(CONFIG.debug.debugLogs));
                 return OK;
+            })))
+            .then(literal("chunkCacheFullbright").then(argument("toggle", toggle()).executes(c -> {
+                CONFIG.debug.server.cache.fullbrightChunkSkylight = getToggle(c, "toggle");
+                c.getSource().getEmbed()
+                    .title("Chunk Cache Fullbright " + toggleStrCaps(CONFIG.debug.server.cache.fullbrightChunkSkylight));
+                return OK;
             })));
     }
 
@@ -181,6 +188,7 @@ public class DebugCommand extends Command {
             .addField("Teleport Resync", toggleStr(CONFIG.debug.resyncTeleports), false)
             .addField("NCP Strict Inventory", toggleStr(CONFIG.debug.ncpStrictInventory), false)
             .addField("Debug Logs", toggleStr(CONFIG.debug.debugLogs), false)
+            .addField("Chunk Cache Fullbright", toggleStr(CONFIG.debug.server.cache.fullbrightChunkSkylight), false)
             .primaryColor();
     }
 }
