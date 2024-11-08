@@ -114,7 +114,6 @@ public final class Config {
             public final ReplayMod replayMod = new ReplayMod();
             public final ArrayList<PlayerEntry> friendsList = new ArrayList<>();
             public boolean autoConnectOnLogin = true;
-            public boolean prioBan2b2tCheck = true;
             public boolean prioStatusChangeMention = true;
             public boolean killMessage = true;
             public boolean logChatMessages = true;
@@ -158,6 +157,7 @@ public final class Config {
             }
 
             public static final class Chat {
+                public boolean enabled = true;
                 public final ArrayList<PlayerEntry> ignoreList = new ArrayList<>();
                 public boolean hideChat = false;
                 public boolean hideWhispers = false;
