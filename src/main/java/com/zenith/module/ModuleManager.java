@@ -29,6 +29,7 @@ public class ModuleManager {
             new AutoTotem(),
             new ChatHistory(),
             new ESP(),
+            new ExtraChat(),
             new KillAura(),
             new PlayerSimulation(),
             new ReplayMod(),

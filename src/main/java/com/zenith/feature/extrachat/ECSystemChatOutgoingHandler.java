@@ -1,4 +1,4 @@
-package com.zenith.network.server.handler.player.outgoing;
+package com.zenith.feature.extrachat;
 
 import com.zenith.network.registry.PacketHandler;
 import com.zenith.network.server.ServerSession;
@@ -12,7 +12,8 @@ import java.util.Objects;
 import static com.zenith.Shared.*;
 import static java.util.Objects.nonNull;
 
-public class SystemChatOutgoingHandler implements PacketHandler<ClientboundSystemChatPacket, ServerSession> {
+public class ECSystemChatOutgoingHandler implements PacketHandler<ClientboundSystemChatPacket, ServerSession> {
+
     @Override
     public ClientboundSystemChatPacket apply(ClientboundSystemChatPacket packet, ServerSession session) {
         try {
@@ -21,7 +22,8 @@ public class SystemChatOutgoingHandler implements PacketHandler<ClientboundSyste
             if (message.startsWith("<")) {
                 if (CONFIG.client.extra.chat.hideChat) {
                     return null;
-                } else if (PLAYER_LISTS.getIgnoreList().contains(message.substring(message.indexOf("<") + 1, message.indexOf(">")))) {
+                } else if (PLAYER_LISTS.getIgnoreList()
+                    .contains(message.substring(message.indexOf("<") + 1, message.indexOf(">")))) {
                     return null;
                 }
             }
@@ -37,7 +39,9 @@ public class SystemChatOutgoingHandler implements PacketHandler<ClientboundSyste
                 return null;
             }
         } catch (final Exception e) {
-            SERVER_LOG.error("Failed to parse chat message in ServerChatPacketHandler: {}", ComponentSerializer.serializePlain(packet.getContent()), e);
+            SERVER_LOG.error("Failed to parse chat message in ExtraChatSystemChatOutgoingHandler: {}",
+                             ComponentSerializer.serializePlain(packet.getContent()),
+                             e);
         }
         return packet;
     }

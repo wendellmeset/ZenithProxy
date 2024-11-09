@@ -38,7 +38,7 @@ public abstract class Api {
                 return Optional.empty();
             }
         } catch (Exception e) {
-            DEFAULT_LOG.error("Failed to send get request to: {}", uri, e);
+            DEFAULT_LOG.error("Failed to send get request to: {}{}", baseUrl, uri, e);
             return Optional.empty();
         }
     }

@@ -1,6 +1,5 @@
 package com.zenith.feature.api;
 
-import com.zenith.Shared;
 import com.zenith.feature.api.minetools.MinetoolsApi;
 import com.zenith.feature.api.mojang.MojangApi;
 import com.zenith.feature.api.sessionserver.SessionServerApi;
@@ -14,12 +13,6 @@ public class MojangApiTests {
     final MojangApi api = new MojangApi();
     final MinetoolsApi minetoolsApi = new MinetoolsApi();
     final SessionServerApi sessionServerApi = new SessionServerApi();
-
-//    @BeforeAll
-    public static void setup() {
-        Shared.loadConfig();
-        Shared.loadLaunchConfig();
-    }
 
 //    @Test
     public void getMojangProfileTest() {

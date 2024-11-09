@@ -326,7 +326,7 @@ $v went inside $w and died.
 $v got stuck in a berry bush and died trying to escape $m
 
 # suicides
-# is living magma a mob?
+$v assassinated themselves.
 $v became lava.
 $v blew themselves up with a(n) $w
 $v broke apart from falling.
@@ -353,6 +353,9 @@ $v drank themselves dead.
 $v dried up and fell apart.
 $v drowned in lava.
 $v drowned.
+$v ended their own pitiful existence.
+$v ended their life.
+$v ended themselves.
 $v exhausted and died.
 $v exploded into gibs playing with fireworks.
 $v exploded themselves with a(n) $w
@@ -373,6 +376,7 @@ $v had their life instantly removed.
 $v hit the ground too hard.
 $v impaled themselves.
 $v killed themselves using magic.
+$v killed themselves.
 $v lost grip of a ladder and fell to death.
 $v lost grip of vines and fell to death.
 $v melted by fire.

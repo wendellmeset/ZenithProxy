@@ -1,18 +1,11 @@
 package com.zenith.feature.api;
 
-import com.zenith.Shared;
 import com.zenith.feature.api.prioban.PriobanApi;
 import org.junit.jupiter.api.Assertions;
 
 import java.util.Optional;
 
 public class PriobanApiTest {
-
-//    @BeforeAll
-    public static void setup() {
-        Shared.loadConfig();
-        Shared.loadLaunchConfig();
-    }
 
 //    @Test
     public void notBannedCheck() {

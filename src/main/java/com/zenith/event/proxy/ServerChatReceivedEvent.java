@@ -8,7 +8,13 @@ import java.util.Optional;
 
 import static com.zenith.Shared.CONFIG;
 
-public record ServerChatReceivedEvent(Optional<PlayerListEntry> sender, Component messageComponent, String message, Optional<PlayerListEntry> whisperTarget, Optional<DeathMessageParseResult> deathMessage) {
+public record ServerChatReceivedEvent(
+    Optional<PlayerListEntry> sender,
+    Component messageComponent,
+    String message,
+    Optional<PlayerListEntry> whisperTarget,
+    Optional<DeathMessageParseResult> deathMessage
+) {
 
     public boolean isDeathMessage() {
         return deathMessage.isPresent();

@@ -1,6 +1,5 @@
 package com.zenith.feature.api;
 
-import com.zenith.Shared;
 import com.zenith.feature.api.crafthead.CraftheadApi;
 
 import java.util.UUID;
@@ -11,12 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class CraftheadTest {
 
     public CraftheadApi api = new CraftheadApi();
-
-//    @BeforeAll
-    public static void setup() {
-        Shared.loadConfig();
-        Shared.loadLaunchConfig();
-    }
 
 //    @Test
     public void getProfileFromUsername() {

@@ -281,7 +281,7 @@ public class PlayerSimulation extends Module {
     }
 
     private void tickEnd(ClientBotTick event) {
-        sendClientPacket(new ServerboundClientTickEndPacket());
+        sendClientPacket(ServerboundClientTickEndPacket.INSTANCE);
     }
 
     private MutableVec3d getMovementInputVec() {

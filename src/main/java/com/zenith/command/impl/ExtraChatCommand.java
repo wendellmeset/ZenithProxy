@@ -24,6 +24,7 @@ public class ExtraChatCommand extends Command {
                                  Allows hiding types of messages in-game or in the terminal chat log.
                                  """,
                                  Arrays.asList(
+                                     "on/off",
                                      "hideChat on/off",
                                      "hideWhispers on/off",
                                      "hideDeathMessages on/off",
@@ -35,6 +36,11 @@ public class ExtraChatCommand extends Command {
     @Override
     public LiteralArgumentBuilder<CommandContext> register() {
         return command("extraChat")
+            .then(argument("toggle", toggle()).executes(c -> {
+                CONFIG.client.extra.chat.enabled = getToggle(c, "toggle");
+                c.getSource().getEmbed().title("ExtraChat " + toggleStrCaps(CONFIG.client.extra.chat.enabled));
+                return OK;
+            }))
             .then(literal("hideChat")
                       .then(argument("toggle", toggle()).executes(c -> {
                             CONFIG.client.extra.chat.hideChat = getToggle(c, "toggle");
@@ -76,6 +82,7 @@ public class ExtraChatCommand extends Command {
     @Override
     public void postPopulate(final Embed builder) {
         builder
+            .addField("ExtraChat", toggleStr(CONFIG.client.extra.chat.enabled), false)
             .addField("Hide Chat", toggleStr(CONFIG.client.extra.chat.hideChat), false)
             .addField("Hide Whispers", toggleStr(CONFIG.client.extra.chat.hideWhispers), false)
             .addField("Hide death Messages", toggleStr(CONFIG.client.extra.chat.hideDeathMessages), false)

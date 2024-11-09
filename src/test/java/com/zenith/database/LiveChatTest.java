@@ -1,7 +1,6 @@
 package com.zenith.database;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.zenith.Shared;
 import com.zenith.database.dto.records.ChatsRecord;
 import org.redisson.api.RBoundedBlockingQueue;
 import org.redisson.api.RedissonClient;
@@ -15,8 +14,6 @@ public class LiveChatTest {
 
 //    @Test
     public void liveChatTest() throws JsonProcessingException {
-        Shared.loadConfig();
-        Shared.loadLaunchConfig();
         final RedisClient redisClient = new RedisClient();
         RedissonClient redissonClient = redisClient.getRedissonClient();
         RBoundedBlockingQueue<String> queue = redissonClient.getBoundedBlockingQueue("ChatsQueue");

@@ -60,7 +60,7 @@ public class SystemChatHandler implements ClientEventLoopPacketHandler<Clientbou
                 Optional.ofNullable(whisperTarget).flatMap(t -> CACHE.getTabListCache().getFromName(t)),
                 deathMessage));
         } catch (final Exception e) {
-            CLIENT_LOG.error("Caught exception in ChatHandler. Packet: " + packet, e);
+            CLIENT_LOG.error("Caught exception in ChatHandler. Packet: {}", packet, e);
         }
         return true;
     }

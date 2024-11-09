@@ -1,6 +1,5 @@
 package com.zenith.feature.api;
 
-import com.zenith.Shared;
 import com.zenith.feature.api.vcapi.VcApi;
 import com.zenith.feature.api.vcapi.model.PlaytimeResponse;
 import com.zenith.feature.api.vcapi.model.SeenResponse;
@@ -12,12 +11,6 @@ public class VcApiTests {
 
     final VcApi api = new VcApi();
 
-
-//    @BeforeAll
-    public static void setup() {
-        Shared.loadConfig();
-        Shared.loadLaunchConfig();
-    }
 
 //    @Test
     public void seen() {

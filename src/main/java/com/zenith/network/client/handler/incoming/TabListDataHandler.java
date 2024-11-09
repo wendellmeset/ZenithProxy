@@ -97,11 +97,16 @@ public class TabListDataHandler implements ClientEventLoopPacketHandler<Clientbo
                      * prio:
                      * "This account has priority status and will be placed in a shorter queue."
                      */
-                    EVENT_BUS.postAsync(new PrioStatusEvent(!messageString.contains("shop.2b2t.org")));
+                    if (messageString.contains("purchase priority queue")) {
+                        EVENT_BUS.postAsync(new PrioStatusEvent(false));
+                    } else if (messageString.contains("has priority status")) {
+                        EVENT_BUS.postAsync(new PrioStatusEvent(true));
+                    }
                 });
     }
 
     private synchronized void parse2bPing(final ClientboundTabListPacket packet, ClientSession session) {
+        if (CONFIG.client.ping.mode != Config.Client.Ping.Mode.TABLIST) return;
         Optional.of(packet.getFooter())
                 .map(ComponentSerializer::serializePlain)
                 .map(textRaw -> textRaw.replace("\n", ""))
@@ -114,12 +119,8 @@ public class TabListDataHandler implements ClientEventLoopPacketHandler<Clientbo
                         final String pingSection = hyphenSplit.getLast();
                         final List<String> pingSectionSpaceSplit = Arrays.asList(pingSection.split(" "));
                         if (!pingSectionSpaceSplit.isEmpty()) {
-                            final String ping = pingSectionSpaceSplit.get(1);
                             try {
-                                int pingInt = Integer.parseInt(ping);
-                                if (CONFIG.client.ping.mode == Config.Client.Ping.Mode.TABLIST) {
-                                    session.setPing(pingInt);
-                                }
+                                session.setPing(Integer.parseInt(pingSectionSpaceSplit.get(1)));
                             } catch (final Exception e) {
                                 // f
                             }

@@ -1,10 +1,8 @@
 package com.zenith.feature.deathmessages;
 
-import com.zenith.Shared;
 import com.zenith.util.ComponentSerializer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
@@ -15,12 +13,6 @@ import static org.junit.jupiter.api.Assertions.*;
 public class DeathMessageParserTest {
 
     private final DeathMessagesParser deathMessagesParser = new DeathMessagesParser();
-
-    @BeforeAll
-    public static void beforeAll() {
-        Shared.loadConfig();
-        Shared.loadLaunchConfig();
-    }
 
     @Test
     public void basicSuicide() {

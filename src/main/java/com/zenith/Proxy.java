@@ -78,7 +78,7 @@ import static java.util.Objects.nonNull;
 
 @Getter
 public class Proxy {
-    @Getter protected static Proxy instance;
+    @Getter protected static final Proxy instance = new Proxy();
     protected ClientSession client;
     protected TcpServer server;
     protected final Authenticator authenticator = new Authenticator();
@@ -107,7 +107,6 @@ public class Proxy {
             System.setProperty("reactor.schedulers.defaultPoolSize", "1");
         if (System.getProperty("reactor.schedulers.defaultBoundedElasticOnVirtualThreads") == null)
             System.setProperty("reactor.schedulers.defaultBoundedElasticOnVirtualThreads", "true");
-        instance = new Proxy();
         instance.start();
     }
 
@@ -121,15 +120,11 @@ public class Proxy {
             of(QueueCompleteEvent.class, this::handleQueueCompleteEvent),
             of(PlayerOnlineEvent.class, this::handlePlayerOnlineEvent),
             of(PrioStatusEvent.class, this::handlePrioStatusEvent),
-            of(ServerPlayerConnectedEvent.class, this::handleServerPlayerConnectedEvent),
-            of(ServerPlayerDisconnectedEvent.class, this::handleServerPlayerDisconnectedEvent),
             of(PrivateMessageSendEvent.class, this::handlePrivateMessageSendEvent)
         );
     }
 
     public void start() {
-        loadConfig();
-        loadLaunchConfig();
         DEFAULT_LOG.info("Starting ZenithProxy-{}", LAUNCH_CONFIG.version);
         @Nullable String exeReleaseVersion = getExecutableReleaseVersion();
         if (exeReleaseVersion == null) {
@@ -157,6 +152,7 @@ public class Proxy {
                 } catch (final Throwable e) {
                     err = true;
                     DISCORD_LOG.error("Failed starting discord bot: {}", e.getMessage());
+                    DISCORD_LOG.debug("Failed starting discord bot", e);
                 }
                 if (!err) DISCORD_LOG.info("Started Discord Bot");
             }
@@ -486,6 +482,7 @@ public class Proxy {
         if (minecraftProtocol == null) throw new RuntimeException("Auth failed");
         var username = minecraftProtocol.getProfile().getName();
         var uuid = minecraftProtocol.getProfile().getId();
+        CACHE.getChatCache().setPlayerCertificates(minecraftProtocol.getProfile().getPlayerCertificates());
         AUTH_LOG.info("Logged in as {} [{}].", username, uuid);
         if (CONFIG.server.extra.whitelist.autoAddClient)
             if (PLAYER_LISTS.getWhitelist().add(username, uuid))
@@ -749,20 +746,6 @@ public class Proxy {
             CONFIG.authentication.prio = event.prio();
             saveConfigAsync();
         }
-    }
-
-    public void handleServerPlayerConnectedEvent(ServerPlayerConnectedEvent event) {
-        if (!CONFIG.client.extra.chat.showConnectionMessages) return;
-        var serverConnection = getCurrentPlayer().get();
-        if (nonNull(serverConnection) && serverConnection.isLoggedIn())
-            serverConnection.send(new ClientboundSystemChatPacket(ComponentSerializer.minimessage("<aqua" + event.playerEntry().getName() + "<yellow> connected"), false));
-    }
-
-    public void handleServerPlayerDisconnectedEvent(ServerPlayerDisconnectedEvent event) {
-        if (!CONFIG.client.extra.chat.showConnectionMessages) return;
-        var serverConnection = getCurrentPlayer().get();
-        if (nonNull(serverConnection) && serverConnection.isLoggedIn())
-            serverConnection.send(new ClientboundSystemChatPacket(ComponentSerializer.minimessage("<aqua>" + event.playerEntry().getName() + "<yellow> disconnected"), false));
     }
 
     public void handlePrivateMessageSendEvent(PrivateMessageSendEvent event) {

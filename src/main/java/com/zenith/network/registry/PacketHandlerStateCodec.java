@@ -3,8 +3,9 @@ package com.zenith.network.registry;
 import com.zenith.network.client.ClientSession;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
-import lombok.*;
-import lombok.experimental.Accessors;
+import lombok.AccessLevel;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.geysermc.mcprotocollib.network.Session;
 import org.geysermc.mcprotocollib.network.packet.Packet;
 
@@ -51,9 +52,6 @@ public class PacketHandlerStateCodec<S extends Session> {
         }
     }
 
-    @Getter
-    @Setter
-    @Accessors(chain = true)
     public static class Builder<S extends Session> {
 
         protected final Reference2ObjectMap<Class<? extends Packet>, PacketHandler<? extends Packet, S>> inboundHandlers = new Reference2ObjectOpenHashMap<>();

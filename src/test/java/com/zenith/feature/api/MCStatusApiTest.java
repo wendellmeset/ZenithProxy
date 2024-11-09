@@ -1,23 +1,15 @@
 package com.zenith.feature.api;
 
-import com.zenith.Shared;
 import com.zenith.feature.api.mcsrvstatus.MCSrvStatusApi;
 import com.zenith.feature.api.mcsrvstatus.model.MCSrvStatusResponse;
 import com.zenith.feature.api.mcstatus.MCStatusApi;
 import com.zenith.feature.api.mcstatus.model.MCStatusResponse;
-import org.junit.jupiter.api.BeforeAll;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MCStatusApiTest {
-
-    @BeforeAll
-    public static void before() {
-        Shared.loadLaunchConfig();
-        Shared.loadConfig();
-    }
 
 //    @Test
     public void test() {

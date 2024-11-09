@@ -25,16 +25,16 @@ import static com.zenith.Shared.OBJECT_MAPPER;
 public class BlockDataManager {
     private final Int2ObjectOpenHashMap<Block> blockStateIdToBlock;
     private final Int2ObjectOpenHashMap<List<CollisionBox>> blockStateIdToCollisionBoxes;
-    private final IntOpenHashSet waterloggedStateIds = new IntOpenHashSet(9182 + 1, Maps.MAX_LOAD_FACTOR);
+    private final IntOpenHashSet waterloggedStateIds = new IntOpenHashSet(9182 + 1, Maps.FAST_LOAD_FACTOR);
 
     public BlockDataManager() {
         int blockStateIdCount = BlockRegistry.REGISTRY.getIdMap().int2ObjectEntrySet().stream()
             .map(Map.Entry::getValue)
             .map(Block::maxStateId)
             .max(Integer::compareTo)
-            .orElseThrow() + 1;
-        blockStateIdToBlock = new Int2ObjectOpenHashMap<>(blockStateIdCount, Maps.MAX_LOAD_FACTOR);
-        blockStateIdToCollisionBoxes = new Int2ObjectOpenHashMap<>(blockStateIdCount, Maps.MAX_LOAD_FACTOR);
+            .orElseThrow();
+        blockStateIdToBlock = new Int2ObjectOpenHashMap<>(blockStateIdCount, Maps.FAST_LOAD_FACTOR);
+        blockStateIdToCollisionBoxes = new Int2ObjectOpenHashMap<>(blockStateIdCount, Maps.FAST_LOAD_FACTOR);
         init();
     }
 

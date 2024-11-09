@@ -68,12 +68,17 @@ public final class Config {
         public long maxPlaytimeReconnectMins = 1440;
         public final ClientTimeout timeout = new ClientTimeout();
         public final Ping ping = new Ping();
+        public final ChatSigning chatSigning = new ChatSigning();
+
+        public static final class ChatSigning {
+            public boolean enabled = true;
+        }
 
         public static final class ClientViaVersion {
             public boolean enabled = false;
             public boolean disableOn2b2t = true;
             public boolean autoProtocolVersion = true;
-            public int protocolVersion = 762; // 1.19.4
+            public int protocolVersion = 765;
         }
 
         public static final class ClientTimeout {
@@ -109,7 +114,6 @@ public final class Config {
             public final ReplayMod replayMod = new ReplayMod();
             public final ArrayList<PlayerEntry> friendsList = new ArrayList<>();
             public boolean autoConnectOnLogin = true;
-            public boolean prioBan2b2tCheck = true;
             public boolean prioStatusChangeMention = true;
             public boolean killMessage = true;
             public boolean logChatMessages = true;
@@ -153,6 +157,7 @@ public final class Config {
             }
 
             public static final class Chat {
+                public boolean enabled = true;
                 public final ArrayList<PlayerEntry> ignoreList = new ArrayList<>();
                 public boolean hideChat = false;
                 public boolean hideWhispers = false;
@@ -395,6 +400,7 @@ public final class Config {
 
             public static final class Cache {
                 public boolean unlockAllRecipes = true;
+                public boolean fullbrightChunkSkylight = true;
             }
         }
     }
@@ -633,16 +639,5 @@ public final class Config {
         public int autoUpdateCheckIntervalSeconds = 300;
         // internal config, don't set this manually
         public boolean shouldReconnectAfterAutoUpdate = false;
-    }
-
-    private transient boolean donePostLoad = false;
-
-    public synchronized Config doPostLoad() {
-        if (this.donePostLoad) {
-            throw new IllegalStateException("Config post-load already done!");
-        }
-        this.donePostLoad = true;
-
-        return this;
     }
 }

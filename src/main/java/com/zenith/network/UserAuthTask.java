@@ -28,9 +28,10 @@ public class UserAuthTask implements Runnable {
         if (this.key != null) {
             final Optional<GameProfile> response = SessionServerApi.INSTANCE.hasJoined(
                 session.getUsername(),
-                SessionServerApi.INSTANCE.getSharedSecret(session.getServerId(),
-                                               session.getKeyPair().getPublic(),
-                                               this.key));
+                SessionServerApi.INSTANCE.getSharedSecret(
+                    session.getServerId(),
+                    session.getKeyPair().getPublic(),
+                    this.key));
             if (response.isEmpty()) {
                 this.session.disconnect("Failed to verify username.");
                 return;

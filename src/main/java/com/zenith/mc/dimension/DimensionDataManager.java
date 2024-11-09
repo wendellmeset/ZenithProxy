@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DimensionDataManager {
-    private final Map<String, DimensionData> dimensionNameToData = new ConcurrentHashMap<>(DimensionRegistry.REGISTRY.size()+1, Maps.MAX_LOAD_FACTOR);
+    private final Map<String, DimensionData> dimensionNameToData = new ConcurrentHashMap<>(DimensionRegistry.REGISTRY.size(), Maps.FAST_LOAD_FACTOR);
 
     public DimensionDataManager() {
         init();

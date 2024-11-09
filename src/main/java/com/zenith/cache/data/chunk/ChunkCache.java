@@ -26,6 +26,7 @@ import org.geysermc.mcprotocollib.protocol.data.game.chunk.ChunkBiomeData;
 import org.geysermc.mcprotocollib.protocol.data.game.chunk.ChunkSection;
 import org.geysermc.mcprotocollib.protocol.data.game.chunk.DataPalette;
 import org.geysermc.mcprotocollib.protocol.data.game.entity.player.PlayerSpawnInfo;
+import org.geysermc.mcprotocollib.protocol.data.game.level.LightUpdateData;
 import org.geysermc.mcprotocollib.protocol.data.game.level.block.BlockChangeEntry;
 import org.geysermc.mcprotocollib.protocol.data.game.level.block.BlockEntityInfo;
 import org.geysermc.mcprotocollib.protocol.data.game.level.block.BlockEntityType;
@@ -38,10 +39,7 @@ import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.level.*;
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.level.border.ClientboundInitializeBorderPacket;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -319,6 +317,34 @@ public class ChunkCache implements CachedData {
             : BrandSerializer.appendBrand(codec, serverBrand);
     }
 
+    private static final byte[] fullBrightSkyLightData;
+    static {
+        fullBrightSkyLightData = new byte[2048];
+        for (int j = 0; j < 2048; j++) {
+            fullBrightSkyLightData[j] = (byte) 0b11111111;
+        }
+    }
+
+    private LightUpdateData createFullBrightLightData(LightUpdateData lightData, int sectionCount) {
+        var sectionPlusAboveBelowCount = sectionCount + 2;
+        var skylightMaskSet = new BitSet(sectionPlusAboveBelowCount);
+        skylightMaskSet.set(0, sectionPlusAboveBelowCount);
+        // leave all empty
+        var emptySkyLightMask = new BitSet(sectionPlusAboveBelowCount);
+        List<byte[]> skyUpdates = new ArrayList<>(sectionPlusAboveBelowCount);
+        for (int i = 0; i < sectionPlusAboveBelowCount; i++) {
+            skyUpdates.add(fullBrightSkyLightData);
+        }
+        return new LightUpdateData(
+            skylightMaskSet.toLongArray(),
+            lightData.getBlockYMask(),
+            emptySkyLightMask.toLongArray(),
+            lightData.getEmptyBlockYMask(),
+            skyUpdates,
+            lightData.getBlockUpdates()
+        );
+    }
+
     @Override
     public void getPackets(@NonNull Consumer<Packet> consumer) {
         try {
@@ -352,7 +378,9 @@ public class ChunkCache implements CachedData {
                     chunk.sections,
                     chunk.heightMaps,
                     chunk.blockEntities.toArray(new BlockEntityInfo[0]),
-                    chunk.lightUpdateData));
+                    CONFIG.debug.server.cache.fullbrightChunkSkylight
+                        ? createFullBrightLightData(chunk.lightUpdateData, chunk.sections.length)
+                        : chunk.lightUpdateData));
             }
             consumer.accept(new ClientboundChunkBatchFinishedPacket(this.cache.size()));
         } catch (Exception e) {
