@@ -4418,6 +4418,56 @@
       ]
     },
     {
+      "type": "org.postgresql.ds.PGSimpleDataSource",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.postgresql.ds.common.BaseDataSource",
+      "methods": [
+        {
+          "name": "setDatabaseName",
+          "parameterTypes": [
+            "java.lang.String"
+          ]
+        },
+        {
+          "name": "setLoginTimeout",
+          "parameterTypes": [
+            "int"
+          ]
+        },
+        {
+          "name": "setPortNumber",
+          "parameterTypes": [
+            "int"
+          ]
+        },
+        {
+          "name": "setServerName",
+          "parameterTypes": [
+            "java.lang.String"
+          ]
+        },
+        {
+          "name": "setSocketTimeout",
+          "parameterTypes": [
+            "int"
+          ]
+        },
+        {
+          "name": "setTcpKeepAlive",
+          "parameterTypes": [
+            "boolean"
+          ]
+        }
+      ]
+    },
+    {
       "type": "org.postgresql.jdbc.PgStatement",
       "fields": [
         {

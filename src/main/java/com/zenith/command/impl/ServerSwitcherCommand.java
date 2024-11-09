@@ -82,7 +82,7 @@ public class ServerSwitcherCommand extends Command {
                 ServerSession currentPlayer = Proxy.getInstance().getCurrentPlayer().get();
                 if (currentPlayer == null) {
                     c.getSource().getEmbed()
-                        .title("No player found");
+                        .title("No player connected to transfer");
                     return OK;
                 }
                 if (CONFIG.server.viaversion.enabled) {
@@ -113,6 +113,7 @@ public class ServerSwitcherCommand extends Command {
         var str = CONFIG.server.extra.serverSwitcher.servers.stream()
             .map(s -> s.name() + " -> " + s.address() + ":" + s.port())
             .collect(Collectors.joining("\n"));
+        if (str.isBlank()) str = "None";
         embed
             .primaryColor()
             .description("**Registered Servers**\n\n" + str + "\n");
