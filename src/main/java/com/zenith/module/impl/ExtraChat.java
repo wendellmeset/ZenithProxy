@@ -5,6 +5,7 @@ import com.zenith.event.proxy.ServerPlayerConnectedEvent;
 import com.zenith.event.proxy.ServerPlayerDisconnectedEvent;
 import com.zenith.feature.extrachat.ECChatCommandIncomingHandler;
 import com.zenith.feature.extrachat.ECPlayerChatOutgoingHandler;
+import com.zenith.feature.extrachat.ECSignedChatCommandIncomingHandler;
 import com.zenith.feature.extrachat.ECSystemChatOutgoingHandler;
 import com.zenith.module.Module;
 import com.zenith.network.registry.PacketHandlerCodec;
@@ -16,6 +17,7 @@ import org.geysermc.mcprotocollib.protocol.data.ProtocolState;
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundPlayerChatPacket;
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundSystemChatPacket;
 import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.ServerboundChatCommandPacket;
+import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.ServerboundChatCommandSignedPacket;
 
 import static com.github.rfresh2.EventConsumer.of;
 import static com.zenith.Shared.CONFIG;
@@ -31,6 +33,7 @@ public class ExtraChat extends Module {
             .registerOutbound(ClientboundSystemChatPacket.class, new ECSystemChatOutgoingHandler())
             .registerOutbound(ClientboundPlayerChatPacket.class, new ECPlayerChatOutgoingHandler())
             .registerInbound(ServerboundChatCommandPacket.class, new ECChatCommandIncomingHandler())
+            .registerInbound(ServerboundChatCommandSignedPacket.class, new ECSignedChatCommandIncomingHandler())
             .build())
         .build();
 

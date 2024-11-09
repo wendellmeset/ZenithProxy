@@ -6,7 +6,6 @@ import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.Serverbound
 
 import static com.zenith.Shared.CONFIG;
 import static com.zenith.Shared.IN_GAME_COMMAND;
-import static com.zenith.network.server.handler.player.incoming.ChatCommandHandler.replaceExtraChatServerCommands;
 
 public class SignedChatCommandHandler implements PacketHandler<ServerboundChatCommandSignedPacket, ServerSession> {
     @Override
@@ -21,6 +20,6 @@ public class SignedChatCommandHandler implements PacketHandler<ServerboundChatCo
                 CONFIG.inGameCommands.slashCommandsReplacesServerCommands)
             || CONFIG.inGameCommands.slashCommandsReplacesServerCommands))
             return null;
-        return replaceExtraChatServerCommands(command, session) ? packet : null;
+        return packet;
     }
 }
