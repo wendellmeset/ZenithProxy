@@ -640,15 +640,4 @@ public final class Config {
         // internal config, don't set this manually
         public boolean shouldReconnectAfterAutoUpdate = false;
     }
-
-    private transient boolean donePostLoad = false;
-
-    public synchronized Config doPostLoad() {
-        if (this.donePostLoad) {
-            throw new IllegalStateException("Config post-load already done!");
-        }
-        this.donePostLoad = true;
-
-        return this;
-    }
 }

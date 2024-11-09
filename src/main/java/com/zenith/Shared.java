@@ -96,7 +96,7 @@ public class Shared {
                 config = new Config();
             }
 
-            CONFIG = config.doPostLoad();
+            CONFIG = config;
             PLAYER_LISTS.init();
             DEFAULT_LOG.info("Config loaded.");
         } catch (final Throwable e) {
@@ -162,8 +162,8 @@ public class Shared {
         DEFAULT_LOG.debug("Saving config...");
 
         if (CONFIG == null) {
-            DEFAULT_LOG.warn("Config is not set, saving default config!");
-            CONFIG = new Config().doPostLoad();
+            DEFAULT_LOG.error("Cannot save unloaded config");
+            return;
         }
 
         try {
@@ -183,8 +183,8 @@ public class Shared {
         DEFAULT_LOG.debug("Saving launch config...");
 
         if (LAUNCH_CONFIG == null) {
-            DEFAULT_LOG.warn("Launch config is not set, saving default config!");
-            LAUNCH_CONFIG = new LaunchConfig();
+            DEFAULT_LOG.error("Cannot save unloaded launch config");
+            return;
         }
 
         try {
@@ -230,6 +230,8 @@ public class Shared {
             INVENTORY = new PlayerInventoryManager();
             VIA_INITIALIZER = new ZenithViaInitializer();
             TranslationRegistryInitializer.registerAllTranslations();
+            loadConfig();
+            loadLaunchConfig();
         } catch (final Throwable e) {
             DEFAULT_LOG.error("Unable to initialize!", e);
             throw e;

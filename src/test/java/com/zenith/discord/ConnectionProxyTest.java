@@ -1,6 +1,5 @@
 package com.zenith.discord;
 
-import com.zenith.Shared;
 import io.netty.resolver.DefaultAddressResolverGroup;
 import reactor.netty.http.client.HttpClient;
 
@@ -12,7 +11,6 @@ public class ConnectionProxyTest {
 
 //    @Test
     public void proxiedHttpClientTest() {
-        Shared.loadConfig();
         var baseClient = HttpClient.create().resolver(DefaultAddressResolverGroup.INSTANCE).compress(true).followRedirect(true).secure();
         var proxy = DISCORD.getProxiedHttpClient(baseClient);
         String ip = proxy.get()

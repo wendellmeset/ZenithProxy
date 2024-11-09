@@ -21,7 +21,6 @@ public class Queue {
     @Getter
     private static QueueStatus queueStatus = new QueueStatus(0, 0, 0);
     private static final Pattern digitPattern = Pattern.compile("\\d+");
-    private static final MCPing mcPing = new MCPing();
     private volatile static Instant lastUpdate = Instant.EPOCH;
     private static QueueEtaEquationResponse queueEtaEquation = new QueueEtaEquationResponse(343.0, 0.743);
     private static Instant lastQueueEtaEquationUpdate = Instant.EPOCH;
@@ -78,7 +77,7 @@ public class Queue {
 
     public static boolean pingUpdate() {
         try {
-            final MCResponse pingWithDetails = mcPing.ping("connect.2b2t.org", 25565, 3000, false);
+            final MCResponse pingWithDetails = MCPing.INSTANCE.ping("connect.2b2t.org", 25565, 3000, false);
             final String queueStr = pingWithDetails.players().sample().get(1).name();
             final Matcher regularQMatcher = digitPattern.matcher(queueStr.substring(queueStr.lastIndexOf(" ")));
             final String prioQueueStr = pingWithDetails.players().sample().get(2).name();

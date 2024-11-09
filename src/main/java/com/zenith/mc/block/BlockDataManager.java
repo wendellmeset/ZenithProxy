@@ -32,7 +32,7 @@ public class BlockDataManager {
             .map(Map.Entry::getValue)
             .map(Block::maxStateId)
             .max(Integer::compareTo)
-            .orElseThrow() + 1;
+            .orElseThrow();
         blockStateIdToBlock = new Int2ObjectOpenHashMap<>(blockStateIdCount, Maps.FAST_LOAD_FACTOR);
         blockStateIdToCollisionBoxes = new Int2ObjectOpenHashMap<>(blockStateIdCount, Maps.FAST_LOAD_FACTOR);
         init();

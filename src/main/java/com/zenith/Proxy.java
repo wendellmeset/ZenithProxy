@@ -78,7 +78,7 @@ import static java.util.Objects.nonNull;
 
 @Getter
 public class Proxy {
-    @Getter protected static Proxy instance;
+    @Getter protected static final Proxy instance = new Proxy();
     protected ClientSession client;
     protected TcpServer server;
     protected final Authenticator authenticator = new Authenticator();
@@ -107,7 +107,6 @@ public class Proxy {
             System.setProperty("reactor.schedulers.defaultPoolSize", "1");
         if (System.getProperty("reactor.schedulers.defaultBoundedElasticOnVirtualThreads") == null)
             System.setProperty("reactor.schedulers.defaultBoundedElasticOnVirtualThreads", "true");
-        instance = new Proxy();
         instance.start();
     }
 
@@ -126,8 +125,6 @@ public class Proxy {
     }
 
     public void start() {
-        loadConfig();
-        loadLaunchConfig();
         DEFAULT_LOG.info("Starting ZenithProxy-{}", LAUNCH_CONFIG.version);
         @Nullable String exeReleaseVersion = getExecutableReleaseVersion();
         if (exeReleaseVersion == null) {

@@ -25,12 +25,14 @@ import java.util.ArrayList;
 import static com.zenith.Shared.OBJECT_MAPPER;
 
 public class MCPing {
+    public static final MCPing INSTANCE = new MCPing();
     /**
      * If the client is pinging to determine what version to use, by convention -1 should be set.
      */
     public static final int PROTOCOL_VERSION_DISCOVERY = -1;
     private static final String IP_REGEX = "\\b\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\b";
     private static final EventLoopGroup EVENT_LOOP_GROUP = new NioEventLoopGroup(1, new ThreadFactoryBuilder().setNameFormat("MCPing-%d").build());
+    private MCPing() {}
 
     public int getProtocolVersion(String hostname, int port, int timeout, boolean resolveDns) throws IOException {
         final InetSocketAddress address;

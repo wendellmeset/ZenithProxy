@@ -18,6 +18,6 @@ public class ZenithClientChannelInitializer extends TcpClientChannelInitializer 
     @Override
     protected void initChannel(final Channel channel) throws Exception {
         super.initChannel(channel);
-        VIA_INITIALIZER.clientViaChannelInitializer(channel, this.client);
+        VIA_INITIALIZER.clientViaChannelInitializer(channel);
     }
 }

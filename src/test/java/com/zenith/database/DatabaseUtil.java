@@ -1,6 +1,5 @@
 package com.zenith.database;
 
-import com.zenith.Shared;
 import com.zenith.util.Wait;
 import org.redisson.api.RLock;
 
@@ -8,9 +7,6 @@ public class DatabaseUtil {
 
 //    @Test
     public void forceUnlock() {
-        Shared.loadConfig();
-        Shared.loadLaunchConfig();
-
         RedisClient redisClient = new RedisClient();
 
         RLock lock = redisClient.getLock(
@@ -29,9 +25,6 @@ public class DatabaseUtil {
         // configure these
         final String playerName = "rfresh2";
         final String lockName = "Deaths";
-
-        Shared.loadConfig();
-        Shared.loadLaunchConfig();
 
         RedisClient redisClient = new RedisClient();
 

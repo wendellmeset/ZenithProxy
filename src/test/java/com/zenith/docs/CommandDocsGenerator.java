@@ -3,7 +3,6 @@ package com.zenith.docs;
 import com.zenith.Shared;
 import com.zenith.command.Command;
 import com.zenith.command.brigadier.CommandCategory;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -14,12 +13,6 @@ import java.util.stream.Collectors;
 import static java.util.Arrays.asList;
 
 public class CommandDocsGenerator {
-
-    @BeforeAll
-    public static void setup() {
-        Shared.loadConfig();
-        Shared.loadLaunchConfig();
-    }
 
     @Test
     public void generateDocs() {
