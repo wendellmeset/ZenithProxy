@@ -7,8 +7,7 @@ import java.util.Map;
 
 @UtilityClass
 public final class Maps {
-
-    public static float MAX_LOAD_FACTOR = 0.9999999f;
+    public static final float FAST_LOAD_FACTOR = 0.5f;
 
     public static <K, V> Map<K, V> of(K k1, V v1) {
         final Map<K, V> map = new HashMap<>();

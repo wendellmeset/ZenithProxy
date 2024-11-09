@@ -13,7 +13,7 @@ import static com.zenith.Shared.OBJECT_MAPPER;
 
 public class MapBlockColorManager {
     // todo: provide alternative color map? https://github.com/Godlander/vpp/blob/main/assets/minecraft/shaders/core/render/text.fsh
-    private final Int2IntMap mapColorIdToColor = new Int2IntOpenHashMap(64 + 1, Maps.MAX_LOAD_FACTOR);
+    private final Int2IntMap mapColorIdToColor = new Int2IntOpenHashMap(64, Maps.FAST_LOAD_FACTOR);
 
     public MapBlockColorManager() {
         init();
