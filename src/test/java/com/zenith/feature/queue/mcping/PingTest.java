@@ -10,9 +10,8 @@ import java.util.regex.Pattern;
 public class PingTest {
 //    @Test
     public void test() throws IOException {
-        final MCPing mcPing = new MCPing();
         final Pattern digitPattern = Pattern.compile("\\d+");
-        final MCResponse pingWithDetails = mcPing.ping("connect.2b2t.org", 25565, 3000, false);
+        final MCResponse pingWithDetails = MCPing.INSTANCE.ping("connect.2b2t.org", 25565, 3000, false);
         final String queueStr = pingWithDetails.players().sample().get(1).name();
         final Matcher regularQMatcher = digitPattern.matcher(queueStr.substring(queueStr.lastIndexOf(" ")));
         final String prioQueueStr = pingWithDetails.players().sample().get(2).name();
@@ -36,8 +35,7 @@ public class PingTest {
 
 //    @Test
     public void protocolVersionDetectorTest() throws IOException {
-        var mcPing = new MCPing();
-        var version = mcPing.getProtocolVersion("2b2t.org", 25565, 3000, true);
+        var version = MCPing.INSTANCE.getProtocolVersion("2b2t.org", 25565, 3000, true);
         Assertions.assertEquals(765, version);
     }
 }
