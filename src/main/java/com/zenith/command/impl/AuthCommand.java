@@ -49,7 +49,8 @@ public class AuthCommand extends Command {
                 "mention on/off",
                 "openBrowser on/off",
                 "maxRefreshIntervalMins <minutes>",
-                "useClientConnectionProxy on/off"
+                "useClientConnectionProxy on/off",
+                "chatSigning on/off"
             )
         );
     }
@@ -81,7 +82,7 @@ public class AuthCommand extends Command {
                 c.getSource().getEmbed()
                     .title("Always Refresh On Login " + toggleStrCaps(CONFIG.authentication.alwaysRefreshOnLogin))
                     .primaryColor();
-                return 1;
+                return OK;
             })))
             .then(literal("type").requires(this::validateDiscordOrTerminalSource)
                       .then(literal("deviceCode").executes(c -> {
@@ -91,7 +92,7 @@ public class AuthCommand extends Command {
                               .primaryColor();
                           Proxy.getInstance().cancelLogin();
                           Proxy.getInstance().getAuthenticator().clearAuthCache();
-                          return 1;
+                          return OK;
                       }))
                       .then(literal("emailAndPassword").executes(c -> {
                           CONFIG.authentication.accountType = Config.Authentication.AccountType.MSA;
@@ -100,7 +101,7 @@ public class AuthCommand extends Command {
                               .primaryColor();
                           Proxy.getInstance().cancelLogin();
                           Proxy.getInstance().getAuthenticator().clearAuthCache();
-                          return 1;
+                          return OK;
                       }))
                       .then(literal("deviceCode2").executes(c -> {
                           CONFIG.authentication.accountType = Config.Authentication.AccountType.DEVICE_CODE_WITHOUT_DEVICE_TOKEN;
@@ -109,7 +110,7 @@ public class AuthCommand extends Command {
                               .primaryColor();
                           Proxy.getInstance().cancelLogin();
                           Proxy.getInstance().getAuthenticator().clearAuthCache();
-                          return 1;
+                          return OK;
                       }))
                       .then(literal("prism").executes(c -> {
                           CONFIG.authentication.accountType = Config.Authentication.AccountType.PRISM;
@@ -118,7 +119,7 @@ public class AuthCommand extends Command {
                               .primaryColor();
                           Proxy.getInstance().cancelLogin();
                           Proxy.getInstance().getAuthenticator().clearAuthCache();
-                          return 1;
+                          return OK;
                       })))
             .then(literal("email").requires(this::validateTerminalSource)
                       .then(argument("email", wordWithChars()).executes(c -> {
@@ -129,13 +130,13 @@ public class AuthCommand extends Command {
                               c.getSource().getEmbed()
                                   .title("Invalid Email")
                                   .errorColor();
-                              return 1;
+                              return OK;
                           }
                           CONFIG.authentication.email = emailStr;
                           c.getSource().getEmbed()
                               .title("Authentication Email Set")
                               .primaryColor();
-                          return 1;
+                          return OK;
                       })))
             .then(literal("password").requires(this::validateTerminalSource)
                       .then(argument("password", wordWithChars()).executes(c -> {
@@ -146,13 +147,13 @@ public class AuthCommand extends Command {
                               c.getSource().getEmbed()
                                   .title("Invalid Password")
                                   .errorColor();
-                              return 1;
+                              return OK;
                           }
                           CONFIG.authentication.password = passwordStr;
                           c.getSource().getEmbed()
                               .title("Authentication Password Set")
                               .primaryColor();
-                          return 1;
+                          return OK;
                       })))
             .then(literal("mention")
                       .then(argument("toggle", toggle()).executes(c -> {
@@ -160,14 +161,14 @@ public class AuthCommand extends Command {
                             c.getSource().getEmbed()
                                 .title("Mention Role " + toggleStrCaps(CONFIG.discord.mentionRoleOnDeviceCodeAuth))
                                 .primaryColor();
-                            return 1;
+                            return OK;
                       })))
             .then(literal("openBrowser").then(argument("toggle", toggle()).executes(c -> {
                 CONFIG.authentication.openBrowserOnLogin = getToggle(c, "toggle");
                 c.getSource().getEmbed()
                     .title("Open Browser On Login " + toggleStrCaps(CONFIG.authentication.openBrowserOnLogin))
                     .primaryColor();
-                return 1;
+                return OK;
             })))
             .then(literal("maxRefreshInterval").then(argument("minutes", integer(5, 500)).executes(c -> {
                 CONFIG.authentication.maxRefreshIntervalMins = c.getArgument("minutes", Integer.class);
@@ -181,7 +182,14 @@ public class AuthCommand extends Command {
                 c.getSource().getEmbed()
                     .title("Use Client Connection Proxy " + toggleStrCaps(CONFIG.authentication.useClientConnectionProxy))
                     .primaryColor();
-                return 1;
+                return OK;
+            })))
+            .then(literal("chatSigning").then(argument("toggle", toggle()).executes(c -> {
+                CONFIG.client.chatSigning.enabled = getToggle(c, "toggle");
+                c.getSource().getEmbed()
+                    .title("Chat Signing " + toggleStrCaps(CONFIG.client.chatSigning.enabled))
+                    .primaryColor();
+                return OK;
             })));
     }
 
@@ -202,7 +210,8 @@ public class AuthCommand extends Command {
             .addField("Mention", toggleStr(CONFIG.discord.mentionRoleOnDeviceCodeAuth), false)
             .addField("Open Browser", toggleStr(CONFIG.authentication.openBrowserOnLogin), false)
             .addField("Max Refresh Interval", CONFIG.authentication.maxRefreshIntervalMins + " minutes", false)
-            .addField("Use Client Connection Proxy", toggleStr(CONFIG.authentication.useClientConnectionProxy), false);
+            .addField("Use Client Connection Proxy", toggleStr(CONFIG.authentication.useClientConnectionProxy), false)
+            .addField("Chat Signing", toggleStr(CONFIG.client.chatSigning.enabled), false);
     }
 
     private String authTypeToString(Config.Authentication.AccountType type) {
