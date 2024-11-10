@@ -25,7 +25,6 @@ import org.geysermc.mcprotocollib.protocol.data.handshake.HandshakeIntent;
 import org.geysermc.mcprotocollib.protocol.packet.handshake.serverbound.ClientIntentionPacket;
 import org.geysermc.mcprotocollib.protocol.packet.login.serverbound.ServerboundHelloPacket;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
@@ -36,7 +35,6 @@ import static java.util.Objects.isNull;
 @Setter
 public class ClientSession extends TcpClientSession {
     private final EventLoop eventLoop = new DefaultEventLoop(new DefaultThreadFactory("Client Event Loop", true));
-    protected boolean serverProbablyOff;
     protected long ping = 0L;
     protected long lastPingId = 0L;
     protected long lastPingSentTime = 0L;
@@ -70,14 +68,7 @@ public class ClientSession extends TcpClientSession {
     @Override
     public void disconnect(Component reason, Throwable cause) {
         super.disconnect(reason, cause);
-        serverProbablyOff = false;
-        if (cause == null) {
-            serverProbablyOff = true;
-        } else if (cause instanceof IOException)    {
-            CLIENT_LOG.error("Error during client disconnect", cause);
-        } else {
-            CLIENT_LOG.error("", cause);
-        }
+        if (cause != null) CLIENT_LOG.error("Exception during client disconnect", cause);
         this.online = false;
     }
 
@@ -128,7 +119,7 @@ public class ClientSession extends TcpClientSession {
 
     @Override
     public boolean callPacketError(Throwable throwable) {
-        CLIENT_LOG.debug("", throwable);
+        CLIENT_LOG.debug("Packet Error", throwable);
         return true;
     }
 

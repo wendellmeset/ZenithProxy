@@ -153,6 +153,7 @@ public class ChunkCache implements CachedData {
                 chunk.lightUpdateData)
             )
             .forEach(currentPlayer::sendAsync);
+        CACHE_LOG.info("Syncing {} chunks to current player", chunks.size());
         currentPlayer.sendAsync(new ClientboundChunkBatchFinishedPacket(chunks.size()));
     }
 
