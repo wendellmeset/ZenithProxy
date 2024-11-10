@@ -93,6 +93,7 @@ public class CommandManager {
         new ThemeCommand(),
         new TransferCommand(),
         new UpdateCommand(),
+        new UnsupportedCommand(),
         new ViaVersionCommand(),
         new VisualRangeCommand(),
         new WhitelistCommand()
