@@ -49,6 +49,7 @@ public class ServerConnectionCommand extends Command {
                 "ping maxPlayers <int>",
                 "ping lanBroadcast on/off",
                 "ping log on/off",
+                "enforceMatchingConnectingAddress on/off",
                 "timeout on/off",
                 "timeout <seconds>",
                 "autoConnectOnLogin on/off"
@@ -117,6 +118,13 @@ public class ServerConnectionCommand extends Command {
                                         .title("Ping Log " + toggleStrCaps(CONFIG.server.ping.logPings));
                                     return 1;
                                 }))))
+            .then(literal("enforceMatchingConnectingAddress")
+                      .then(argument("toggle", toggle()).executes(c -> {
+                          CONFIG.server.enforceMatchingConnectingAddress = getToggle(c, "toggle");
+                          c.getSource().getEmbed()
+                              .title("Enforce Connecting Address " + toggleStrCaps(CONFIG.server.enforceMatchingConnectingAddress));
+                          return 1;
+                      })))
             .then(literal("timeout")
                       .then(argument("toggle", toggle()).executes(c -> {
                           CONFIG.server.extra.timeout.enable = getToggle(c, "toggle");
@@ -162,6 +170,7 @@ public class ServerConnectionCommand extends Command {
             .addField("Ping Max Players", CONFIG.server.ping.maxPlayers, false)
             .addField("Ping LAN Broadcast", toggleStr(CONFIG.server.ping.lanBroadcast), false)
             .addField("Ping Log", toggleStr(CONFIG.server.ping.logPings), false)
+            .addField("Enforce Matching Connecting Address", toggleStr(CONFIG.server.enforceMatchingConnectingAddress), false)
             .addField("Timeout", CONFIG.server.extra.timeout.enable ? CONFIG.server.extra.timeout.seconds : toggleStr(false), false)
             .addField("Auto Connect On Login", toggleStr(CONFIG.client.extra.autoConnectOnLogin), false);
     }

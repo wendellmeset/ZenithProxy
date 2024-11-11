@@ -16,7 +16,11 @@ public class StatusRequestHandler implements PacketHandler<ServerboundStatusRequ
     @Override
     public ServerboundStatusRequestPacket apply(final ServerboundStatusRequestPacket packet, final ServerSession session) {
         if (CONFIG.server.ping.logPings)
-            SERVER_LOG.info("[Ping] Request from: {} [{}]", session.getRemoteAddress(), ProtocolVersion.getProtocol(session.getProtocolVersion()).getName());
+            SERVER_LOG.info("[Ping] Request from: {} [{}] to: {}:{}",
+                            session.getRemoteAddress(),
+                            ProtocolVersion.getProtocol(session.getProtocolVersion()).getName(),
+                            session.getConnectingServerAddress(),
+                            session.getConnectingServerPort());
         ServerInfoBuilder builder = session.getFlag(MinecraftConstants.SERVER_INFO_BUILDER_KEY);
         if (builder == null) {
             session.disconnect("bye");
