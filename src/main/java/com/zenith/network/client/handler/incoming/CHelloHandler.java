@@ -13,6 +13,7 @@ import org.geysermc.mcprotocollib.protocol.packet.login.serverbound.ServerboundK
 import javax.crypto.SecretKey;
 
 import static com.zenith.Shared.CONFIG;
+import static com.zenith.Shared.EXECUTOR;
 
 public class CHelloHandler implements PacketHandler<ClientboundHelloPacket, ClientSession> {
     @Override
@@ -37,17 +38,22 @@ public class CHelloHandler implements PacketHandler<ClientboundHelloPacket, Clie
             session.disconnect("Failed to generate secret key.");
             return null;
         }
-        final String sharedSecret = SessionServerApi.INSTANCE.getSharedSecret(packet.getServerId(), packet.getPublicKey(), key);
         if (packet.isShouldAuthenticate()) {
-            try {
-                SessionServerApi.INSTANCE.joinServer(profile.getId(), accessToken, sharedSecret);
-            } catch (Exception e) {
-                session.disconnect("Login failed: Authentication service unavailable.", e);
-                return null;
-            }
+            EXECUTOR.execute(() -> {
+                try {
+                    final String sharedSecret = SessionServerApi.INSTANCE.getSharedSecret(packet.getServerId(), packet.getPublicKey(), key);
+                    SessionServerApi.INSTANCE.joinServer(profile.getId(), accessToken, sharedSecret);
+                } catch (Exception e) {
+                    session.disconnect("Login failed: Authentication service unavailable.", e);
+                    return;
+                }
+                session.send(new ServerboundKeyPacket(packet.getPublicKey(), key, packet.getChallenge()),
+                             (f) -> session.enableEncryption(key));
+            });
+        } else {
+            session.send(new ServerboundKeyPacket(packet.getPublicKey(), key, packet.getChallenge()));
+            session.enableEncryption(key);
         }
-        session.send(new ServerboundKeyPacket(packet.getPublicKey(), key, packet.getChallenge()));
-        session.enableEncryption(key);
         return null;
     }
 }
