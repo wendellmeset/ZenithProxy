@@ -69,6 +69,8 @@ public class ServerSession extends TcpServerSession {
     // as requested by the player during login. may not be the same as what mojang api returns
     private @Nullable UUID loginProfileUUID;
     private int protocolVersion; // as reported by the client when they connected
+    private String connectingServerAddress; // as reported by the client when they connected
+    private int connectingServerPort; // as reported by the client when they connected
     protected boolean isTransferring = false;
     protected final CookieCache cookieCache = new CookieCache();
 

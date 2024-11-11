@@ -415,6 +415,7 @@ public final class Config {
         public final Ping ping = new Ping();
         public final ServerViaVersion viaversion = new ServerViaVersion();
         public boolean verifyUsers = true;
+        public boolean enforceMatchingConnectingAddress = false;
         public boolean acceptTransfers = true;
         public boolean onlyZenithTransfers = true;
         public String proxyIP = "localhost";

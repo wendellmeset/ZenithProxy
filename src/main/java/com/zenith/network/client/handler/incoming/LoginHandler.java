@@ -60,6 +60,7 @@ public class LoginHandler implements PacketHandler<ClientboundLoginPacket, Clien
                         chatSession.getPlayerCertificates().getPublicKey(),
                         chatSession.getPlayerCertificates().getPublicKeySignature()
                     ));
+                    CLIENT_LOG.info("Server enforces secure chat, zenith chat signing enabled");
                 } else {
                     CLIENT_LOG.warn("Server enforces secure chat, but we cannot sign chat messages");
                 }

@@ -1,5 +1,6 @@
 package com.zenith.network.server.handler.shared.incoming;
 
+import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import com.zenith.feature.ratelimiter.RateLimiter;
 import com.zenith.network.registry.PacketHandler;
 import com.zenith.network.server.ServerSession;
@@ -16,10 +17,33 @@ public class IntentionHandler implements PacketHandler<ClientIntentionPacket, Se
     @Override
     public ClientIntentionPacket apply(final ClientIntentionPacket packet, final ServerSession session) {
         MinecraftProtocol protocol = session.getPacketProtocol();
+        session.setProtocolVersion(packet.getProtocolVersion());
+        session.setConnectingServerAddress(packet.getHostname());
+        session.setConnectingServerPort(packet.getPort());
+        if (CONFIG.server.enforceMatchingConnectingAddress) {
+            var addressWithPort = packet.getHostname() + ":" + packet.getPort();
+            var addressWithoutPort = packet.getHostname();
+            // if proxyIP is set to a DNS name, config address won't have port present and the port can mismatch due to SRV record
+            var expectedAddress = CONFIG.server.getProxyAddress();
+            if (!(expectedAddress.equals(addressWithPort) || expectedAddress.equals(addressWithoutPort))) {
+                SERVER_LOG.info(
+                    "Disconnecting {} [{}] with intent: {} due to mismatched connecting server address. Expected: {} Actual: {}",
+                    session.getRemoteAddress(),
+                    ProtocolVersion.getProtocol(session.getProtocolVersion()).getName(),
+                    packet.getIntent(),
+                    expectedAddress,
+                    addressWithPort);
+                session.disconnect("bye");
+                return null;
+            }
+        }
         switch (packet.getIntent()) {
             case STATUS -> {
                 protocol.setOutboundState(ProtocolState.STATUS);
                 session.switchInboundState(ProtocolState.STATUS);
+                if (!CONFIG.server.ping.enabled) {
+                    session.disconnect("bye");
+                }
             }
             case LOGIN -> {
                 if (handleLogin(packet, session, protocol)) return null;
@@ -35,7 +59,6 @@ public class IntentionHandler implements PacketHandler<ClientIntentionPacket, Se
             }
             default -> session.disconnect("Invalid client intention: " + packet.getIntent());
         }
-        session.setProtocolVersion(packet.getProtocolVersion());
         return null;
     }
 
