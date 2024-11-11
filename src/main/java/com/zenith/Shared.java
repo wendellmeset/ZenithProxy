@@ -61,6 +61,7 @@ public class Shared {
     public static final String MANUAL_DISCONNECT = "Manual Disconnect";
     public static final String AUTO_DISCONNECT = "AutoDisconnect";
     public static final String LOGIN_FAILED = "Login Failed";
+    public static final String AUTH_REQUIRED = "Cannot join online mode server with offline auth";
     public static Config CONFIG;
     public static LaunchConfig LAUNCH_CONFIG;
     public static final DataCache CACHE;
