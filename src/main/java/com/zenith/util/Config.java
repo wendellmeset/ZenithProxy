@@ -45,7 +45,8 @@ public final class Config {
             @SerializedName("msa") MSA,
             @SerializedName("device_code") DEVICE_CODE,
             @SerializedName("device_code_without_device_token") DEVICE_CODE_WITHOUT_DEVICE_TOKEN,
-            @SerializedName("prism") PRISM
+            @SerializedName("prism") PRISM,
+            @SerializedName("offline") OFFLINE
         }
     }
 

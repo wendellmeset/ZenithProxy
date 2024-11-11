@@ -40,13 +40,11 @@ public class ChatCache implements CachedData {
         if (type == CacheResetType.PROTOCOL_SWITCH || type == CacheResetType.FULL) {
             this.commandNodes = new CommandNode[0];
             this.firstCommandNodeIndex = 0;
-            if (type == CacheResetType.FULL) {
-                this.lastChatTimestamp = System.currentTimeMillis();
-            }
-            this.enforcesSecureChat = false;
         }
         if (type == CacheResetType.FULL) {
-            chatTypeRegistry.reset();
+            this.enforcesSecureChat = false;
+            this.chatTypeRegistry.reset();
+            this.lastChatTimestamp = System.currentTimeMillis();
         }
     }
 

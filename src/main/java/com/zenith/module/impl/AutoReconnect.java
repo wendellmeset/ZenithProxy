@@ -111,6 +111,7 @@ public class AutoReconnect extends Module {
             || reason.equals(MANUAL_DISCONNECT)
             || reason.equals(MinecraftConstants.SERVER_CLOSING_MESSAGE)
             || reason.equals(LOGIN_FAILED)
+            || reason.equals(AUTH_REQUIRED)
         ) {
             return false;
         } else if (reason.equals(AUTO_DISCONNECT)) {

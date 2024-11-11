@@ -53,13 +53,7 @@ import static com.zenith.Shared.*;
 @Getter
 @Setter
 public class ServerSession extends TcpServerSession {
-
-    public static final int DEFAULT_COMPRESSION_THRESHOLD = 256;
-
-    // Always empty post-1.7
-    private static final String SERVER_ID = "";
     private static final KeyPair KEY_PAIR;
-
     static {
         try {
             KeyPairGenerator gen = KeyPairGenerator.getInstance("RSA");
@@ -121,7 +115,7 @@ public class ServerSession extends TcpServerSession {
     }
 
     public String getServerId() {
-        return SERVER_ID;
+        return "";
     }
 
     public ServerSession(final String host, final int port, final MinecraftProtocol protocol, final TcpServer server) {
@@ -170,7 +164,7 @@ public class ServerSession extends TcpServerSession {
 
     @Override
     public boolean callPacketError(Throwable throwable) {
-        SERVER_LOG.debug("", throwable);
+        SERVER_LOG.debug("Packet Error", throwable);
         return isLoggedIn;
     }
 
@@ -242,12 +236,11 @@ public class ServerSession extends TcpServerSession {
     private @Nullable Packet getDisconnectPacket(@Nullable final Component reason) {
         if (reason == null) return null;
         MinecraftProtocol protocol = getPacketProtocol();
-        if (protocol.getOutboundState() == ProtocolState.LOGIN) {
-            return new ClientboundLoginDisconnectPacket(reason);
-        } else if (protocol.getOutboundState() == ProtocolState.GAME) {
-            return new ClientboundDisconnectPacket(reason);
-        }
-        return null;
+        return switch (protocol.getOutboundState()) {
+            case LOGIN -> new ClientboundLoginDisconnectPacket(reason);
+            case GAME -> new ClientboundDisconnectPacket(reason);
+            case null, default -> null;
+        };
     }
 
     public void setLoggedIn() {
