@@ -136,7 +136,7 @@ public class CustomServerInfoBuilder implements ServerInfoBuilder {
             Placeholder.unparsed("online_time", Proxy.getInstance().getOnlineTimeString()),
             Placeholder.parsed("in_queue", prio ? motdInPrioQueue : motdInQueue),
             Placeholder.unparsed("queue_pos", qUndefined ? motdQueuePosGeneric : qPos + " / " + (prio ? Queue.getQueueStatus().prio() : Queue.getQueueStatus().regular())),
-            Placeholder.unparsed("queue_eta", qUndefined ? "" : motdQueueEta),
+            Placeholder.parsed("queue_eta", qUndefined ? "" : motdQueueEta),
             Placeholder.parsed("eta", Queue.getQueueEta(qPos))
         );
     }
