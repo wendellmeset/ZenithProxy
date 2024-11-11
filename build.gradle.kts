@@ -122,25 +122,22 @@ tasks {
     test {
         useJUnitPlatform()
     }
-    val commitHashTask = register("writeCommitHash") {
+    val commitHashTask = register<Exec>("writeCommitHash") {
         group = "build"
         description = "Write commit hash / version to file"
+        workingDir = projectDir
+        commandLine = "git rev-parse --short=8 HEAD".split(" ")
+        standardOutput = ByteArrayOutputStream()
         doLast {
-            val byteOut = ByteArrayOutputStream()
-            exec {
-                commandLine = "git rev-parse --short=8 HEAD".split(" ")
-                standardOutput = byteOut
-            }
-            String(byteOut.toByteArray()).trim().let {
-                if (it.length > 5) {
-                    file(layout.buildDirectory.asFile.get().absolutePath + "/resources/main/zenith_commit.txt").apply {
-                        parentFile.mkdirs()
-                        println("Writing commit hash: $it")
-                        writeText(it)
-                    }
-                } else {
-                    println("Unable to determine commit hash")
+            val commitHash = standardOutput.toString().trim()
+            if (commitHash.length > 5) {
+                file(layout.buildDirectory.asFile.get().absolutePath + "/resources/main/zenith_commit.txt").apply {
+                    parentFile.mkdirs()
+                    println("Writing commit hash: $commitHash")
+                    writeText(commitHash)
                 }
+            } else {
+                println("Unable to determine commit hash")
             }
         }
         outputs.upToDateWhen { false }
