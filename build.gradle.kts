@@ -57,11 +57,10 @@ dependencies {
     implementation("com.github.rfresh2.discord4j:discord4j-core:3.4.3.9") {
         exclude(group = "io.netty")
     }
-    implementation("com.github.rfresh2:MCProtocolLib:1.21.0.18") {
-        exclude(group = "io.netty.incubator")
+    implementation("com.github.rfresh2:MCProtocolLib:1.21.0.19") {
         exclude(group = "io.netty")
     }
-    val nettyVersion = "4.1.114.Final"
+    val nettyVersion = "4.1.115.Final"
     implementation("io.netty:netty-codec-haproxy:$nettyVersion")
     implementation("io.netty:netty-codec-dns:$nettyVersion")
     implementation("io.netty:netty-codec-http2:$nettyVersion")
@@ -80,7 +79,7 @@ dependencies {
         exclude(group = "io.netty")
     }
     implementation("com.github.rfresh2:SimpleEventBus:1.2")
-    val fastutilVersion = "8.5.14"
+    val fastutilVersion = "8.5.15"
     implementation("com.github.rfresh2.fastutil.maps:object-object-maps:$fastutilVersion")
     implementation("com.github.rfresh2.fastutil.maps:int-object-maps:$fastutilVersion")
     implementation("com.github.rfresh2.fastutil.maps:object-int-maps:$fastutilVersion")
