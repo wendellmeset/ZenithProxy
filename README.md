@@ -164,16 +164,22 @@ If you do not use one, **ZenithProxy will be killed after you exit your SSH sess
 
 ### Discord Bot Setup
 
-* Create a discord bot here: [discord.com/developers](https://discord.com/developers/)
+* Create a discord bot here: https://discord.com/developers/
 * Enable `Message Content Intent` under the "Bot" tab. [Example](https://i.imgur.com/iznLeDV.png)
-* Invite the discord bot to a server.
-* Create a role for users to manage the proxy, a channel to manage the 
-  proxy in, and a channel for the chat relay. The bot's role must have permissions to send and receive messages in both channels
-* Configure in ZenithProxy using the `discord` command. Or run the launcher with the `--setup` flag.
+* Invite the discord bot to a server:
+  1. In the "OAuth2" tab, [generate an invite link with these permissions](https://imgur.com/rSn10ZN)
+  2. Open the invite link in a web browser and select the server to invite the bot to
+* Now in your discord server:
+  1. In the [discord server settings](https://i.imgur.com/q8YQMJT.png), create [a role for users to manage the bot](https://i.imgur.com/aJwE1Y8.png)
+  1. Create a [channel to manage the proxy in](https://i.imgur.com/DVeJBpo.png)
+  1. (Optional) create another channel for the chat relay
+* At first launch, the launcher will ask you to configure the role/channel ID's (or you can use `discord` command after)
+  * To get the ID's, you must enable [Developer Mode](https://i.imgur.com/qujvmiC.png) in your discord user settings
+  * Right-click on the roles/channels you created and [click "Copy ID"](https://i.imgur.com/RDm3Gso.png)
 
 ## Running Multiple Instances
 
-Create a new folder for each instance with its own copy of the launcher files. [Example](https://i.imgur.com/OTkKIti.png)
+Create a new folder for each instance with its own copy of the launcher files. [Example](https://i.imgur.com/phKxmrL.png)
 
 Instances must be independently run and configured. i.e. separate terminal sessions, discord bots, ports, config files, etc.
 
