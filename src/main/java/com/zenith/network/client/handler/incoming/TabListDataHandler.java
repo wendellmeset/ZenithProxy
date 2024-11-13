@@ -13,7 +13,6 @@ import lombok.NonNull;
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundTabListPacket;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -63,7 +62,6 @@ public class TabListDataHandler implements ClientEventLoopPacketHandler<Clientbo
                     wasOnline = true;
                     wasOnlineDuration = Duration.ofSeconds(Proxy.getInstance().getOnlineTimeSeconds());
                     CLIENT_LOG.info("Detected that the client was kicked to queue. Was online for {}", formatDuration(wasOnlineDuration));
-                    Proxy.getInstance().setConnectTime(Instant.now());
                 }
                 EVENT_BUS.postAsync(new StartQueueEvent(wasOnline, wasOnlineDuration));
                 queueDuration = Optional.empty();

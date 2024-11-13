@@ -291,6 +291,7 @@ public final class Config {
                     // checks friends list, whitelist, and spectator whitelist
                     public boolean onUnknownPlayerInVisualRange = false;
                     public boolean mentionOnDisconnect = false;
+                    public boolean onTotemPop = false;
                 }
 
                 public static final class ActiveHours {

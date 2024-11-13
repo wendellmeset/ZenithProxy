@@ -6,6 +6,7 @@ import com.zenith.event.module.WeatherChangeEvent;
 import com.zenith.event.proxy.HealthAutoDisconnectEvent;
 import com.zenith.event.proxy.NewPlayerInVisualRangeEvent;
 import com.zenith.event.proxy.ProxyClientDisconnectedEvent;
+import com.zenith.event.proxy.TotemPopEvent;
 import com.zenith.module.Module;
 
 import static com.github.rfresh2.EventConsumer.of;
@@ -25,7 +26,8 @@ public class AutoDisconnect extends Module {
             of(PlayerHealthChangedEvent.class, this::handleLowPlayerHealthEvent),
             of(WeatherChangeEvent.class, this::handleWeatherChangeEvent),
             of(ProxyClientDisconnectedEvent.class, this::handleProxyClientDisconnectedEvent),
-            of(NewPlayerInVisualRangeEvent.class, this::handleNewPlayerInVisualRangeEvent)
+            of(NewPlayerInVisualRangeEvent.class, this::handleNewPlayerInVisualRangeEvent),
+            of(TotemPopEvent.class, this::handleTotemPopEvent)
         );
     }
 
@@ -74,6 +76,14 @@ public class AutoDisconnect extends Module {
         ) return;
         info("Unknown player: {} [{}]", event.playerEntry().getProfile());
         Proxy.getInstance().disconnect(AUTO_DISCONNECT);
+    }
+
+    private void handleTotemPopEvent(TotemPopEvent event) {
+        if (!CONFIG.client.extra.utility.actions.autoDisconnect.onTotemPop) return;
+        if (playerConnectedCheck()) {
+            info("Totem popped");
+            Proxy.getInstance().disconnect(AUTO_DISCONNECT);
+        }
     }
 
     private boolean playerConnectedCheck() {

@@ -74,7 +74,6 @@ import static com.github.rfresh2.EventConsumer.of;
 import static com.zenith.Shared.*;
 import static com.zenith.util.Config.Authentication.AccountType.MSA;
 import static com.zenith.util.Config.Authentication.AccountType.OFFLINE;
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 
@@ -717,6 +716,7 @@ public class Proxy {
     public void handleStartQueueEvent(StartQueueEvent event) {
         this.inQueue = true;
         this.queuePosition = 0;
+        if (event.wasOnline()) this.connectTime = Instant.now();
     }
 
     public void handleQueuePositionUpdateEvent(QueuePositionUpdateEvent event) {
