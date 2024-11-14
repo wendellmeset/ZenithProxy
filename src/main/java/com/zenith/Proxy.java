@@ -235,25 +235,21 @@ public class Proxy {
         this.startServer();
         EXECUTOR.schedule(() -> {
             if (server == null || !server.isListening()) {
-                SERVER_LOG.error("Server is not listening and unable to quick restart, performing full restart...");
+                var errorMessage = """
+                    The ZenithProxy MC server was unable to start correctly.
+                    
+                    Most likely you have two or more ZenithProxy instance running on the same configured port: %s.
+                    
+                    Shut down duplicate instances, or change the configured port: `serverConnection port <port>`
+                    """.formatted(CONFIG.server.bind.port);
+                SERVER_LOG.error(errorMessage);
                 if (DISCORD.isRunning()) {
                     DISCORD.sendEmbedMessage(
                         Embed.builder()
                             .title("ZenithProxy Server Error")
-                            .description(
-                                """
-                                 The ZenithProxy MC server was unable to start correctly.
-                                 
-                                 Most likely the port you have configured: %s is already in use by another application or another ZenithProxy instance.
-                                 
-                                 To change ports use the command: `serverConnection port <port>`
-                                 
-                                 This ZenithProxy instance will now restart, although this is unlikely to fix the issue.
-                                 """.formatted(CONFIG.server.bind.port))
+                            .description(errorMessage)
                             .errorColor());
                 }
-                CONFIG.autoUpdater.shouldReconnectAfterAutoUpdate = true;
-                stop();
             }
         }, 30, TimeUnit.SECONDS);
     }

@@ -37,6 +37,7 @@ public class AutoReconnectCommand extends Command {
             .then(argument("toggle", toggle()).executes(c -> {
                 CONFIG.client.extra.autoReconnect.enabled = getToggle(c, "toggle");
                 MODULE.get(AutoReconnect.class).syncEnabledFromConfig();
+                MODULE.get(AutoReconnect.class).cancelAutoReconnect();
                 c.getSource().getEmbed()
                     .title("AutoReconnect " + toggleStrCaps(CONFIG.client.extra.autoReconnect.enabled));
                 return 1;
