@@ -165,9 +165,10 @@ public class ClientSession extends TcpClientSession {
         }
         CLIENT_LOG.info("Disconnected: {}", reasonStr);
         var onlineDuration = Duration.ofSeconds(Proxy.getInstance().getOnlineTimeSeconds());
+        var onlineDurationWithQueueSkip = Duration.ofSeconds(Proxy.getInstance().getOnlineTimeSecondsWithQueueSkip());
         // stop processing packets before we reset the client cache to avoid race conditions
         getClientEventLoop().shutdownGracefully(0L, 15L, TimeUnit.SECONDS).awaitUninterruptibly();
-        EVENT_BUS.post(new DisconnectEvent(reasonStr, onlineDuration, Proxy.getInstance().isInQueue(), Proxy.getInstance().getQueuePosition()));
+        EVENT_BUS.post(new DisconnectEvent(reasonStr, onlineDuration, onlineDurationWithQueueSkip, Proxy.getInstance().isInQueue(), Proxy.getInstance().getQueuePosition()));
     }
 
     public EventLoop getClientEventLoop() {

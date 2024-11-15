@@ -30,7 +30,7 @@ public class ReconnectCommand extends Command {
             EXECUTOR.execute(() -> {
                 Proxy.getInstance().disconnect(SYSTEM_DISCONNECT);
                 MODULE.get(AutoReconnect.class).cancelAutoReconnect();
-                Proxy.getInstance().connect();
+                MODULE.get(AutoReconnect.class).scheduleAutoReconnect(2);
             });
         });
     }

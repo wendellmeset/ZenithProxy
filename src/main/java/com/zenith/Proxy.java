@@ -87,9 +87,11 @@ public class Proxy {
     protected final AtomicReference<ServerSession> currentPlayer = new AtomicReference<>();
     protected final FastArrayList<ServerSession> activeConnections = new FastArrayList<>(ServerSession.class);
     private boolean inQueue = false;
+    private boolean didQueueSkip = false;
     private int queuePosition = 0;
     @Setter @Nullable private Instant connectTime;
     private Instant disconnectTime = Instant.now();
+    private OptionalLong prevOnlineSeconds = OptionalLong.empty();
     private Optional<Boolean> isPrio = Optional.empty();
     @Getter private final AtomicBoolean loggingIn = new AtomicBoolean(false);
     @Setter @NotNull private AutoUpdater autoUpdater = NoOpAutoUpdater.INSTANCE;
@@ -119,6 +121,7 @@ public class Proxy {
             of(StartQueueEvent.class, this::handleStartQueueEvent),
             of(QueuePositionUpdateEvent.class, this::handleQueuePositionUpdateEvent),
             of(QueueCompleteEvent.class, this::handleQueueCompleteEvent),
+            of(QueueSkipEvent.class, this::handleQueueSkipEvent),
             of(PlayerOnlineEvent.class, this::handlePlayerOnlineEvent),
             of(PrioStatusEvent.class, this::handlePrioStatusEvent),
             of(PrivateMessageSendEvent.class, this::handlePrivateMessageSendEvent)
@@ -638,7 +641,7 @@ public class Proxy {
                 || !isOnlineOn2b2tForAtLeastDuration(twoB2tTimeLimit.minusMinutes(10L))
             ) return;
             final ServerSession playerConnection = this.currentPlayer.get();
-            final Duration durationUntilKick = twoB2tTimeLimit.minus(Duration.ofSeconds(Proxy.getInstance().getOnlineTimeSeconds()));
+            final Duration durationUntilKick = twoB2tTimeLimit.minus(Duration.ofSeconds(Proxy.getInstance().getOnlineTimeSecondsWithQueueSkip()));
             if (durationUntilKick.isNegative()) return; // sanity check just in case 2b's plugin changes
             var actionBarPacket = new ClientboundSetActionBarTextPacket(
                 ComponentSerializer.minimessage((durationUntilKick.toMinutes() <= 3 ? "<red>" : "<blue>") + twoB2tTimeLimit.toHours() + "hr kick in: " + durationUntilKick.toMinutes() + "m"));
@@ -673,14 +676,24 @@ public class Proxy {
             : 0L;
     }
 
+    public long getOnlineTimeSecondsWithQueueSkip() {
+        return !inQueue && didQueueSkip && prevOnlineSeconds.isPresent()
+            ? getOnlineTimeSeconds() + prevOnlineSeconds.getAsLong()
+            : getOnlineTimeSeconds();
+    }
+
     public String getOnlineTimeString() {
-        return Queue.getEtaStringFromSeconds(getOnlineTimeSeconds());
+        return Queue.getEtaStringFromSeconds(getOnlineTimeSecondsWithQueueSkip());
     }
 
     public void handleDisconnectEvent(DisconnectEvent event) {
         CACHE.reset(CacheResetType.FULL);
         this.disconnectTime = Instant.now();
+        this.prevOnlineSeconds = inQueue
+            ? OptionalLong.empty()
+            : OptionalLong.of(Duration.between(this.connectTime, this.disconnectTime).toSeconds());
         this.inQueue = false;
+        this.didQueueSkip = false;
         this.queuePosition = 0;
         TPS.reset();
         if (!DISCORD.isRunning()
@@ -722,6 +735,10 @@ public class Proxy {
     public void handleQueueCompleteEvent(QueueCompleteEvent event) {
         this.inQueue = false;
         this.connectTime = Instant.now();
+    }
+
+    public void handleQueueSkipEvent(QueueSkipEvent event) {
+        this.didQueueSkip = true;
     }
 
     public void handlePlayerOnlineEvent(PlayerOnlineEvent event) {

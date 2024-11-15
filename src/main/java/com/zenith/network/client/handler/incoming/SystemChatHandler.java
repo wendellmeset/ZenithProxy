@@ -2,6 +2,7 @@ package com.zenith.network.client.handler.incoming;
 
 import com.zenith.Proxy;
 import com.zenith.event.proxy.DeathMessageEvent;
+import com.zenith.event.proxy.QueueSkipEvent;
 import com.zenith.event.proxy.SelfDeathMessageEvent;
 import com.zenith.event.proxy.ServerChatReceivedEvent;
 import com.zenith.feature.deathmessages.DeathMessageParseResult;
@@ -11,6 +12,7 @@ import com.zenith.network.registry.ClientEventLoopPacketHandler;
 import com.zenith.util.ComponentSerializer;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundSystemChatPacket;
 
@@ -35,10 +37,10 @@ public class SystemChatHandler implements ClientEventLoopPacketHandler<Clientbou
             final Component component = packet.getContent();
             final String messageString = ComponentSerializer.serializePlain(component);
             Optional<DeathMessageParseResult> deathMessage = Optional.empty();
-            if (!messageString.startsWith("<") && Proxy.getInstance().isOn2b2t())
-                deathMessage = parseDeathMessage2b2t(component, deathMessage, messageString);
             String senderName = null;
             String whisperTarget = null;
+            if (!messageString.startsWith("<") && Proxy.getInstance().isOn2b2t())
+                deathMessage = parseDeathMessage2b2t(component, deathMessage, messageString);
             if (messageString.startsWith("<")) {
                 senderName = extractSenderNameNormalChat(messageString);
             } else if (deathMessage.isEmpty()) {
@@ -59,6 +61,12 @@ public class SystemChatHandler implements ClientEventLoopPacketHandler<Clientbou
                 messageString,
                 Optional.ofNullable(whisperTarget).flatMap(t -> CACHE.getTabListCache().getFromName(t)),
                 deathMessage));
+            if (Proxy.getInstance().isOn2b2t()
+                && "Reconnecting to server 2b2t.".equals(messageString)
+                && NamedTextColor.GOLD.equals(component.style().color())) {
+                CLIENT_LOG.info("Queue Skip Detected");
+                EVENT_BUS.postAsync(QueueSkipEvent.INSTANCE);
+            }
         } catch (final Exception e) {
             CLIENT_LOG.error("Caught exception in ChatHandler. Packet: {}", packet, e);
         }

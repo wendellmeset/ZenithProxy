@@ -124,7 +124,7 @@ public class DiscordEventListener {
             .addField("Reason", event.reason(), false)
             .addField("Why?", category.getWikiURL(), false)
             .addField("Category", category.toString(), false)
-            .addField("Online Duration", formatDuration(event.onlineDuration()), false)
+            .addField("Online Duration", formatDuration(event.onlineDurationWithQueueSkip()), false)
             .errorColor();
         if (Proxy.getInstance().isOn2b2t()
             && !Proxy.getInstance().isPrio()
