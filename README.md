@@ -165,15 +165,16 @@ If you do not use one, **ZenithProxy will be killed after you exit your SSH sess
 ### Discord Bot Setup
 
 * Create a discord bot here: https://discord.com/developers/
+  * [Screenshots and how to get the bot's token](https://discordpy.readthedocs.io/en/stable/discord.html)
 * Enable `Message Content Intent` under the "Bot" tab. [Example](https://i.imgur.com/iznLeDV.png)
 * Invite the discord bot to a server:
   1. In the "OAuth2" tab, [generate an invite link with these permissions](https://imgur.com/rSn10ZN)
   2. Open the invite link in a web browser and select the server to invite the bot to
 * Now in your discord server:
-  1. In the [discord server settings](https://i.imgur.com/q8YQMJT.png), create [a role for users to manage the bot](https://i.imgur.com/aJwE1Y8.png)
+  1. In the [discord server settings](https://i.imgur.com/q8YQMJT.png), create [a role for users to manage the bot.](https://i.imgur.com/aJwE1Y8.png) Assign the role to yourself and any other users who should be able to manage the bot.
   1. Create a [channel to manage the proxy in](https://i.imgur.com/DVeJBpo.png)
   1. (Optional) create another channel for the chat relay
-* At first launch, the launcher will ask you to configure the role/channel ID's (or you can use `discord` command after)
+* At first launch, the launcher will ask you to configure the token/role/channel ID's (or you can use `discord` command after)
   * To get the ID's, you must enable [Developer Mode](https://i.imgur.com/qujvmiC.png) in your discord user settings
   * Right-click on the roles/channels you created and [click "Copy ID"](https://i.imgur.com/RDm3Gso.png)
 
