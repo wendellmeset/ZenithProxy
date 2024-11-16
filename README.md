@@ -8,24 +8,17 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/MC-1.21-brightgreen.svg" alt="Minecraft"/>
-  <img src="https://img.shields.io/badge/MC-1.20.6-yellow.svg" alt="Minecraft"/>
-  <img src="https://img.shields.io/badge/MC-1.20.4-yellow.svg" alt="Minecraft"/>
-  <img src="https://img.shields.io/badge/MC-1.20.1-yellow.svg" alt="Minecraft"/>
-  <img src="https://img.shields.io/badge/MC-1.12.2-yellow.svg" alt="Minecraft"/>
-  <img src="https://img.shields.io/github/languages/code-size/rfresh2/ZenithProxy.svg" alt="Code size"/>
-  <img src="https://img.shields.io/github/repo-size/rfresh2/ZenithProxy.svg" alt="GitHub repo size"/>
-  <img alt="Downloads" src="https://img.shields.io/github/downloads/rfresh2/ZenithProxy/total">
   <img src="https://tokei.rs/b1/github/rfresh2/ZenithProxy?category=code&style=flat" alt="Lines of Code"/>
 </p>
 
 
-Minecraft proxy/bot intended for use on 2b2t.org. 
+Minecraft proxy and bot designed for 2b2t.org but also works on any server. 
 
-Unlike a traditional MC bot, you can login to it as a normal MC server and control the account.
+ZenithProxy is a MC bot with an integrated MC server that players can log into and control.
 
-The primary purpose is to have accounts always online in-game and securely shared by multiple people.
+Have your accounts always online in-game and securely shared with your friends.
 
-This project is also used to support the [2b2t.vc API](https://api.2b2t.vc) and [Discord Bot](https://bot.2b2t.vc).
+This project is also used for the [2b2t.vc API](https://api.2b2t.vc) and [Discord Bot](https://bot.2b2t.vc).
 
 <details>
     <summary>What is a proxy?</summary>
