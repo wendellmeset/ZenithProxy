@@ -31,9 +31,6 @@ repositories {
     maven("https://papermc.io/repo/repository/maven-public/") {
         content { includeGroup("com.velocitypowered") }
     }
-    maven("https://repo.minebench.de/") {
-        content { includeGroup("de.themoep") }
-    }
     maven("https://repo.viaversion.com") {
         content {
             includeGroup("com.viaversion")
