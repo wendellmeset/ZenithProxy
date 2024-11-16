@@ -261,6 +261,7 @@ graalvmNative {
                 "-march=x86-64-v3",
                 "--gc=serial",
                 "-J-XX:MaxRAMPercentage=90",
+                "--install-exit-handlers"
 //                "--enable-monitoring=jfr"
             )
             val pgoPath = System.getenv("GRAALVM_PGO_PATH")
