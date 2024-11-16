@@ -12,11 +12,10 @@ plugins {
 group = "com.zenith"
 version = "1.21.0"
 
-val javaVersion23 = JavaLanguageVersion.of(23)
-val javaVersion21 = JavaLanguageVersion.of(21)
-val javaLauncherProvider21 = javaToolchains.launcherFor { languageVersion = javaVersion21 }
-val javaLauncherProvider23 = javaToolchains.launcherFor { languageVersion = javaVersion23 }
-java { toolchain { languageVersion = javaVersion21 } }
+val javaReleaseVersion = 21
+val javaVersion = JavaLanguageVersion.of(23)
+val javaLauncherProvider = javaToolchains.launcherFor { languageVersion = javaVersion }
+java { toolchain { languageVersion = javaVersion } }
 
 repositories {
     maven("https://maven.2b2t.vc/releases") {
@@ -114,6 +113,7 @@ tasks {
     withType(JavaCompile::class.java) {
         options.encoding = "UTF-8"
         options.isDeprecation = true
+        options.release = javaReleaseVersion
     }
     test {
         useJUnitPlatform()
@@ -166,7 +166,7 @@ tasks {
     val javaPathTask = register("javaPath", Task::class.java) {
         group = runGroup
         doLast {
-            val execPath = javaLauncherProvider21.get().executablePath
+            val execPath = javaLauncherProvider.get().executablePath
             // create a file symlinked to the java executable for use in scripts
             layout.buildDirectory.asFile.get().mkdirs()
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
@@ -240,7 +240,7 @@ tasks {
 graalvmNative {
     binaries {
         named("main") {
-            javaLauncher = javaLauncherProvider23
+            javaLauncher = javaLauncherProvider
             imageName = "ZenithProxy"
             mainClass = "com.zenith.Proxy"
             quickBuild = false
