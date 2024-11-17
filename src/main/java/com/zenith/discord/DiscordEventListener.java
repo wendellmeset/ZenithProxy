@@ -499,10 +499,14 @@ public class DiscordEventListener {
                 senderUUID = CACHE.getTabListCache().getFromName(death.victim()).map(PlayerListEntry::getProfileId).orElse(null);
             } else {
                 if (!CONFIG.discord.chatRelay.serverMessages) return;
-                senderName = "Hausemaster";
+                senderName = Proxy.getInstance().isOn2b2t() ? "Hausemaster" : null;
                 senderUUID = null;
             }
-            final String avatarURL = senderUUID != null ? Proxy.getInstance().getAvatarURL(senderUUID).toString() : Proxy.getInstance().getAvatarURL(senderName).toString();
+            final String avatarURL = senderUUID != null
+                ? Proxy.getInstance().getAvatarURL(senderUUID).toString()
+                : senderName != null
+                    ? Proxy.getInstance().getAvatarURL(senderName).toString()
+                    : null;
             var embed = Embed.builder()
                 .description(escape(message))
                 .footer("\u200b", avatarURL)
