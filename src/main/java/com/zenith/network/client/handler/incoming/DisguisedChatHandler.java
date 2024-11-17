@@ -23,6 +23,7 @@ public class DisguisedChatHandler implements PacketHandler<ClientboundDisguisedC
             Component chatComponent = chatType.render(
                 packet.getName(),
                 packet.getMessage(),
+                null,
                 packet.getTargetName());
             if (CONFIG.client.extra.logChatMessages) {
                 CLIENT_LOG.info("{}", ComponentSerializer.serializeJson(chatComponent));

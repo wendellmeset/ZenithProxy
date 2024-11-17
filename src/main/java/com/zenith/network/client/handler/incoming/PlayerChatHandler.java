@@ -22,6 +22,7 @@ public class PlayerChatHandler implements PacketHandler<ClientboundPlayerChatPac
             Component chatComponent = chatType.render(
                 packet.getName(),
                 Component.text(packet.getContent()),
+                packet.getUnsignedContent(),
                 packet.getTargetName());
             if (CONFIG.client.extra.logChatMessages) {
                 CLIENT_LOG.info("{}", ComponentSerializer.serializeJson(chatComponent));
