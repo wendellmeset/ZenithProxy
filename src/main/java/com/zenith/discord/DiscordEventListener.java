@@ -514,6 +514,15 @@ public class DiscordEventListener {
         if (CONFIG.discord.chatRelay.ignoreQueue && Proxy.getInstance().isInQueue()) return;
         try {
             String message = event.message();
+            boolean customSenderFormatting = false;
+            if (!event.isDefaultMessageSchema()) {
+                if (Proxy.getInstance().isOn2b2t()) {
+                    DISCORD_LOG.error("Received non-default schema chat message on 2b2t: {}", message);
+                }
+            } else {
+                message = event.extractMessageDefaultSchema();
+                customSenderFormatting = true;
+            }
             String ping = "";
             if (CONFIG.discord.chatRelay.mentionWhileConnected || isNull(Proxy.getInstance().getCurrentPlayer().get())) {
                 if (CONFIG.discord.chatRelay.mentionRoleOnNameMention
@@ -523,7 +532,9 @@ public class DiscordEventListener {
                     ping = notificationMention();
                 }
             }
-            message = "**" + event.sender().getName() + ":** " + message;
+            if (customSenderFormatting) {
+                message = "**" + event.sender().getName() + ":** " + message;
+            }
             UUID senderUUID = event.sender().getProfileId();
             final String avatarURL = Proxy.getInstance().getAvatarURL(senderUUID).toString();
             var embed = Embed.builder()

@@ -66,8 +66,8 @@ public class SystemChatHandler implements ClientEventLoopPacketHandler<Clientbou
                 EVENT_BUS.postAsync(QueueSkipEvent.INSTANCE);
             }
 
-            if (sender.isPresent() && deathMessage.isEmpty() && playerWhisperTarget.isEmpty() && messageString.startsWith("<" + sender.get().getName() + ">")) {
-                EVENT_BUS.postAsync(new PublicChatEvent(sender.get(), component, messageString.substring(messageString.indexOf(">") + 2)));
+            if (sender.isPresent() && deathMessage.isEmpty() && playerWhisperTarget.isEmpty()) {
+                EVENT_BUS.postAsync(new PublicChatEvent(sender.get(), component, messageString));
             } else if (sender.isPresent() && deathMessage.isEmpty() && playerWhisperTarget.isPresent()) {
                 var outgoing = sender.get().getName().equalsIgnoreCase(CONFIG.authentication.username);
                 EVENT_BUS.postAsync(new WhisperChatEvent(outgoing, sender.get(), playerWhisperTarget.get(), component, messageString));

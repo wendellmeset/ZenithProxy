@@ -49,7 +49,7 @@ public class ChatDatabase extends LiveDatabase {
         if (!Proxy.getInstance().isOn2b2t() // only write on 2b2t
             || Proxy.getInstance().isInQueue()) return;  // ignore queue
         try {
-            writeChat(event.sender().getProfileId(), event.sender().getName(), event.message(), Instant.now().atOffset(ZoneOffset.UTC));
+            writeChat(event.sender().getProfileId(), event.sender().getName(), event.extractMessageDefaultSchema(), Instant.now().atOffset(ZoneOffset.UTC));
         } catch (final Exception e) {
             DATABASE_LOG.error("Failed handling chat: {}", event.message(), e);
         }
