@@ -2,7 +2,7 @@ package com.zenith.database;
 
 import com.zenith.Proxy;
 import com.zenith.database.dto.records.DeathsRecord;
-import com.zenith.event.proxy.DeathMessageEvent;
+import com.zenith.event.proxy.chat.DeathMessageChatEvent;
 import com.zenith.feature.api.ProfileData;
 import com.zenith.feature.deathmessages.DeathMessageParseResult;
 import com.zenith.feature.deathmessages.Killer;
@@ -24,8 +24,9 @@ public class DeathsDatabase extends LiveDatabase {
 
     @Override
     public void subscribeEvents() {
-        EVENT_BUS.subscribe(this,
-            DeathMessageEvent.class, this::handleDeathMessageEvent
+        EVENT_BUS.subscribe(
+            this,
+            DeathMessageChatEvent.class, this::handleDeathMessageEvent
         );
     }
 
@@ -48,9 +49,9 @@ public class DeathsDatabase extends LiveDatabase {
         }
     }
 
-    public void handleDeathMessageEvent(DeathMessageEvent event) {
+    public void handleDeathMessageEvent(DeathMessageChatEvent event) {
         if (!Proxy.getInstance().isOn2b2t()) return;
-        writeDeath(event.deathMessageParseResult(), event.deathMessageRaw(), Instant.now().atOffset(ZoneOffset.UTC));
+        writeDeath(event.deathMessage(), event.message(), Instant.now().atOffset(ZoneOffset.UTC));
     }
 
     private void writeDeath(final DeathMessageParseResult deathMessageParseResult, final String rawDeathMessage, final OffsetDateTime time) {

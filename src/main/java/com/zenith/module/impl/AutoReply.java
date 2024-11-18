@@ -3,7 +3,7 @@ package com.zenith.module.impl;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.zenith.Proxy;
-import com.zenith.event.proxy.ServerChatReceivedEvent;
+import com.zenith.event.proxy.chat.WhisperChatEvent;
 import com.zenith.module.Module;
 import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.ServerboundChatPacket;
 
@@ -11,6 +11,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
+import static com.github.rfresh2.EventConsumer.of;
 import static com.zenith.Shared.*;
 import static java.util.Objects.isNull;
 
@@ -22,7 +23,10 @@ public class AutoReply extends Module {
 
     @Override
     public void subscribeEvents() {
-        EVENT_BUS.subscribe(this, ServerChatReceivedEvent.class, this::handleServerChatReceivedEvent);
+        EVENT_BUS.subscribe(
+            this,
+            of(WhisperChatEvent.class, this::handleWhisperChatEvent)
+        );
     }
 
     @Override
@@ -39,21 +43,19 @@ public class AutoReply extends Module {
         this.repliedPlayersCache = newCache;
     }
 
-
-    public void handleServerChatReceivedEvent(ServerChatReceivedEvent event) {
+    private void handleWhisperChatEvent(WhisperChatEvent event) {
         if (Proxy.getInstance().hasActivePlayer()) return;
+        if (event.outgoing()) return;
         try {
-            if (event.isIncomingWhisper()) {
-                if (!event.sender().get().getName().equalsIgnoreCase(CONFIG.authentication.username)
-                        && Instant.now().minus(Duration.ofSeconds(1)).isAfter(lastReply)
-                        && (DISCORD.lastRelaymessage.isEmpty()
-                            || Instant.now().minus(Duration.ofSeconds(CONFIG.client.extra.autoReply.cooldownSeconds)).isAfter(DISCORD.lastRelaymessage.get()))) {
-                    if (isNull(repliedPlayersCache.getIfPresent(event.sender().get().getName()))) {
-                        repliedPlayersCache.put(event.sender().get().getName(), event.sender().get().getName());
-                        // 236 char max ( 256 - 4(command) - 16(max name length) )
-                        sendClientPacketAsync(new ServerboundChatPacket("/w " + event.sender().get().getName() + " " + CONFIG.client.extra.autoReply.message.substring(0, Math.min(CONFIG.client.extra.autoReply.message.length(), 236))));
-                        this.lastReply = Instant.now();
-                    }
+            if (!event.sender().getName().equalsIgnoreCase(CONFIG.authentication.username)
+                && Instant.now().minus(Duration.ofSeconds(1)).isAfter(lastReply)
+                && (DISCORD.lastRelaymessage.isEmpty()
+                || Instant.now().minus(Duration.ofSeconds(CONFIG.client.extra.autoReply.cooldownSeconds)).isAfter(DISCORD.lastRelaymessage.get()))) {
+                if (isNull(repliedPlayersCache.getIfPresent(event.sender().getName()))) {
+                    repliedPlayersCache.put(event.sender().getName(), event.sender().getName());
+                    // 236 char max ( 256 - 4(command) - 16(max name length) )
+                    sendClientPacketAsync(new ServerboundChatPacket("/w " + event.sender().getName() + " " + CONFIG.client.extra.autoReply.message.substring(0, Math.min(CONFIG.client.extra.autoReply.message.length(), 236))));
+                    this.lastReply = Instant.now();
                 }
             }
         } catch (final Throwable e) {
