@@ -3,7 +3,9 @@ package com.zenith.module.impl;
 import com.zenith.event.proxy.DisconnectEvent;
 import com.zenith.event.proxy.ProxyClientLoggedInEvent;
 import com.zenith.event.proxy.ProxySpectatorLoggedInEvent;
-import com.zenith.event.proxy.ServerChatReceivedEvent;
+import com.zenith.event.proxy.chat.PublicChatEvent;
+import com.zenith.event.proxy.chat.SystemChatEvent;
+import com.zenith.event.proxy.chat.WhisperChatEvent;
 import com.zenith.module.Module;
 import com.zenith.util.CircularFifoQueue;
 import net.kyori.adventure.text.Component;
@@ -24,7 +26,9 @@ public class ChatHistory extends Module {
     public void subscribeEvents() {
         EVENT_BUS.subscribe(
             this,
-            of(ServerChatReceivedEvent.class, this::handleServerChatReceived),
+            of(PublicChatEvent.class, this::handlePublicChat),
+            of(WhisperChatEvent.class, this::handleWhisperChat),
+            of(SystemChatEvent.class, this::handleSystemChat),
             of(ProxyClientLoggedInEvent.class, this::handleClientLoggedIn),
             of(ProxySpectatorLoggedInEvent.class, this::handleSpectatorLoggedIn),
             of(DisconnectEvent.class, this::handleDisconnect)
@@ -41,8 +45,17 @@ public class ChatHistory extends Module {
         return CONFIG.server.extra.chatHistory.enable;
     }
 
-    private void handleServerChatReceived(ServerChatReceivedEvent event) {
-        chatHistory.add(new StoredChat(event.messageComponent(), Instant.now()));
+
+    private void handleSystemChat(SystemChatEvent event) {
+        chatHistory.add(new StoredChat(event.component(), Instant.now()));
+    }
+
+    private void handleWhisperChat(WhisperChatEvent event) {
+        chatHistory.add(new StoredChat(event.component(), Instant.now()));
+    }
+
+    private void handlePublicChat(PublicChatEvent event) {
+        chatHistory.add(new StoredChat(event.component(), Instant.now()));
     }
 
     private void handleClientLoggedIn(ProxyClientLoggedInEvent event) {

@@ -31,6 +31,7 @@ public class AutoDisconnectCommand extends Command {
               * Health: Disconnects when health is below a set threshold level
               * Thunder: Disconnects during thunderstorms (i.e. avoid lightning burning down bases)
               * Unknown Player: Disconnects when a player not on the friends list, whitelist, or spectator whitelist is in visual range
+              * TotemPop: Disconnects when your totem is popped
             Multiple modes can be enabled, they are non-exclusive
             
             Settings non-exclusive to modes:
@@ -44,6 +45,7 @@ public class AutoDisconnectCommand extends Command {
                 "health <integer>",
                 "thunder on/off",
                 "unknownPlayer on/off",
+                "totemPop on/off",
                 "whilePlayerConnected on/off",
                 "autoClientDisconnect on/off",
                 "cancelAutoReconnect on/off"
@@ -109,6 +111,13 @@ public class AutoDisconnectCommand extends Command {
                           c.getSource().getEmbed()
                               .title("AutoDisconnect WhilePlayerConnected " + toggleStrCaps(CONFIG.client.extra.utility.actions.autoDisconnect.whilePlayerConnected));
                           return 1;
+                      })))
+            .then(literal("totemPop")
+                      .then(argument("toggle", toggle()).executes(c -> {
+                          CONFIG.client.extra.utility.actions.autoDisconnect.onTotemPop = getToggle(c, "toggle");
+                          c.getSource().getEmbed()
+                              .title("AutoDisconnect TotemPop " + toggleStrCaps(CONFIG.client.extra.utility.actions.autoDisconnect.onTotemPop));
+                          return 1;
                       })));
     }
 
@@ -120,6 +129,7 @@ public class AutoDisconnectCommand extends Command {
             .addField("Health Level", CONFIG.client.extra.utility.actions.autoDisconnect.health, false)
             .addField("Thunder", toggleStr(CONFIG.client.extra.utility.actions.autoDisconnect.thunder), false)
             .addField("UnknownPlayer", toggleStr(CONFIG.client.extra.utility.actions.autoDisconnect.onUnknownPlayerInVisualRange), false)
+            .addField("Totem Pop", toggleStr(CONFIG.client.extra.utility.actions.autoDisconnect.onTotemPop), false)
             .addField("WhilePlayerConnected", toggleStr(CONFIG.client.extra.utility.actions.autoDisconnect.whilePlayerConnected), false)
             .addField("AutoClientDisconnect", toggleStr(CONFIG.client.extra.utility.actions.autoDisconnect.autoClientDisconnect), false)
             .addField("CancelAutoReconnect", toggleStr(CONFIG.client.extra.utility.actions.autoDisconnect.cancelAutoReconnect), false)

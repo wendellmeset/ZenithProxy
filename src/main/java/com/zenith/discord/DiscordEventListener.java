@@ -3,6 +3,10 @@ package com.zenith.discord;
 import com.zenith.Proxy;
 import com.zenith.event.module.*;
 import com.zenith.event.proxy.*;
+import com.zenith.event.proxy.chat.DeathMessageChatEvent;
+import com.zenith.event.proxy.chat.PublicChatEvent;
+import com.zenith.event.proxy.chat.SystemChatEvent;
+import com.zenith.event.proxy.chat.WhisperChatEvent;
 import com.zenith.feature.deathmessages.DeathMessageParseResult;
 import com.zenith.feature.deathmessages.KillerType;
 import com.zenith.feature.queue.Queue;
@@ -68,7 +72,10 @@ public class DiscordEventListener {
             of(NonWhitelistedPlayerConnectedEvent.class, this::handleNonWhitelistedPlayerConnectedEvent),
             of(ProxySpectatorDisconnectedEvent.class, this::handleProxySpectatorDisconnectedEvent),
             of(ActiveHoursConnectEvent.class, this::handleActiveHoursConnectEvent),
-            of(ServerChatReceivedEvent.class, this::handleServerChatReceivedEvent),
+            of(DeathMessageChatEvent.class, this::handleDeathMessageChatEvent),
+            of(PublicChatEvent.class, this::handlePublicChatEvent),
+            of(SystemChatEvent.class, this::handleSystemChatEvent),
+            of(WhisperChatEvent.class, this::handleWhisperChatEvent),
             of(ServerPlayerConnectedEvent.class, this::handleServerPlayerConnectedEvent),
             of(ServerPlayerDisconnectedEvent.class, this::handleServerPlayerDisconnectedEvent),
             of(DiscordMessageSentEvent.class, this::handleDiscordMessageSentEvent),
@@ -80,7 +87,6 @@ public class DiscordEventListener {
             of(PrioBanStatusUpdateEvent.class, this::handlePrioBanStatusUpdateEvent),
             of(AutoReconnectEvent.class, this::handleAutoReconnectEvent),
             of(MsaDeviceCodeLoginEvent.class, this::handleMsaDeviceCodeLoginEvent),
-            of(DeathMessageEvent.class, this::handleDeathMessageEvent),
             of(UpdateAvailableEvent.class, this::handleUpdateAvailableEvent),
             of(ReplayStartedEvent.class, this::handleReplayStartedEvent),
             of(ReplayStoppedEvent.class, this::handleReplayStoppedEvent),
@@ -124,7 +130,7 @@ public class DiscordEventListener {
             .addField("Reason", event.reason(), false)
             .addField("Why?", category.getWikiURL(), false)
             .addField("Category", category.toString(), false)
-            .addField("Online Duration", formatDuration(event.onlineDuration()), false)
+            .addField("Online Duration", formatDuration(event.onlineDurationWithQueueSkip()), false)
             .errorColor();
         if (Proxy.getInstance().isOn2b2t()
             && !Proxy.getInstance().isPrio()
@@ -450,66 +456,29 @@ public class DiscordEventListener {
         sendEmbedMessage(embed);
     }
 
-    public void handleServerChatReceivedEvent(ServerChatReceivedEvent event) {
+    private void handleWhisperChatEvent(WhisperChatEvent event) {
+        if (!CONFIG.discord.chatRelay.whispers) return;
         if (!CONFIG.discord.chatRelay.enable || CONFIG.discord.chatRelay.channelId.isEmpty()) return;
         if (CONFIG.discord.chatRelay.ignoreQueue && Proxy.getInstance().isInQueue()) return;
         try {
             String message = event.message();
             String ping = "";
             if (CONFIG.discord.chatRelay.mentionWhileConnected || isNull(Proxy.getInstance().getCurrentPlayer().get())) {
-                if (CONFIG.discord.chatRelay.mentionRoleOnWhisper || CONFIG.discord.chatRelay.mentionRoleOnNameMention) {
-                    if (!message.startsWith("<")) {
-                        if (event.isIncomingWhisper()
-                            && CONFIG.discord.chatRelay.mentionRoleOnWhisper
-                            && !message.toLowerCase(Locale.ROOT).contains("discord.gg/")
-                            && event.sender().map(s -> !PLAYER_LISTS.getIgnoreList().contains(s.getName())).orElse(true)) {
-                            ping = notificationMention();
-                        }
-                    } else {
-                        if (CONFIG.discord.chatRelay.mentionRoleOnNameMention) {
-                            if (event.sender().filter(sender -> sender.getName().equals(CONFIG.authentication.username)).isEmpty()
-                                && event.sender().map(s -> !PLAYER_LISTS.getIgnoreList().contains(s.getName())).orElse(true)
-                                && Arrays.asList(message.toLowerCase().split(" ")).contains(CONFIG.authentication.username.toLowerCase())) {
-                                ping = notificationMention();
-                            }
-                        }
+                if (CONFIG.discord.chatRelay.mentionRoleOnWhisper && !event.outgoing()) {
+                    if (!message.toLowerCase(Locale.ROOT).contains("discord.gg/")
+                        && !PLAYER_LISTS.getIgnoreList().contains(event.sender().getName())) {
+                        ping = notificationMention();
                     }
                 }
             }
-            final UUID senderUUID;
-            final String senderName;
-            if (event.isPublicChat()) {
-                if (!CONFIG.discord.chatRelay.publicChats) return;
-                message = "**" + event.sender().get().getName() + ":** " + message.substring(message.indexOf(" ") + 1);
-                senderName = event.sender().get().getName();
-                senderUUID = event.sender().get().getProfileId();
-            } else if (event.isWhisper()) {
-                if (!CONFIG.discord.chatRelay.whispers) return;
-                message = message.replace(event.sender().get().getName(), "**" + event.sender().get().getName() + "**");
-                message = message.replace(event.whisperTarget().get().getName(), "**" + event.whisperTarget().get().getName() + "**");
-                senderName = event.sender().get().getName();
-                senderUUID = event.sender().get().getProfileId();
-            } else if (event.isDeathMessage()) {
-                if (!CONFIG.discord.chatRelay.deathMessages) return;
-                DeathMessageParseResult death = event.deathMessage().get();
-                message = message.replace(death.victim(), "**" + death.victim() + "**");
-                var k = death.killer().filter(killer -> killer.type() == KillerType.PLAYER);
-                if (k.isPresent()) message = message.replace(k.get().name(), "**" + k.get().name() + "**");
-                senderName = death.victim();
-                senderUUID = CACHE.getTabListCache().getFromName(death.victim()).map(PlayerListEntry::getProfileId).orElse(null);
-            } else {
-                if (!CONFIG.discord.chatRelay.serverMessages) return;
-                senderName = "Hausemaster";
-                senderUUID = null;
-            }
-            final String avatarURL = senderUUID != null ? Proxy.getInstance().getAvatarURL(senderUUID).toString() : Proxy.getInstance().getAvatarURL(senderName).toString();
+            message = message.replace(event.sender().getName(), "**" + event.sender().getName() + "**");
+            message = message.replace(event.receiver().getName(), "**" + event.receiver().getName() + "**");
+            UUID senderUUID = event.sender().getProfileId();
+            final String avatarURL = Proxy.getInstance().getAvatarURL(senderUUID).toString();
             var embed = Embed.builder()
                 .description(escape(message))
                 .footer("\u200b", avatarURL)
-                .color(event.isPublicChat() ? (event.publicChatContent().startsWith(">") ? Color.MEDIUM_SEA_GREEN : Color.BLACK)
-                           : event.isDeathMessage() ? Color.RUBY
-                    : event.isWhisper() ? Color.MAGENTA
-                    : Color.MOON_YELLOW)
+                .color(Color.MAGENTA)
                 .timestamp(Instant.now());
             if (ping.isEmpty()) {
                 sendRelayEmbedMessage(embed);
@@ -517,7 +486,105 @@ public class DiscordEventListener {
                 sendRelayEmbedMessage(ping, embed);
             }
         } catch (final Throwable e) {
-            DISCORD_LOG.error("", e);
+            DISCORD_LOG.error("Error processing WhisperChatEvent", e);
+        }
+    }
+
+    private void handleSystemChatEvent(SystemChatEvent event) {
+        if (!CONFIG.discord.chatRelay.serverMessages) return;
+        if (!CONFIG.discord.chatRelay.enable || CONFIG.discord.chatRelay.channelId.isEmpty()) return;
+        if (CONFIG.discord.chatRelay.ignoreQueue && Proxy.getInstance().isInQueue()) return;
+        try {
+            String message = event.message();
+            final String avatarURL = Proxy.getInstance().isOn2b2t() ? Proxy.getInstance().getAvatarURL("Hausemaster").toString() : null;
+            var embed = Embed.builder()
+                .description(escape(message))
+                .footer("\u200b", avatarURL)
+                .color(Color.MOON_YELLOW)
+                .timestamp(Instant.now());
+            sendRelayEmbedMessage(embed);
+        } catch (final Throwable e) {
+            DISCORD_LOG.error("Error processing SystemChatEvent", e);
+        }
+    }
+
+    private void handlePublicChatEvent(PublicChatEvent event) {
+        if (!CONFIG.discord.chatRelay.publicChats) return;
+        if (!CONFIG.discord.chatRelay.enable || CONFIG.discord.chatRelay.channelId.isEmpty()) return;
+        if (CONFIG.discord.chatRelay.ignoreQueue && Proxy.getInstance().isInQueue()) return;
+        try {
+            String message = event.message();
+            boolean customSenderFormatting = false;
+            if (!event.isDefaultMessageSchema()) {
+                if (Proxy.getInstance().isOn2b2t()) {
+                    DISCORD_LOG.error("Received non-default schema chat message on 2b2t: {}", message);
+                }
+            } else {
+                message = event.extractMessageDefaultSchema();
+                customSenderFormatting = true;
+            }
+            String ping = "";
+            if (CONFIG.discord.chatRelay.mentionWhileConnected || isNull(Proxy.getInstance().getCurrentPlayer().get())) {
+                if (CONFIG.discord.chatRelay.mentionRoleOnNameMention
+                    && event.sender().getName().equals(CONFIG.authentication.username)
+                    && !PLAYER_LISTS.getIgnoreList().contains(event.sender().getName())
+                    && Arrays.asList(message.toLowerCase().split(" ")).contains(CONFIG.authentication.username.toLowerCase())) {
+                    ping = notificationMention();
+                }
+            }
+            if (customSenderFormatting) {
+                message = "**" + event.sender().getName() + ":** " + message;
+            }
+            UUID senderUUID = event.sender().getProfileId();
+            final String avatarURL = Proxy.getInstance().getAvatarURL(senderUUID).toString();
+            var embed = Embed.builder()
+                .description(escape(message))
+                .footer("\u200b", avatarURL)
+                .color(event.message().startsWith(">") ? Color.MEDIUM_SEA_GREEN : Color.BLACK)
+                .timestamp(Instant.now());
+            if (ping.isEmpty()) {
+                sendRelayEmbedMessage(embed);
+            } else {
+                sendRelayEmbedMessage(ping, embed);
+            }
+        } catch (final Throwable e) {
+            DISCORD_LOG.error("Error processing PublicChatEvent", e);
+        }
+    }
+
+    private void handleDeathMessageChatEvent(DeathMessageChatEvent event) {
+        if (CONFIG.client.extra.killMessage) {
+            event.deathMessage().killer().ifPresent(killer -> {
+                if (!killer.name().equals(CONFIG.authentication.username)) return;
+                sendEmbedMessage(Embed.builder()
+                                     .title("Kill Detected")
+                                     .primaryColor()
+                                     .addField("Victim", escape(event.deathMessage().victim()), false)
+                                     .addField("Message", escape(event.message()), false));
+            });
+        }
+        if (!CONFIG.discord.chatRelay.deathMessages) return;
+        if (!CONFIG.discord.chatRelay.enable || CONFIG.discord.chatRelay.channelId.isEmpty()) return;
+        if (CONFIG.discord.chatRelay.ignoreQueue && Proxy.getInstance().isInQueue()) return;
+        try {
+            String message = event.message();
+            DeathMessageParseResult death = event.deathMessage();
+            message = message.replace(death.victim(), "**" + death.victim() + "**");
+            var k = death.killer().filter(killer -> killer.type() == KillerType.PLAYER);
+            if (k.isPresent()) message = message.replace(k.get().name(), "**" + k.get().name() + "**");
+            String senderName = death.victim();
+            UUID senderUUID = CACHE.getTabListCache().getFromName(death.victim()).map(PlayerListEntry::getProfileId).orElse(null);
+            final String avatarURL = senderUUID != null
+                ? Proxy.getInstance().getAvatarURL(senderUUID).toString()
+                : Proxy.getInstance().getAvatarURL(senderName).toString();
+            var embed = Embed.builder()
+                .description(escape(message))
+                .footer("\u200b", avatarURL)
+                .color(Color.RUBY)
+                .timestamp(Instant.now());
+            sendRelayEmbedMessage(embed);
+        } catch (final Throwable e) {
+            DISCORD_LOG.error("Error processing DeathMessageChatEvent", e);
         }
     }
 
@@ -697,18 +764,6 @@ public class DiscordEventListener {
             sendEmbedMessage(notificationMention(), embed);
         else
             sendEmbedMessage(embed);
-    }
-
-    public void handleDeathMessageEvent(final DeathMessageEvent event) {
-        if (!CONFIG.client.extra.killMessage) return;
-        event.deathMessageParseResult().killer().ifPresent(killer -> {
-            if (!killer.name().equals(CONFIG.authentication.username)) return;
-            sendEmbedMessage(Embed.builder()
-                                 .title("Kill Detected")
-                                 .primaryColor()
-                                 .addField("Victim", escape(event.deathMessageParseResult().victim()), false)
-                                 .addField("Message", escape(event.deathMessageRaw()), false));
-        });
     }
 
     public void handleUpdateAvailableEvent(final UpdateAvailableEvent event) {

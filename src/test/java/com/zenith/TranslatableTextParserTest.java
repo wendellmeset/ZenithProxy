@@ -20,4 +20,15 @@ public class TranslatableTextParserTest {
         String serialize = ComponentSerializer.serializePlain(deserialize);
         assertEquals("<bonk2b2t> you should never talk about that with them", serialize);
     }
+
+    @Test
+    public void translatableTextRenderingTest() {
+        var json = "{\"translate\":\"%s\",\"with\":[{\"extra\":[\"<\",{\"color\":\"dark_red\",\"text\":\"rfresh2\"},\"> hello\"],\"text\":\"\"}]}";
+        String expectedText = "<rfresh2> hello";
+        var component = ComponentSerializer.deserialize(json);
+
+        String rendered = ComponentSerializer.serializePlain(component);
+
+        assertEquals(expectedText, rendered);
+    }
 }

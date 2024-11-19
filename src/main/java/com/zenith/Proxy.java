@@ -74,7 +74,6 @@ import static com.github.rfresh2.EventConsumer.of;
 import static com.zenith.Shared.*;
 import static com.zenith.util.Config.Authentication.AccountType.MSA;
 import static com.zenith.util.Config.Authentication.AccountType.OFFLINE;
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 
@@ -88,9 +87,11 @@ public class Proxy {
     protected final AtomicReference<ServerSession> currentPlayer = new AtomicReference<>();
     protected final FastArrayList<ServerSession> activeConnections = new FastArrayList<>(ServerSession.class);
     private boolean inQueue = false;
+    private boolean didQueueSkip = false;
     private int queuePosition = 0;
     @Setter @Nullable private Instant connectTime;
     private Instant disconnectTime = Instant.now();
+    private OptionalLong prevOnlineSeconds = OptionalLong.empty();
     private Optional<Boolean> isPrio = Optional.empty();
     @Getter private final AtomicBoolean loggingIn = new AtomicBoolean(false);
     @Setter @NotNull private AutoUpdater autoUpdater = NoOpAutoUpdater.INSTANCE;
@@ -120,6 +121,7 @@ public class Proxy {
             of(StartQueueEvent.class, this::handleStartQueueEvent),
             of(QueuePositionUpdateEvent.class, this::handleQueuePositionUpdateEvent),
             of(QueueCompleteEvent.class, this::handleQueueCompleteEvent),
+            of(QueueSkipEvent.class, this::handleQueueSkipEvent),
             of(PlayerOnlineEvent.class, this::handlePlayerOnlineEvent),
             of(PrioStatusEvent.class, this::handlePrioStatusEvent),
             of(PrivateMessageSendEvent.class, this::handlePrivateMessageSendEvent)
@@ -236,25 +238,21 @@ public class Proxy {
         this.startServer();
         EXECUTOR.schedule(() -> {
             if (server == null || !server.isListening()) {
-                SERVER_LOG.error("Server is not listening and unable to quick restart, performing full restart...");
+                var errorMessage = """
+                    The ZenithProxy MC server was unable to start correctly.
+                    
+                    Most likely you have two or more ZenithProxy instance running on the same configured port: %s.
+                    
+                    Shut down duplicate instances, or change the configured port: `serverConnection port <port>`
+                    """.formatted(CONFIG.server.bind.port);
+                SERVER_LOG.error(errorMessage);
                 if (DISCORD.isRunning()) {
                     DISCORD.sendEmbedMessage(
                         Embed.builder()
                             .title("ZenithProxy Server Error")
-                            .description(
-                                """
-                                 The ZenithProxy MC server was unable to start correctly.
-                                 
-                                 Most likely the port you have configured: %s is already in use by another application or another ZenithProxy instance.
-                                 
-                                 To change ports use the command: `serverConnection port <port>`
-                                 
-                                 This ZenithProxy instance will now restart, although this is unlikely to fix the issue.
-                                 """.formatted(CONFIG.server.bind.port))
+                            .description(errorMessage)
                             .errorColor());
                 }
-                CONFIG.autoUpdater.shouldReconnectAfterAutoUpdate = true;
-                stop();
             }
         }, 30, TimeUnit.SECONDS);
     }
@@ -643,7 +641,7 @@ public class Proxy {
                 || !isOnlineOn2b2tForAtLeastDuration(twoB2tTimeLimit.minusMinutes(10L))
             ) return;
             final ServerSession playerConnection = this.currentPlayer.get();
-            final Duration durationUntilKick = twoB2tTimeLimit.minus(Duration.ofSeconds(Proxy.getInstance().getOnlineTimeSeconds()));
+            final Duration durationUntilKick = twoB2tTimeLimit.minus(Duration.ofSeconds(Proxy.getInstance().getOnlineTimeSecondsWithQueueSkip()));
             if (durationUntilKick.isNegative()) return; // sanity check just in case 2b's plugin changes
             var actionBarPacket = new ClientboundSetActionBarTextPacket(
                 ComponentSerializer.minimessage((durationUntilKick.toMinutes() <= 3 ? "<red>" : "<blue>") + twoB2tTimeLimit.toHours() + "hr kick in: " + durationUntilKick.toMinutes() + "m"));
@@ -678,14 +676,24 @@ public class Proxy {
             : 0L;
     }
 
+    public long getOnlineTimeSecondsWithQueueSkip() {
+        return !inQueue && didQueueSkip && prevOnlineSeconds.isPresent()
+            ? getOnlineTimeSeconds() + prevOnlineSeconds.getAsLong()
+            : getOnlineTimeSeconds();
+    }
+
     public String getOnlineTimeString() {
-        return Queue.getEtaStringFromSeconds(getOnlineTimeSeconds());
+        return Queue.getEtaStringFromSeconds(getOnlineTimeSecondsWithQueueSkip());
     }
 
     public void handleDisconnectEvent(DisconnectEvent event) {
         CACHE.reset(CacheResetType.FULL);
         this.disconnectTime = Instant.now();
+        this.prevOnlineSeconds = inQueue
+            ? OptionalLong.empty()
+            : OptionalLong.of(Duration.between(this.connectTime, this.disconnectTime).toSeconds());
         this.inQueue = false;
+        this.didQueueSkip = false;
         this.queuePosition = 0;
         TPS.reset();
         if (!DISCORD.isRunning()
@@ -717,6 +725,7 @@ public class Proxy {
     public void handleStartQueueEvent(StartQueueEvent event) {
         this.inQueue = true;
         this.queuePosition = 0;
+        if (event.wasOnline()) this.connectTime = Instant.now();
     }
 
     public void handleQueuePositionUpdateEvent(QueuePositionUpdateEvent event) {
@@ -726,6 +735,10 @@ public class Proxy {
     public void handleQueueCompleteEvent(QueueCompleteEvent event) {
         this.inQueue = false;
         this.connectTime = Instant.now();
+    }
+
+    public void handleQueueSkipEvent(QueueSkipEvent event) {
+        this.didQueueSkip = true;
     }
 
     public void handlePlayerOnlineEvent(PlayerOnlineEvent event) {

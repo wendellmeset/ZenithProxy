@@ -8,24 +8,17 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/MC-1.21-brightgreen.svg" alt="Minecraft"/>
-  <img src="https://img.shields.io/badge/MC-1.20.6-yellow.svg" alt="Minecraft"/>
-  <img src="https://img.shields.io/badge/MC-1.20.4-yellow.svg" alt="Minecraft"/>
-  <img src="https://img.shields.io/badge/MC-1.20.1-yellow.svg" alt="Minecraft"/>
-  <img src="https://img.shields.io/badge/MC-1.12.2-yellow.svg" alt="Minecraft"/>
-  <img src="https://img.shields.io/github/languages/code-size/rfresh2/ZenithProxy.svg" alt="Code size"/>
-  <img src="https://img.shields.io/github/repo-size/rfresh2/ZenithProxy.svg" alt="GitHub repo size"/>
-  <img alt="Downloads" src="https://img.shields.io/github/downloads/rfresh2/ZenithProxy/total">
   <img src="https://tokei.rs/b1/github/rfresh2/ZenithProxy?category=code&style=flat" alt="Lines of Code"/>
 </p>
 
 
-Minecraft proxy/bot intended for use on 2b2t.org. 
+Minecraft proxy and bot designed for 2b2t.org but also works on any server. 
 
-Unlike a traditional MC bot, you can login to it as a normal MC server and control the account.
+ZenithProxy is a MC bot with an integrated MC server that players can log into and control.
 
-The primary purpose is to have accounts always online in-game and securely shared by multiple people.
+Have your accounts always online in-game and securely shared with your friends.
 
-This project is also used to support the [2b2t.vc API](https://api.2b2t.vc) and [Discord Bot](https://bot.2b2t.vc).
+This project is also used for the [2b2t.vc API](https://api.2b2t.vc) and [Discord Bot](https://bot.2b2t.vc).
 
 <details>
     <summary>What is a proxy?</summary>
@@ -164,16 +157,23 @@ If you do not use one, **ZenithProxy will be killed after you exit your SSH sess
 
 ### Discord Bot Setup
 
-* Create a discord bot here: [discord.com/developers](https://discord.com/developers/)
+* Create a discord bot here: https://discord.com/developers/
+  * [Screenshots and how to get the bot's token](https://discordpy.readthedocs.io/en/stable/discord.html)
 * Enable `Message Content Intent` under the "Bot" tab. [Example](https://i.imgur.com/iznLeDV.png)
-* Invite the discord bot to a server.
-* Create a role for users to manage the proxy, a channel to manage the 
-  proxy in, and a channel for the chat relay. The bot's role must have permissions to send and receive messages in both channels
-* Configure in ZenithProxy using the `discord` command. Or run the launcher with the `--setup` flag.
+* Invite the discord bot to a server:
+  1. In the "OAuth2" tab, [generate an invite link with these permissions](https://imgur.com/rSn10ZN)
+  2. Open the invite link in a web browser and select the server to invite the bot to
+* Now in your discord server:
+  1. In the [discord server settings](https://i.imgur.com/q8YQMJT.png), create [a role for users to manage the bot.](https://i.imgur.com/aJwE1Y8.png) Assign the role to yourself and any other users who should be able to manage the bot.
+  1. Create a [channel to manage the proxy in](https://i.imgur.com/DVeJBpo.png)
+  1. (Optional) create another channel for the chat relay
+* At first launch, the launcher will ask you to configure the token/role/channel ID's (or you can use `discord` command after)
+  * To get the ID's, you must enable [Developer Mode](https://i.imgur.com/qujvmiC.png) in your discord user settings
+  * Right-click on the roles/channels you created and [click "Copy ID"](https://i.imgur.com/RDm3Gso.png)
 
 ## Running Multiple Instances
 
-Create a new folder for each instance with its own copy of the launcher files. [Example](https://i.imgur.com/OTkKIti.png)
+Create a new folder for each instance with its own copy of the launcher files. [Example](https://i.imgur.com/phKxmrL.png)
 
 Instances must be independently run and configured. i.e. separate terminal sessions, discord bots, ports, config files, etc.
 

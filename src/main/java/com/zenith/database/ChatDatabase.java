@@ -2,13 +2,14 @@ package com.zenith.database;
 
 import com.zenith.Proxy;
 import com.zenith.database.dto.records.ChatsRecord;
-import com.zenith.event.proxy.ServerChatReceivedEvent;
+import com.zenith.event.proxy.chat.PublicChatEvent;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.UUID;
 
+import static com.github.rfresh2.EventConsumer.of;
 import static com.zenith.Shared.DATABASE_LOG;
 import static com.zenith.Shared.EVENT_BUS;
 
@@ -38,22 +39,17 @@ public class ChatDatabase extends LiveDatabase {
 
     @Override
     public void subscribeEvents() {
-        EVENT_BUS.subscribe(this,
-            ServerChatReceivedEvent.class, this::handleServerChatReceivedEvent
+        EVENT_BUS.subscribe(
+            this,
+            of(PublicChatEvent.class, this::handlePublicChatEvent)
         );
     }
 
-
-    public void handleServerChatReceivedEvent(ServerChatReceivedEvent event) {
+    private void handlePublicChatEvent(PublicChatEvent event) {
         if (!Proxy.getInstance().isOn2b2t() // only write on 2b2t
-                || Proxy.getInstance().isInQueue()  // ignore queue
-                || !event.isPublicChat()) return; // don't write whispers or system messages
+            || Proxy.getInstance().isInQueue()) return;  // ignore queue
         try {
-            if (event.sender().isPresent()) {
-                writeChat(event.sender().get().getProfileId(), event.sender().get().getName(), event.publicChatContent(), Instant.now().atOffset(ZoneOffset.UTC));
-            } else {
-                DATABASE_LOG.error("Unable to extract sender for chat message: {}", event.message());
-            }
+            writeChat(event.sender().getProfileId(), event.sender().getName(), event.extractMessageDefaultSchema(), Instant.now().atOffset(ZoneOffset.UTC));
         } catch (final Exception e) {
             DATABASE_LOG.error("Failed handling chat: {}", event.message(), e);
         }

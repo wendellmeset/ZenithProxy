@@ -9,8 +9,11 @@ import java.util.List;
 import static com.zenith.Shared.CLIENT_LOG;
 
 public record ChatType(int id, String translationKey, List<String> parameters) {
-    public Component render(@Nullable Component sender, @Nullable Component content, @Nullable Component target) {
+    public Component render(@Nullable Component sender, @Nullable Component content, @Nullable Component unsignedContent, @Nullable Component target) {
         try {
+            if (unsignedContent != null) {
+                return unsignedContent;
+            }
             List<Component> args = new ArrayList<>(parameters.size());
             for (var parameter : parameters) {
                 switch (parameter) {

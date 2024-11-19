@@ -12,11 +12,10 @@ plugins {
 group = "com.zenith"
 version = "1.21.3"
 
-val javaVersion23 = JavaLanguageVersion.of(23)
-val javaVersion21 = JavaLanguageVersion.of(21)
-val javaLauncherProvider21 = javaToolchains.launcherFor { languageVersion = javaVersion21 }
-val javaLauncherProvider23 = javaToolchains.launcherFor { languageVersion = javaVersion23 }
-java { toolchain { languageVersion = javaVersion21 } }
+val javaReleaseVersion = 21
+val javaVersion = JavaLanguageVersion.of(23)
+val javaLauncherProvider = javaToolchains.launcherFor { languageVersion = javaVersion }
+java { toolchain { languageVersion = javaVersion } }
 
 repositories {
     maven("https://maven.2b2t.vc/releases") {
@@ -30,9 +29,6 @@ repositories {
     }
     maven("https://papermc.io/repo/repository/maven-public/") {
         content { includeGroup("com.velocitypowered") }
-    }
-    maven("https://repo.minebench.de/") {
-        content { includeGroup("de.themoep") }
     }
     maven("https://repo.viaversion.com") {
         content {
@@ -54,14 +50,13 @@ val shade: Configuration by configurations.creating
 shade.extendsFrom(configurations.implementation.get())
 
 dependencies {
-    implementation("com.github.rfresh2.discord4j:discord4j-core:3.4.3.9") {
+    implementation("com.github.rfresh2.discord4j:discord4j-core:3.4.4.10") {
         exclude(group = "io.netty")
     }
-    implementation("com.github.rfresh2:MCProtocolLib:1.21.3.5") {
-        exclude(group = "io.netty.incubator")
+    implementation("com.github.rfresh2:MCProtocolLib:1.21.3.6") {
         exclude(group = "io.netty")
     }
-    val nettyVersion = "4.1.114.Final"
+    val nettyVersion = "4.1.115.Final"
     implementation("io.netty:netty-codec-haproxy:$nettyVersion")
     implementation("io.netty:netty-codec-dns:$nettyVersion")
     implementation("io.netty:netty-codec-http2:$nettyVersion")
@@ -76,11 +71,11 @@ dependencies {
     implementation("io.netty:netty-resolver-dns-native-macos:$nettyVersion:osx-aarch_64")
     implementation("org.cloudburstmc.math:api:2.0")
     implementation("org.cloudburstmc.math:immutable:2.0")
-    implementation("org.redisson:redisson:3.38.1") {
+    implementation("org.redisson:redisson:3.39.0") {
         exclude(group = "io.netty")
     }
     implementation("com.github.rfresh2:SimpleEventBus:1.2")
-    val fastutilVersion = "8.5.14"
+    val fastutilVersion = "8.5.15"
     implementation("com.github.rfresh2.fastutil.maps:object-object-maps:$fastutilVersion")
     implementation("com.github.rfresh2.fastutil.maps:int-object-maps:$fastutilVersion")
     implementation("com.github.rfresh2.fastutil.maps:object-int-maps:$fastutilVersion")
@@ -94,7 +89,7 @@ dependencies {
     implementation("org.jline:jline:3.27.1")
     implementation("org.jline:jline-terminal-jni:3.27.1")
     implementation("ar.com.hjg:pngj:2.1.0")
-    implementation("com.zaxxer:HikariCP:6.1.0")
+    implementation("com.zaxxer:HikariCP:6.2.1")
     implementation("org.postgresql:postgresql:42.7.4")
     // todo: 3.46.0 introduces JFR support
     //  but it causes a runtime exception in graalvm native image if we do not build with JFR support
@@ -104,10 +99,10 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.5.12")
     implementation("org.slf4j:slf4j-api:2.0.16")
     implementation("org.slf4j:jul-to-slf4j:2.0.16")
-    implementation("com.mojang:brigadier:1.2.9")
+    implementation("com.mojang:brigadier:1.3.10")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.1")
     testImplementation("org.junit.jupiter:junit-jupiter:5.11.3")
-    val lombokVersion = "1.18.34"
+    val lombokVersion = "1.18.36"
     compileOnly("org.projectlombok:lombok:$lombokVersion")
     testCompileOnly("org.projectlombok:lombok:$lombokVersion")
     annotationProcessor("org.projectlombok:lombok:$lombokVersion")
@@ -118,29 +113,27 @@ tasks {
     withType(JavaCompile::class.java) {
         options.encoding = "UTF-8"
         options.isDeprecation = true
+        options.release = javaReleaseVersion
     }
     test {
         useJUnitPlatform()
     }
-    val commitHashTask = register("writeCommitHash") {
+    val commitHashTask = register<Exec>("writeCommitHash") {
         group = "build"
         description = "Write commit hash / version to file"
+        workingDir = projectDir
+        commandLine = "git rev-parse --short=8 HEAD".split(" ")
+        standardOutput = ByteArrayOutputStream()
         doLast {
-            val byteOut = ByteArrayOutputStream()
-            exec {
-                commandLine = "git rev-parse --short=8 HEAD".split(" ")
-                standardOutput = byteOut
-            }
-            String(byteOut.toByteArray()).trim().let {
-                if (it.length > 5) {
-                    file(layout.buildDirectory.asFile.get().absolutePath + "/resources/main/zenith_commit.txt").apply {
-                        parentFile.mkdirs()
-                        println("Writing commit hash: $it")
-                        writeText(it)
-                    }
-                } else {
-                    println("Unable to determine commit hash")
+            val commitHash = standardOutput.toString().trim()
+            if (commitHash.length > 5) {
+                file(layout.buildDirectory.asFile.get().absolutePath + "/resources/main/zenith_commit.txt").apply {
+                    parentFile.mkdirs()
+                    println("Writing commit hash: $commitHash")
+                    writeText(commitHash)
                 }
+            } else {
+                println("Unable to determine commit hash")
             }
         }
         outputs.upToDateWhen { false }
@@ -173,7 +166,7 @@ tasks {
     val javaPathTask = register("javaPath", Task::class.java) {
         group = runGroup
         doLast {
-            val execPath = javaLauncherProvider21.get().executablePath
+            val execPath = javaLauncherProvider.get().executablePath
             // create a file symlinked to the java executable for use in scripts
             layout.buildDirectory.asFile.get().mkdirs()
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
@@ -247,7 +240,7 @@ tasks {
 graalvmNative {
     binaries {
         named("main") {
-            javaLauncher = javaLauncherProvider23
+            javaLauncher = javaLauncherProvider
             imageName = "ZenithProxy"
             mainClass = "com.zenith.Proxy"
             quickBuild = false
@@ -265,6 +258,7 @@ graalvmNative {
                 "-march=x86-64-v3",
                 "--gc=serial",
                 "-J-XX:MaxRAMPercentage=90",
+                "--install-exit-handlers"
 //                "--enable-monitoring=jfr"
             )
             val pgoPath = System.getenv("GRAALVM_PGO_PATH")

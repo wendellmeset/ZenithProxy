@@ -6,6 +6,7 @@ import com.zenith.network.registry.PacketHandler;
 import com.zenith.network.server.ServerSession;
 import org.geysermc.mcprotocollib.protocol.MinecraftProtocol;
 import org.geysermc.mcprotocollib.protocol.data.ProtocolState;
+import org.geysermc.mcprotocollib.protocol.data.handshake.HandshakeIntent;
 import org.geysermc.mcprotocollib.protocol.packet.handshake.serverbound.ClientIntentionPacket;
 
 import static com.zenith.Shared.CONFIG;
@@ -20,23 +21,7 @@ public class IntentionHandler implements PacketHandler<ClientIntentionPacket, Se
         session.setProtocolVersion(packet.getProtocolVersion());
         session.setConnectingServerAddress(packet.getHostname());
         session.setConnectingServerPort(packet.getPort());
-        if (CONFIG.server.enforceMatchingConnectingAddress) {
-            var addressWithPort = packet.getHostname() + ":" + packet.getPort();
-            var addressWithoutPort = packet.getHostname();
-            // if proxyIP is set to a DNS name, config address won't have port present and the port can mismatch due to SRV record
-            var expectedAddress = CONFIG.server.getProxyAddress();
-            if (!(expectedAddress.equals(addressWithPort) || expectedAddress.equals(addressWithoutPort))) {
-                SERVER_LOG.info(
-                    "Disconnecting {} [{}] with intent: {} due to mismatched connecting server address. Expected: {} Actual: {}",
-                    session.getRemoteAddress(),
-                    ProtocolVersion.getProtocol(session.getProtocolVersion()).getName(),
-                    packet.getIntent(),
-                    expectedAddress,
-                    addressWithPort);
-                session.disconnect("bye");
-                return null;
-            }
-        }
+        if (mismatchedConnectingAddress(packet, session)) return null;
         switch (packet.getIntent()) {
             case STATUS -> {
                 protocol.setOutboundState(ProtocolState.STATUS);
@@ -60,6 +45,33 @@ public class IntentionHandler implements PacketHandler<ClientIntentionPacket, Se
             default -> session.disconnect("Invalid client intention: " + packet.getIntent());
         }
         return null;
+    }
+
+    private static boolean mismatchedConnectingAddress(final ClientIntentionPacket packet, final ServerSession session) {
+        if (!CONFIG.server.enforceMatchingConnectingAddress) return false;
+        // special handling in here is related to how the mc client handles srv records and intents
+        var hostname = packet.getHostname();
+        if (packet.getIntent() == HandshakeIntent.LOGIN && hostname.endsWith(".")) {
+            // remove trailing dot
+            hostname = packet.getHostname().substring(0, packet.getHostname().length() - 1);
+        }
+        boolean hostnameMatch = CONFIG.server.getProxyAddressForTransfer().equals(hostname);
+        boolean portMatch = CONFIG.server.getProxyPortForTransfer() == packet.getPort();
+        if (packet.getIntent() == HandshakeIntent.STATUS) {
+            portMatch = portMatch || 25565 == packet.getPort();
+        }
+        if (!hostnameMatch || !portMatch) {
+            SERVER_LOG.info(
+                "Disconnecting {} [{}] with intent: {} due to mismatched connecting server address. Expected: {} Actual: {}",
+                session.getRemoteAddress(),
+                ProtocolVersion.getProtocol(session.getProtocolVersion()).getName(),
+                packet.getIntent(),
+                CONFIG.server.getProxyAddressForTransfer() + ":" + CONFIG.server.getProxyPortForTransfer(),
+                hostname + ":" + packet.getPort());
+            session.disconnect("bye");
+            return true;
+        }
+        return false;
     }
 
     private boolean handleLogin(final ClientIntentionPacket packet, final ServerSession session, final MinecraftProtocol protocol) {

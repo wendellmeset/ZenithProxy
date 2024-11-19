@@ -133,6 +133,9 @@
       "type": "[Ljava.lang.Long;"
     },
     {
+      "type": "[Ljava.lang.Object;"
+    },
+    {
       "type": "[Ljava.lang.Short;"
     },
     {
@@ -2981,6 +2984,54 @@
       ]
     },
     {
+      "type": "io.netty.util.internal.shaded.org.jctools.queues.BaseMpscLinkedArrayQueueColdProducerFields",
+      "fields": [
+        {
+          "name": "producerLimit"
+        }
+      ]
+    },
+    {
+      "type": "io.netty.util.internal.shaded.org.jctools.queues.BaseMpscLinkedArrayQueueConsumerFields",
+      "fields": [
+        {
+          "name": "consumerIndex"
+        }
+      ]
+    },
+    {
+      "type": "io.netty.util.internal.shaded.org.jctools.queues.BaseMpscLinkedArrayQueueProducerFields",
+      "fields": [
+        {
+          "name": "producerIndex"
+        }
+      ]
+    },
+    {
+      "type": "io.netty.util.internal.shaded.org.jctools.queues.unpadded.MpscUnpaddedArrayQueueConsumerIndexField",
+      "fields": [
+        {
+          "name": "consumerIndex"
+        }
+      ]
+    },
+    {
+      "type": "io.netty.util.internal.shaded.org.jctools.queues.unpadded.MpscUnpaddedArrayQueueProducerIndexField",
+      "fields": [
+        {
+          "name": "producerIndex"
+        }
+      ]
+    },
+    {
+      "type": "io.netty.util.internal.shaded.org.jctools.queues.unpadded.MpscUnpaddedArrayQueueProducerLimitField",
+      "fields": [
+        {
+          "name": "producerLimit"
+        }
+      ]
+    },
+    {
       "type": "it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap",
       "methods": [
         {
@@ -3078,6 +3129,9 @@
           "name": "TYPE"
         }
       ]
+    },
+    {
+      "type": "java.lang.Iterable"
     },
     {
       "type": "java.lang.Long",
@@ -3600,6 +3654,14 @@
       "type": "java.time.ZonedDateTime"
     },
     {
+      "type": "java.util.AbstractCollection",
+      "allDeclaredFields": true
+    },
+    {
+      "type": "java.util.AbstractList",
+      "allDeclaredFields": true
+    },
+    {
       "type": "java.util.ArrayList",
       "methods": [
         {
@@ -3609,7 +3671,14 @@
       ]
     },
     {
+      "type": "java.util.Collection"
+    },
+    {
       "type": "java.util.Collections"
+    },
+    {
+      "type": "java.util.Collections$SingletonList",
+      "allDeclaredFields": true
     },
     {
       "type": "java.util.Collections$UnmodifiableMap",
@@ -3645,6 +3714,9 @@
       ]
     },
     {
+      "type": "java.util.List"
+    },
+    {
       "type": "java.util.Optional"
     },
     {
@@ -3667,6 +3739,9 @@
           ]
         }
       ]
+    },
+    {
+      "type": "java.util.RandomAccess"
     },
     {
       "type": "java.util.UUID",

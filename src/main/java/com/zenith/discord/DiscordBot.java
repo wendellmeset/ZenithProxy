@@ -20,6 +20,7 @@ import discord4j.core.event.domain.interaction.ButtonInteractionEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.component.ActionRow;
 import discord4j.core.object.component.Button;
+import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.User;
 import discord4j.core.object.presence.ClientActivity;
 import discord4j.core.object.presence.ClientPresence;
@@ -205,10 +206,11 @@ public class DiscordBot {
     }
 
     private void handleDiscordMessageCreateEvent(final MessageCreateEvent event) {
+        if (event.getMember().map(Member::isBot).orElse(false)) return;
+        if (event.getMember().map(Member::getId).filter(id -> id.equals(this.client.getSelfId())).isPresent()) return;
         if (CONFIG.discord.chatRelay.enable
             && !CONFIG.discord.chatRelay.channelId.isEmpty()
-            && event.getMessage().getChannelId().equals(Snowflake.of(CONFIG.discord.chatRelay.channelId))
-            && !event.getMember().get().getId().equals(this.client.getSelfId())) {
+            && event.getMessage().getChannelId().equals(Snowflake.of(CONFIG.discord.chatRelay.channelId))) {
             EVENT_BUS.postAsync(new DiscordMessageSentEvent(sanitizeRelayInputMessage(event.getMessage().getContent()), event));
             return;
         }
@@ -217,7 +219,10 @@ public class DiscordBot {
         if (!message.startsWith(CONFIG.discord.prefix)) return;
         try {
             final String inputMessage = message.substring(1);
-            DISCORD_LOG.info(event.getMember().map(User::getTag).orElse("unknown user") + " (" + event.getMember().get().getId().asString() +") executed discord command: {}", inputMessage);
+            DISCORD_LOG.info("{} ({}) executed discord command: {}",
+                             event.getMember().map(User::getTag).orElse("unknown user"),
+                             event.getMember().get().getId().asString(),
+                             inputMessage);
             final CommandContext context = DiscordCommandContext.create(inputMessage, event, mainRestChannel);
             COMMAND.execute(context);
             final MultipartRequest<MessageCreateRequest> request = commandEmbedOutputToMessage(context);
