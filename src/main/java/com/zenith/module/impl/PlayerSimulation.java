@@ -744,10 +744,7 @@ public class PlayerSimulation extends Module {
         }
     }
 
-    // todo: clean up and optimize
-    //  also handle missing edge cases:
-    //      waterlogged blocks
-    //      lava and water next to each other
+    // todo: handle lava and water next to each other?
     private boolean updateFluidHeightAndDoFluidPushing(boolean waterFluid, double motionScale) {
         int floorX = MathHelper.floorI(playerCollisionBox.minX() + 0.001);
         int ceilX = MathHelper.ceilI(playerCollisionBox.maxX() - 0.001);

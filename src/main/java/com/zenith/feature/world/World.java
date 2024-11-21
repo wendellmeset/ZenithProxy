@@ -266,6 +266,6 @@ public class World {
 
 
     record Direction(int x, int z) {
-        static List<Direction> HORIZONTALS = asList(new Direction(0, -1), new Direction(1, 0), new Direction(0, 1), new Direction(-1, 0));
+        static final List<Direction> HORIZONTALS = asList(new Direction(0, -1), new Direction(1, 0), new Direction(0, 1), new Direction(-1, 0));
     }
 }
