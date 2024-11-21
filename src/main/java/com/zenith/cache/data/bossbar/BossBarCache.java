@@ -4,6 +4,7 @@ import com.zenith.cache.CacheResetType;
 import com.zenith.cache.CachedData;
 import lombok.NonNull;
 import org.geysermc.mcprotocollib.network.packet.Packet;
+import org.geysermc.mcprotocollib.network.tcp.TcpSession;
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundBossEventPacket;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,7 +17,7 @@ public class BossBarCache implements CachedData {
     protected final Map<UUID, BossBar> bossBars = new ConcurrentHashMap<>();
 
     @Override
-    public void getPackets(@NonNull Consumer<Packet> consumer) {
+    public void getPackets(@NonNull Consumer<Packet> consumer, final @NonNull TcpSession session) {
         this.bossBars.values().stream().map(BossBar::toMCProtocolLibPacket).forEach(consumer);
     }
 

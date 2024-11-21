@@ -100,8 +100,8 @@ public class SkinCommand extends Command {
                     true,
                     true
                 ));
-                CACHE.getPlayerCache().getPackets(session::sendAsync);
-                CACHE.getChunkCache().getPackets(session::sendAsync);
+                CACHE.getPlayerCache().getPackets(session::sendAsync, session);
+                CACHE.getChunkCache().getPackets(session::sendAsync, session);
                 var embed = Embed.builder()
                     .title("Skin Changed!")
                     .addField("Skin Owner", DiscordBot.escape(playerName), false)

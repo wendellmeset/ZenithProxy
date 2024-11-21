@@ -225,6 +225,8 @@ public final class ZenithHandlerCodec {
                 .registerInbound(ServerboundClientInformationPacket.class, ClientInformationHandler.INSTANCE)
                 .build())
             .state(ProtocolState.GAME, PacketHandlerStateCodec.<ServerSession>builder()
+                .registerInbound(ServerboundAcceptTeleportationPacket.class, new SAcceptTeleportHandler())
+                .registerInbound(ServerboundMovePlayerPosRotPacket.class, new SPlayerPositionRotHandler())
                 .registerInbound(ServerboundChatCommandPacket.class, new ChatCommandHandler())
                 .registerInbound(ServerboundChatCommandSignedPacket.class, new SignedChatCommandHandler())
                 .registerInbound(ServerboundChatPacket.class, new ChatHandler())

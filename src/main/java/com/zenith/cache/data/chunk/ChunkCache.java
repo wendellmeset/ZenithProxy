@@ -19,6 +19,7 @@ import lombok.NonNull;
 import lombok.Setter;
 import net.kyori.adventure.key.Key;
 import org.geysermc.mcprotocollib.network.packet.Packet;
+import org.geysermc.mcprotocollib.network.tcp.TcpSession;
 import org.geysermc.mcprotocollib.protocol.codec.MinecraftCodec;
 import org.geysermc.mcprotocollib.protocol.codec.MinecraftCodecHelper;
 import org.geysermc.mcprotocollib.protocol.data.game.RegistryEntry;
@@ -345,7 +346,7 @@ public class ChunkCache implements CachedData {
     }
 
     @Override
-    public void getPackets(@NonNull Consumer<Packet> consumer) {
+    public void getPackets(@NonNull Consumer<Packet> consumer, final @NonNull TcpSession session) {
         try {
             final var brandBytes = getServerBrand();
             consumer.accept(new ClientboundCustomPayloadPacket(Key.key("minecraft", "brand"), brandBytes));

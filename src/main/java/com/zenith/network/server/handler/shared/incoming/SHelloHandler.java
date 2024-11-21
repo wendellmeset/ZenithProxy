@@ -19,7 +19,7 @@ public class SHelloHandler implements PacketHandler<ServerboundHelloPacket, Serv
             // TODO: see how viaversion interacts with this sequence
             //  it seems to be legal for clients to not send a response to the cookie request, at which point we stall
             //  in this login sequence forever
-            session.getCookieCache().getPackets(session::sendAsync);
+            session.getCookieCache().getPackets(session::sendAsync, session);
         else {
             if (CONFIG.server.verifyUsers)
                 session.sendAsync(new ClientboundHelloPacket(session.getServerId(), session.getKeyPair().getPublic(), session.getChallenge(), true));

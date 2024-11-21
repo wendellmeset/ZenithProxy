@@ -87,7 +87,9 @@ public class ReplayRecording implements Closeable {
     // Start recording while we already have a logged in session
     private void lateStartRecording() {
         writePacket0(0, new ClientboundGameProfilePacket(CACHE.getProfileCache().getProfile(), false), Proxy.getInstance().getClient(), ProtocolState.LOGIN);
-        CACHE.getConfigurationCache().getPackets(packet -> writePacket0(System.currentTimeMillis(), (MinecraftPacket) packet, Proxy.getInstance().getClient(), ProtocolState.CONFIGURATION));
+        CACHE.getConfigurationCache().getPackets(
+            packet -> writePacket0(System.currentTimeMillis(), (MinecraftPacket) packet, Proxy.getInstance().getClient(), ProtocolState.CONFIGURATION),
+            Proxy.getInstance().getClient());
         writePacket0(System.currentTimeMillis(), new ClientboundCustomPayloadPacket(Key.key("minecraft:brand"), CACHE.getChunkCache().getServerBrand()), Proxy.getInstance().getClient(), ProtocolState.CONFIGURATION);
         writePacket0(System.currentTimeMillis(), new ClientboundFinishConfigurationPacket(), Proxy.getInstance().getClient(), ProtocolState.CONFIGURATION);
         writePacket(System.currentTimeMillis(), new ClientboundLoginPacket(
@@ -114,7 +116,9 @@ public class ReplayRecording implements Closeable {
             false
         ), Proxy.getInstance().getClient());
         CACHE.getAllData()
-            .forEach(d -> d.getPackets(packet -> writePacket(System.currentTimeMillis(), (MinecraftPacket) packet, Proxy.getInstance().getClient())));
+            .forEach(
+                d -> d.getPackets(packet -> writePacket(System.currentTimeMillis(), (MinecraftPacket) packet, Proxy.getInstance().getClient()),
+                                  Proxy.getInstance().getClient()));
         SpectatorPacketProvider.playerSpawn().forEach(p -> writePacket(System.currentTimeMillis(), (MinecraftPacket) p, Proxy.getInstance().getClient()));
         SpectatorPacketProvider.playerPosition().forEach(p -> writePacket(System.currentTimeMillis(), (MinecraftPacket) p, Proxy.getInstance().getClient()));
         SpectatorPacketProvider.playerEquipment().forEach(p -> writePacket(System.currentTimeMillis(), (MinecraftPacket) p, Proxy.getInstance().getClient()));
@@ -229,7 +233,9 @@ public class ReplayRecording implements Closeable {
             recordSelfSpawn = true;
             if (preConnectSyncNeeded) {
                 writeToFile(0, new ClientboundGameProfilePacket(CACHE.getProfileCache().getProfile(), false), session, ProtocolState.LOGIN);
-                CACHE.getConfigurationCache().getPackets(packet2 -> writeToFile(System.currentTimeMillis(), (MinecraftPacket) packet2, Proxy.getInstance().getClient(), ProtocolState.CONFIGURATION));
+                CACHE.getConfigurationCache().getPackets(
+                    packet2 -> writeToFile(System.currentTimeMillis(), (MinecraftPacket) packet2, Proxy.getInstance().getClient(), ProtocolState.CONFIGURATION),
+                    Proxy.getInstance().getClient());
                 writeToFile(System.currentTimeMillis(), new ClientboundCustomPayloadPacket(Key.key("minecraft:brand"), CACHE.getChunkCache().getServerBrand()), Proxy.getInstance().getClient(), ProtocolState.CONFIGURATION);
                 writeToFile(System.currentTimeMillis(), new ClientboundFinishConfigurationPacket(), Proxy.getInstance().getClient(), ProtocolState.CONFIGURATION);
                 time = System.currentTimeMillis();

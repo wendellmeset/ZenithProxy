@@ -52,7 +52,7 @@ public class DataCache {
     }
 
     public boolean reset(CacheResetType type) {
-        CACHE_LOG.debug("Clearing cache using type: " + type.name().toLowerCase() + "...");
+        CACHE_LOG.debug("Clearing cache using type: {}...", type.name().toLowerCase());
 
         try {
             this.getAllData().forEach(d -> d.reset(type));
@@ -69,7 +69,7 @@ public class DataCache {
             String msg = data.getSendingMessage();
             if (msg == null) SERVER_LOG.debug("Sending data to client {}", data.getClass().getSimpleName());
             else SERVER_LOG.debug(msg);
-            data.getPackets(connection::send);
+            data.getPackets(connection::send, connection);
         });
     }
 }

@@ -5,6 +5,7 @@ import com.zenith.cache.CachedData;
 import lombok.Data;
 import lombok.NonNull;
 import org.geysermc.mcprotocollib.network.packet.Packet;
+import org.geysermc.mcprotocollib.network.tcp.TcpSession;
 import org.geysermc.mcprotocollib.protocol.data.game.scoreboard.ScoreboardPosition;
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.scoreboard.ClientboundSetDisplayObjectivePacket;
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.scoreboard.ClientboundSetObjectivePacket;
@@ -20,7 +21,7 @@ public class ScoreboardCache implements CachedData {
     protected final Map<ScoreboardPosition, String> cachedPositionObjectives = new EnumMap<>(ScoreboardPosition.class);
 
     @Override
-    public void getPackets(@NonNull Consumer<Packet> consumer) {
+    public void getPackets(@NonNull Consumer<Packet> consumer, final @NonNull TcpSession session) {
         for (final Objective objective : this.cachedObjectives.values()) {
             objective.addPackets(consumer);
         }

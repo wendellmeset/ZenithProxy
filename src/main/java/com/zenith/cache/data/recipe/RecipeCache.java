@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import lombok.Data;
 import lombok.NonNull;
 import org.geysermc.mcprotocollib.network.packet.Packet;
+import org.geysermc.mcprotocollib.network.tcp.TcpSession;
 import org.geysermc.mcprotocollib.protocol.data.game.recipe.Recipe;
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundRecipePacket;
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundUpdateRecipesPacket;
@@ -32,7 +33,7 @@ public class RecipeCache implements CachedData {
     private boolean activateSmokingFiltering;
 
     @Override
-    public synchronized void getPackets(@NonNull final Consumer<Packet> consumer) {
+    public synchronized void getPackets(@NonNull final Consumer<Packet> consumer, final @NonNull TcpSession session) {
         consumer.accept(new ClientboundUpdateRecipesPacket(recipeRegistry.toArray(new Recipe[0])));
         if (CONFIG.debug.server.cache.unlockAllRecipes) {
             // technically bypassing the cache here isn't vanilla

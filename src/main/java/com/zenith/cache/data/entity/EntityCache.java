@@ -7,6 +7,7 @@ import com.zenith.cache.CachedData;
 import lombok.Data;
 import lombok.NonNull;
 import org.geysermc.mcprotocollib.network.packet.Packet;
+import org.geysermc.mcprotocollib.network.tcp.TcpSession;
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.spawn.ClientboundAddEntityPacket;
 
 import java.time.Duration;
@@ -26,7 +27,7 @@ public class EntityCache implements CachedData {
     private static final double maxDistanceExpected = Math.pow(32, 2); // squared to speed up calc, no need to sqrt
 
     @Override
-    public void getPackets(@NonNull Consumer<Packet> consumer) {
+    public void getPackets(@NonNull Consumer<Packet> consumer, final @NonNull TcpSession session) {
         // it would be preferable to not have this intermediary list but we need to sort :/
         // size is a rough estimate, some entities will provide much more packets than others
         final List<Packet> packets = new ArrayList<>(this.entities.size() * 6);

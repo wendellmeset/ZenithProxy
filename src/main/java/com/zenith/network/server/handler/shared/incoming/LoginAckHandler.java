@@ -24,7 +24,7 @@ public class LoginAckHandler implements PacketHandler<ServerboundLoginAcknowledg
             session.disconnect("Proxy is not connected to a server.");
             return null;
         }
-        CACHE.getConfigurationCache().getPackets(session::sendAsync);
+        CACHE.getConfigurationCache().getPackets(session::sendAsync, session);
         session.sendAsync(new ClientboundCustomPayloadPacket(Key.key("minecraft:brand"), CACHE.getChunkCache().getServerBrand()));
         session.sendAsync(new ClientboundFinishConfigurationPacket());
         return null;

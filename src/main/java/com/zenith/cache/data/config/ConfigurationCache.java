@@ -5,6 +5,7 @@ import com.zenith.cache.CachedData;
 import lombok.Data;
 import lombok.NonNull;
 import org.geysermc.mcprotocollib.network.packet.Packet;
+import org.geysermc.mcprotocollib.network.tcp.TcpSession;
 import org.geysermc.mcprotocollib.protocol.data.game.RegistryEntry;
 import org.geysermc.mcprotocollib.protocol.packet.common.clientbound.ClientboundUpdateTagsPacket;
 import org.geysermc.mcprotocollib.protocol.packet.configuration.clientbound.ClientboundRegistryDataPacket;
@@ -27,7 +28,7 @@ public class ConfigurationCache implements CachedData {
     private Map<String, Map<String, int[]>> tags = new ConcurrentHashMap<>();
 
     @Override
-    public void getPackets(@NonNull final Consumer<Packet> consumer) {
+    public void getPackets(@NonNull final Consumer<Packet> consumer, final @NonNull TcpSession session) {
         registryEntries.forEach((registry, entries) -> consumer.accept(new ClientboundRegistryDataPacket(registry, entries)));
         consumer.accept(new ClientboundUpdateEnabledFeaturesPacket(this.enabledFeatures));
         // todo: we need to make the zenith mc server wait until the player has sent a response to the resource pack prompt(s)
