@@ -5,6 +5,7 @@ import com.zenith.cache.CachedData;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import lombok.NonNull;
 import org.geysermc.mcprotocollib.network.packet.Packet;
+import org.geysermc.mcprotocollib.network.tcp.TcpSession;
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.scoreboard.ClientboundSetPlayerTeamPacket;
 
 import java.util.Map;
@@ -15,7 +16,7 @@ public class TeamCache implements CachedData {
     protected final Map<String, Team> cachedTeams = new ConcurrentHashMap<>();
 
     @Override
-    public void getPackets(@NonNull Consumer<Packet> consumer) {
+    public void getPackets(@NonNull Consumer<Packet> consumer, final @NonNull TcpSession session) {
         this.cachedTeams.values().stream().map(Team::toPacket).forEach(consumer);
     }
 

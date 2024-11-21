@@ -6,6 +6,7 @@ import lombok.NonNull;
 import lombok.Setter;
 import org.geysermc.mcprotocollib.auth.GameProfile;
 import org.geysermc.mcprotocollib.network.packet.Packet;
+import org.geysermc.mcprotocollib.network.tcp.TcpSession;
 
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
@@ -16,7 +17,7 @@ public class ServerProfileCache implements CachedData {
     protected GameProfile profile;
 
     @Override
-    public void getPackets(@NonNull Consumer<Packet> consumer) {}
+    public void getPackets(@NonNull Consumer<Packet> consumer, final @NonNull TcpSession session) {}
 
     public @Nullable GameProfile getProfile() {
         return profile;

@@ -102,7 +102,7 @@ public class CommandConfigCommand extends Command {
     private static void syncSlashCommandsToCurrentPlayer() {
         var session = Proxy.getInstance().getCurrentPlayer().get();
         if (session != null) {
-            CACHE.getChatCache().getPackets(session::sendAsync);
+            CACHE.getChatCache().getPackets(session::sendAsync, session);
         }
     }
 

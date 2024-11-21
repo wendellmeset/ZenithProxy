@@ -7,6 +7,7 @@ import lombok.NonNull;
 import lombok.experimental.Accessors;
 import net.raphimc.minecraftauth.step.java.StepPlayerCertificates;
 import org.geysermc.mcprotocollib.network.packet.Packet;
+import org.geysermc.mcprotocollib.network.tcp.TcpSession;
 import org.geysermc.mcprotocollib.protocol.data.game.RegistryEntry;
 import org.geysermc.mcprotocollib.protocol.data.game.command.CommandNode;
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundCommandsPacket;
@@ -31,7 +32,7 @@ public class ChatCache implements CachedData {
     protected ChatTypeRegistry chatTypeRegistry = new ChatTypeRegistry();
 
     @Override
-    public void getPackets(@NonNull final Consumer<Packet> consumer) {
+    public void getPackets(@NonNull final Consumer<Packet> consumer, final @NonNull TcpSession session) {
         consumer.accept(new ClientboundCommandsPacket(this.commandNodes, this.firstCommandNodeIndex));
     }
 

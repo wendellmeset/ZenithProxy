@@ -3,8 +3,10 @@ package com.zenith.cache.data.cookie;
 import com.zenith.cache.CacheResetType;
 import com.zenith.cache.CachedData;
 import lombok.Data;
+import lombok.NonNull;
 import net.kyori.adventure.key.Key;
 import org.geysermc.mcprotocollib.network.packet.Packet;
+import org.geysermc.mcprotocollib.network.tcp.TcpSession;
 import org.geysermc.mcprotocollib.protocol.packet.common.clientbound.ClientboundCookieRequestPacket;
 import org.geysermc.mcprotocollib.protocol.packet.common.clientbound.ClientboundStoreCookiePacket;
 import org.jetbrains.annotations.NotNull;
@@ -46,7 +48,7 @@ public class CookieCache implements CachedData {
      * S2C packets requesting cookie responses
      */
     @Override
-    public void getPackets(@NotNull final Consumer<Packet> consumer) {
+    public void getPackets(@NotNull final Consumer<Packet> consumer, final @NonNull TcpSession session) {
         zenithCookies.forEach(c -> consumer.accept(new ClientboundCookieRequestPacket(c)));
     }
 
