@@ -92,7 +92,7 @@ public class ClientSession extends TcpClientSession {
                 }
             }
         } catch (Exception e) {
-            CLIENT_LOG.error("", e);
+            CLIENT_LOG.error("Client Packet Received Error", e);
             throw new RuntimeException(e);
         }
     }
@@ -102,7 +102,7 @@ public class ClientSession extends TcpClientSession {
         try {
             return ZenithHandlerCodec.CLIENT_REGISTRY.handleOutgoing(packet, this);
         } catch (Exception e) {
-            CLIENT_LOG.error("", e);
+            CLIENT_LOG.error("Client Packet Sending Error", e);
             throw new RuntimeException(e);
         }
     }
@@ -112,7 +112,7 @@ public class ClientSession extends TcpClientSession {
         try {
             ZenithHandlerCodec.CLIENT_REGISTRY.handlePostOutgoing(packet, this);
         } catch (Exception e) {
-            CLIENT_LOG.error("", e);
+            CLIENT_LOG.error("Client Packet Sent Error", e);
             throw new RuntimeException(e);
         }
     }
