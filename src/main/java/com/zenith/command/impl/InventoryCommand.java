@@ -12,6 +12,7 @@ import com.zenith.discord.Embed;
 import com.zenith.feature.items.ContainerClickAction;
 import com.zenith.mc.item.ItemRegistry;
 import com.zenith.util.ComponentSerializer;
+import org.geysermc.mcprotocollib.protocol.data.game.inventory.ClickItemAction;
 import org.geysermc.mcprotocollib.protocol.data.game.inventory.ContainerActionType;
 import org.geysermc.mcprotocollib.protocol.data.game.inventory.DropItemAction;
 import org.geysermc.mcprotocollib.protocol.data.game.item.component.DataComponentType;
@@ -27,6 +28,8 @@ import static com.zenith.Shared.*;
 import static java.util.Arrays.asList;
 
 public class InventoryCommand extends Command {
+    private static final int INV_ACTION_PRIORITY = 1000000;
+
     @Override
     public CommandUsage commandUsage() {
         return CommandUsage.full(
@@ -69,7 +72,7 @@ public class InventoryCommand extends Command {
                           if (!verifyAbleToDoInvActions(c.getSource().getEmbed())) return 1;
                           var from = c.getArgument("from", Integer.class);
                           var to = c.getArgument("to", Integer.class);
-                          INVENTORY.invActionReq(this, INVENTORY.swapSlots(from, to), 0);
+                          INVENTORY.invActionReq(this, INVENTORY.swapSlots(from, to), INV_ACTION_PRIORITY);
                           logInvDelayed();
                           c.getSource().setNoOutput(true);
                           return 1;
@@ -111,14 +114,24 @@ public class InventoryCommand extends Command {
     }
 
     private void drop(final int slot, final boolean dropStack) {
+        var actionList = new ArrayList<ContainerClickAction>();
+        if (CACHE.getPlayerCache().getInventoryCache().getMouseStack() != Container.EMPTY_STACK) {
+            // drop the item in the mouse stack
+            actionList.add(new ContainerClickAction(
+                -999,
+                ContainerActionType.CLICK_ITEM,
+                ClickItemAction.LEFT_CLICK
+            ));
+        }
+        actionList.add(new ContainerClickAction(
+            slot,
+            ContainerActionType.DROP_ITEM,
+            dropStack ? DropItemAction.DROP_SELECTED_STACK : DropItemAction.DROP_FROM_SELECTED
+        ));
         INVENTORY.invActionReq(
             this,
-            new ContainerClickAction(
-                slot,
-                ContainerActionType.DROP_ITEM,
-                dropStack ? DropItemAction.DROP_SELECTED_STACK : DropItemAction.DROP_FROM_SELECTED
-            ),
-            0);
+            actionList,
+            INV_ACTION_PRIORITY);
     }
 
     private void logInvDelayed() {
