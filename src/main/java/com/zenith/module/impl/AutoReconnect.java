@@ -99,10 +99,10 @@ public class AutoReconnect extends Module {
         final int countdown = delaySeconds;
         EVENT_BUS.postAsync(new AutoReconnectEvent(countdown));
         // random jitter to help prevent multiple clients from logging in at the same time
-        Wait.waitRandomMs(5000);
+        Wait.waitRandomMs(1000);
         for (int i = countdown; i > 0; i-=10) {
             info("Reconnecting in {}s", i);
-            Wait.wait(10);
+            Wait.wait(Math.min(10, i));
         }
     }
 
