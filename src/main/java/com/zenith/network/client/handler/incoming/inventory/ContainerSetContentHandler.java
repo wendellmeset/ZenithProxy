@@ -13,6 +13,7 @@ public class ContainerSetContentHandler implements ClientEventLoopPacketHandler<
     @Override
     public boolean applyAsync(@NonNull ClientboundContainerSetContentPacket packet, @NonNull ClientSession session) {
         CACHE.getPlayerCache().setInventory(packet.getContainerId(), packet.getItems());
+        CACHE.getPlayerCache().getInventoryCache().setMouseStack(packet.getCarriedItem());
         CACHE.getPlayerCache().getActionId().set(packet.getStateId());
         syncPlayerEquipmentWithSpectatorsFromCache();
         return true;
