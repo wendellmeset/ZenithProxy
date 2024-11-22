@@ -50,7 +50,7 @@ public class LoginSpectatorPostHandler implements PostOutgoingPacketHandler<Clie
             var connection = connections[i];
             if (connection.equals(session)) continue;
             connection.sendAsync(new ClientboundSystemChatPacket(
-                ComponentSerializer.minimessage("<blue>" + session.getProfileCache().getProfile().getName() + " connected!"), false
+                ComponentSerializer.minimessage("<green>" + session.getProfileCache().getProfile().getName() + " connected!"), false
             ));
             if (connection.equals(Proxy.getInstance().getCurrentPlayer().get())) {
                 connection.sendAsync(new ClientboundSystemChatPacket(

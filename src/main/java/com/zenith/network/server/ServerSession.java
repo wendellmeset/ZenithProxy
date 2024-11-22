@@ -216,7 +216,7 @@ public class ServerSession extends TcpServerSession {
                 for (int i = 0; i < connections.length; i++) {
                     var connection = connections[i];
                     connection.send(new ClientboundRemoveEntitiesPacket(new int[]{this.spectatorEntityId}));
-                    connection.send(new ClientboundSystemChatPacket(ComponentSerializer.minimessage("<blue>" + profileCache.getProfile().getName() + " disconnected"), false));
+                    connection.send(new ClientboundSystemChatPacket(ComponentSerializer.minimessage("<red>" + Optional.ofNullable(this.profileCache.getProfile()).map(GameProfile::getName).orElse("?") + " disconnected"), false));
                 }
                 EVENT_BUS.postAsync(new ProxySpectatorDisconnectedEvent(profileCache.getProfile()));
             }
