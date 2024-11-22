@@ -291,8 +291,9 @@ public class PlayerSimulation extends Module {
     public synchronized void handlePlayerPosRotate(final int teleportId) {
         syncFromCache(false);
         CLIENT_LOG.debug("Server teleport {} to: {}, {}, {}", teleportId, this.x, this.y, this.z);
-        sendClientPacket(new ServerboundAcceptTeleportationPacket(teleportId));
-        sendClientPacket(new ServerboundMovePlayerPosRotPacket(false, this.x, this.y, this.z, this.yaw, this.pitch));
+        sendClientPacketAwait(new ServerboundAcceptTeleportationPacket(teleportId));
+        sendClientPacketAwait(new ServerboundMovePlayerPosRotPacket(false, this.x, this.y, this.z, this.yaw, this.pitch));
+        CLIENT_LOG.debug("Accepted teleport: {}", teleportId);
     }
 
     public synchronized void handleRespawn() {
@@ -802,8 +803,8 @@ public class PlayerSimulation extends Module {
         if (CACHE.getPlayerCache().getTeleportQueue().isEmpty()) return false;
         int queuedTeleport = CACHE.getPlayerCache().getTeleportQueue().dequeueInt();
         warn("Detected teleport desync, resyncing. queuedTeleport: {}, queueSize: {}", queuedTeleport, CACHE.getPlayerCache().getTeleportQueue().size());
-        sendClientPacket(new ServerboundAcceptTeleportationPacket(queuedTeleport));
-        sendClientPacket(new ServerboundMovePlayerPosRotPacket(onGround, x, y, z, yaw, pitch));
+        sendClientPacketAwait(new ServerboundAcceptTeleportationPacket(queuedTeleport));
+        sendClientPacketAwait(new ServerboundMovePlayerPosRotPacket(onGround, x, y, z, yaw, pitch));
         return true;
     }
 

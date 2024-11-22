@@ -69,6 +69,17 @@ public abstract class Module {
         }
     }
 
+    public void sendClientPacketAwait(final Packet packet) {
+        ClientSession clientSession = Proxy.getInstance().getClient();
+        if (clientSession != null && clientSession.isConnected()) {
+            try {
+                clientSession.sendAwait(packet);
+            } catch (Exception e) {
+                error("Error sending awaited packet: {}", packet.getClass().getSimpleName(), e);
+            }
+        }
+    }
+
     // preserves packet order
     public void sendClientPacketsAsync(final Packet... packets) {
         ClientSession clientSession = Proxy.getInstance().getClient();
