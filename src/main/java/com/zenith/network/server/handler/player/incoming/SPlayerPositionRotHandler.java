@@ -14,13 +14,7 @@ public class SPlayerPositionRotHandler implements PacketHandler<ServerboundMoveP
     public ServerboundMovePlayerPosRotPacket apply(final ServerboundMovePlayerPosRotPacket packet, final ServerSession session) {
         if (session.isSpawned()) return packet;
         else {
-            if (session.isSpawning()) {
-                SERVER_LOG.debug("[{}] Accepted spawn position", Optional.ofNullable(session.getProfileCache().getProfile()).map(GameProfile::getName).orElse("?"));
-                session.setSpawned(true);
-                session.setSpawning(false);
-            } else {
-                SERVER_LOG.debug("[{}] Cancelling pre-spawn position packet: {}", Optional.ofNullable(session.getProfileCache().getProfile()).map(GameProfile::getName).orElse("?"), packet);
-            }
+            SERVER_LOG.debug("[{}] Cancelling pre-spawn position packet: {}", Optional.ofNullable(session.getProfileCache().getProfile()).map(GameProfile::getName).orElse("?"), packet);
             return null;
         }
     }

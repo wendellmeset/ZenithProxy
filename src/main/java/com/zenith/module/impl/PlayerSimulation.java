@@ -310,8 +310,8 @@ public class PlayerSimulation extends Module {
     public synchronized void handlePlayerPosRotate(final int teleportId) {
         syncFromCache(false);
         CLIENT_LOG.debug("Server teleport {} to: {}, {}, {}", teleportId, this.x, this.y, this.z);
-        sendClientPacketAwait(new ServerboundAcceptTeleportationPacket(teleportId));
         sendClientPacketAwait(new ServerboundMovePlayerPosRotPacket(false, false, this.x, this.y, this.z, this.yaw, this.pitch));
+        sendClientPacketAwait(new ServerboundAcceptTeleportationPacket(teleportId));
         CLIENT_LOG.debug("Accepted teleport: {}", teleportId);
     }
 
@@ -827,8 +827,8 @@ public class PlayerSimulation extends Module {
         if (CACHE.getPlayerCache().getTeleportQueue().isEmpty()) return false;
         int queuedTeleport = CACHE.getPlayerCache().getTeleportQueue().dequeueInt();
         warn("Detected teleport desync, resyncing. queuedTeleport: {}, queueSize: {}", queuedTeleport, CACHE.getPlayerCache().getTeleportQueue().size());
-        sendClientPacketAwait(new ServerboundAcceptTeleportationPacket(queuedTeleport));
         sendClientPacketAwait(new ServerboundMovePlayerPosRotPacket(onGround, false, x, y, z, yaw, pitch));
+        sendClientPacketAwait(new ServerboundAcceptTeleportationPacket(queuedTeleport));
         return true;
     }
 

@@ -16,9 +16,9 @@ public class SAcceptTeleportHandler implements PacketHandler<ServerboundAcceptTe
         else {
             if (session.getSpawnTeleportId() == packet.getId()) {
                 SERVER_LOG.debug("[{}] Accepted spawn teleport", Optional.ofNullable(session.getProfileCache().getProfile()).map(GameProfile::getName).orElse("?"));
-                session.setSpawning(true);
+                session.setSpawned(true);
             } else {
-                SERVER_LOG.debug("[{}] Cancelling unexpected pre-spawn teleport packet with ID: {}", Optional.ofNullable(session.getProfileCache().getProfile()).map(GameProfile::getName).orElse("?"), packet.getId());
+                SERVER_LOG.debug("[{}] Cancelling pre-spawn teleport packet: {}", Optional.ofNullable(session.getProfileCache().getProfile()).map(GameProfile::getName).orElse("?"), packet);
             }
             return null;
         }
