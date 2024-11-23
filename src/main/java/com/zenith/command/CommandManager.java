@@ -73,6 +73,7 @@ public class CommandManager {
         new ReleaseChannelCommand(),
         new ReplayCommand(),
         new RespawnCommand(),
+        new RotateCommand(),
         new SeenCommand(),
         new SendMessageCommand(),
         new ServerCommand(),

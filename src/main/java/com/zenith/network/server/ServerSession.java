@@ -90,7 +90,7 @@ public class ServerSession extends TcpServerSession {
     // note: on 1.21.3, the position packet is sent before the teleport accept packet
     // player has accepted the spawn teleport and position packets
     // if false, we cancel any outbound teleport and position packets
-    protected boolean spawned = false;
+    protected boolean spawned = !CONFIG.debug.enforcePlayerSpawnSequence;
     // default spawn teleport id
     protected final int spawnTeleportId = 1234567890;
     // cancel outbound packets until we have received the protocol switch ack

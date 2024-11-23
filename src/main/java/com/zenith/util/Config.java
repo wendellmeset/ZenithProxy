@@ -378,6 +378,7 @@ public final class Config {
         public boolean resyncTeleports = true;
         public boolean ncpStrictInventory = false;
         public boolean debugLogs = false;
+        public boolean enforcePlayerSpawnSequence = true;
 
         public static final class PacketLog {
             public boolean enabled = false;
