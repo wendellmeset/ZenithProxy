@@ -42,7 +42,8 @@ public class DebugCommand extends Command {
                 "teleportResync on/off",
                 "ncpStrictInventory on/off",
                 "debugLogs on/off",
-                "chunkCacheFullbright on/off"
+                "chunkCacheFullbright on/off",
+                "enforceSpawnSeq on/off"
             )
         );
     }
@@ -173,6 +174,12 @@ public class DebugCommand extends Command {
                 c.getSource().getEmbed()
                     .title("Chunk Cache Fullbright " + toggleStrCaps(CONFIG.debug.server.cache.fullbrightChunkSkylight));
                 return OK;
+            })))
+            .then(literal("enforceSpawnSeq").then(argument("toggle", toggle()).executes(c -> {
+                CONFIG.debug.enforcePlayerSpawnSequence = getToggle(c, "toggle");
+                c.getSource().getEmbed()
+                    .title("Enforce Spawn Seq " + toggleStrCaps(CONFIG.debug.enforcePlayerSpawnSequence));
+                return OK;
             })));
     }
 
@@ -189,6 +196,7 @@ public class DebugCommand extends Command {
             .addField("NCP Strict Inventory", toggleStr(CONFIG.debug.ncpStrictInventory), false)
             .addField("Debug Logs", toggleStr(CONFIG.debug.debugLogs), false)
             .addField("Chunk Cache Fullbright", toggleStr(CONFIG.debug.server.cache.fullbrightChunkSkylight), false)
+            .addField("Enforce Spawn Seq", toggleStr(CONFIG.debug.enforcePlayerSpawnSequence), false)
             .primaryColor();
     }
 }

@@ -89,7 +89,7 @@ public class ServerSession extends TcpServerSession {
     protected boolean isConfigured = false;
     // player has accepted the spawn teleport and position packets
     // if false, we cancel any outbound teleport and position packets
-    protected boolean spawned = false;
+    protected boolean spawned = !CONFIG.debug.enforcePlayerSpawnSequence;
     // player has accepted the spawn teleport and we are awaiting the position packet
     protected boolean spawning = false;
     // default spawn teleport id
