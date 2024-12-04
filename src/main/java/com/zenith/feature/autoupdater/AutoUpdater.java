@@ -4,6 +4,7 @@ import com.zenith.Proxy;
 import com.zenith.event.proxy.DisconnectEvent;
 import com.zenith.event.proxy.UpdateAvailableEvent;
 import com.zenith.event.proxy.UpdateStartEvent;
+import com.zenith.feature.queue.Queue;
 import lombok.Getter;
 
 import javax.annotation.Nullable;
@@ -109,6 +110,9 @@ public abstract class AutoUpdater {
             if (!Proxy.getInstance().isInQueue()) return;
             // we're in the middle of a queue skip
             if (Proxy.getInstance().getQueuePosition() < 10) return;
+            // we are in the middle of queueing, and not close enough to the end for comfort
+            // most likely we queue skip reconnected while queueing
+            if (Queue.getQueueStatus().regular() - Proxy.getInstance().getQueuePosition() > 25) return;
         }
         update();
     }
