@@ -83,7 +83,7 @@ public class SkinCommand extends Command {
                 var existingEntry = existingEntryOptional.get();
                 session.sendAsync(new ClientboundPlayerInfoRemovePacket(asList(existingProfile.getId())));
                 session.sendAsync(new ClientboundPlayerInfoUpdatePacket(EnumSet.allOf(PlayerListEntryAction.class), new PlayerListEntry[]{
-                    new PlayerListEntry(newProfile.getId(), newProfile, existingEntry.isListed(), existingEntry.getLatency(), existingEntry.getGameMode(), existingEntry.getDisplayName(), existingEntry.getListOrder(), existingEntry.getSessionId(), existingEntry.getExpiresAt(), existingEntry.getPublicKey(), existingEntry.getKeySignature())
+                    new PlayerListEntry(newProfile.getId(), newProfile, existingEntry.isListed(), existingEntry.getLatency(), existingEntry.getGameMode(), existingEntry.getDisplayName(), existingEntry.isShowHat(), existingEntry.getListOrder(), existingEntry.getSessionId(), existingEntry.getExpiresAt(), existingEntry.getPublicKey(), existingEntry.getKeySignature())
                 }));
                 session.sendAsync(new ClientboundRespawnPacket(
                     new PlayerSpawnInfo(

@@ -32,6 +32,7 @@ public class ZenithViaInitializer {
     }
 
     public void clientViaChannelInitializer(Channel channel) {
+        if (true) return; // todo: remove when via is updated
         if (!CONFIG.client.viaversion.enabled) return;
         if (CONFIG.client.viaversion.autoProtocolVersion) updateClientViaProtocolVersion();
         if (CONFIG.client.viaversion.protocolVersion == MinecraftCodec.CODEC.getProtocolVersion()) {
@@ -47,6 +48,7 @@ public class ZenithViaInitializer {
     }
 
     public void serverViaChannelInitializer(final Channel channel) {
+        if (true) return; // todo: remove when via is updated
         if (!CONFIG.server.viaversion.enabled) return;
         init();
         var userConnection = new UserConnectionImpl(channel, false);
