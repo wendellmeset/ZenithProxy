@@ -29,13 +29,13 @@ public class Queue {
         EXECUTOR.scheduleAtFixedRate(
             () -> Thread.ofVirtual().name("Queue Update").start(Queue::updateQueueStatus),
             500L,
-            Duration.ofMinutes(CONFIG.server.queueStatusRefreshMinutes).toMillis(),
-            TimeUnit.MILLISECONDS);
+            CONFIG.server.queueStatusRefreshMinutes,
+            TimeUnit.MINUTES);
         EXECUTOR.scheduleAtFixedRate(
             () -> Thread.ofVirtual().name("Queue ETA Update").start(Queue::updateQueueEtaEquation),
             500L,
-            Duration.ofHours(6L).toMillis(),
-            TimeUnit.MILLISECONDS
+            6,
+            TimeUnit.HOURS
         );
     }
 
