@@ -375,13 +375,6 @@ public class DiscordBot {
                              .successColor());
     }
 
-    void sendQueueWarning() {
-        sendEmbedMessage((CONFIG.discord.queueWarning.mentionRole ? notificationMention() : ""), Embed.builder()
-            .title("Queue Warning")
-            .addField("Queue Position", "[" + queuePositionStr() + "]", false)
-            .inQueueColor());
-    }
-
     static String notificationMention() {
         return DiscordBot.mentionRole(
             CONFIG.discord.notificationMentionRoleId.isEmpty()
@@ -403,7 +396,7 @@ public class DiscordBot {
         }
     }
 
-    private String queuePositionStr() {
+    public static String queuePositionStr() {
         if (Proxy.getInstance().isPrio())
             return Proxy.getInstance().getQueuePosition() + " / " + Queue.getQueueStatus().prio() + " - ETA: " + Queue.getQueueEta(Proxy.getInstance().getQueuePosition());
         else

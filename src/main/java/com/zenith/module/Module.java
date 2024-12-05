@@ -117,7 +117,7 @@ public abstract class Module {
     }
 
     public void warn(String msg) {
-        MODULE_LOG.warn(msg);
+        MODULE_LOG.warn(moduleLogPrefix + msg);
     }
 
     public void warn(String msg, Object... args) {
