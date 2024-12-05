@@ -25,6 +25,7 @@ import com.zenith.module.ModuleManager;
 import com.zenith.network.server.handler.player.InGameCommandManager;
 import com.zenith.terminal.TerminalManager;
 import com.zenith.util.Config;
+import com.zenith.util.ConfigVerifier;
 import com.zenith.util.LaunchConfig;
 import com.zenith.util.Wait;
 import com.zenith.via.ZenithViaInitializer;
@@ -234,6 +235,7 @@ public class Shared {
             TranslationRegistryInitializer.registerAllTranslations();
             CONFIG = loadConfig();
             LAUNCH_CONFIG = loadLaunchConfig();
+            ConfigVerifier.verifyConfigs();
             PLAYER_LISTS.init(); // must be init after config
         } catch (final Throwable e) {
             DEFAULT_LOG.error("Unable to initialize!", e);
