@@ -41,14 +41,14 @@ public class ActiveHoursCommand extends Command {
             If Queue ETA calc is disabled, connects will occur exactly at the set times instead.
             
              Time zone Ids ("TZ Identifier" column): https://w.wiki/A2fd
-             Time format: XX:XX, e.g.: 1:42, 14:42, 14:01
+             Time format: hh:mm, Examples: 1:42, 14:42, 14:01
             """,
             asList(
                 "on/off",
                 "timezone <timezone ID>",
                 "add/del <time>",
                 "status",
-                "forceReconnect on/off",
+                "whilePlayerConnected on/off",
                 "queueEtaCalc on/off"
             ),
             asList(
@@ -116,7 +116,7 @@ public class ActiveHoursCommand extends Command {
                 c.getSource().getEmbed()
                     .title("Active Hours Status");
             }))
-            .then(literal("forceReconnect")
+            .then(literal("whilePlayerConnected")
                       .then(argument("toggle", toggle()).executes(c -> {
                           CONFIG.client.extra.utility.actions.activeHours.forceReconnect = getToggle(c, "toggle");
                           c.getSource().getEmbed()
@@ -161,7 +161,7 @@ public class ActiveHoursCommand extends Command {
             .addField("Active Hours", (CONFIG.client.extra.utility.actions.activeHours.activeTimes.isEmpty()
                 ? "None set!"
                 : activeTimeListToString(CONFIG.client.extra.utility.actions.activeHours.activeTimes)), false)
-            .addField("Force Reconnect", toggleStr(CONFIG.client.extra.utility.actions.activeHours.forceReconnect), false)
+            .addField("While Player Connected", toggleStr(CONFIG.client.extra.utility.actions.activeHours.forceReconnect), false)
             .addField("Queue ETA Calc", toggleStr(CONFIG.client.extra.utility.actions.activeHours.queueEtaCalc), false)
             .primaryColor();
     }

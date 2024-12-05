@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 import static com.zenith.Shared.*;
 
 public class ActiveHours extends Module {
-    public static final String ACTIVE_HOURS_DISCONNECT_PREFIX = "[Active Hours]";
+    public static final String ACTIVE_HOURS_DISCONNECT_PREFIX = "[Active Hours] ";
     private @Nullable ScheduledFuture<?> activeHoursTickFuture;
     private Instant lastActiveHoursConnect = Instant.EPOCH;
 
@@ -79,7 +79,7 @@ public class ActiveHours extends Module {
                     EVENT_BUS.postAsync(new ActiveHoursConnectEvent(proxy.isConnected() && proxy.isOn2b2t()));
                     this.lastActiveHoursConnect = Instant.now();
                     if (proxy.isConnected()) {
-                        proxy.disconnect(ACTIVE_HOURS_DISCONNECT_PREFIX + " Registered Time: " + activeTime);
+                        proxy.disconnect(ACTIVE_HOURS_DISCONNECT_PREFIX + "Registered Time: " + activeTime);
                         if (proxy.isOn2b2t()) {
                             info("Waiting 1 minute to avoid reconnect queue skip");
                             MODULE.get(AutoReconnect.class).scheduleAutoReconnect(60);
