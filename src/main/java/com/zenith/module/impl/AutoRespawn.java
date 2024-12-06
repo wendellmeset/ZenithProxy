@@ -22,9 +22,10 @@ public class AutoRespawn extends Module {
 
     @Override
     public void subscribeEvents() {
-        EVENT_BUS.subscribe(this,
-                            of(ClientBotTick.class, this::handleClientTickEvent),
-                            of(DeathEvent.class, this::handleDeathEvent)
+        EVENT_BUS.subscribe(
+            this,
+            of(ClientBotTick.class, this::handleClientTickEvent),
+            of(DeathEvent.class, this::handleDeathEvent)
         );
     }
 

@@ -283,8 +283,6 @@ public class Proxy {
                         If the `proxyIP` is incorrect, set `serverConnection proxyIP <ip>` with the correct IP.
                         
                         For instructions on how to disable the firewall consult with your VPS provider. Each provider varies in steps and what word they refer to firewalls with.
-                        
-                        To set the Proxy IP: `serverConnection proxyIP <ip>`
                         """, address);
                 }
             }, () -> {
