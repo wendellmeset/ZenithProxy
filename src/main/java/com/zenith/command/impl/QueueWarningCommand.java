@@ -62,7 +62,6 @@ public class QueueWarningCommand extends Command {
             }))
             .then(literal("add").then(argument("pos", integer(1, 1000)).executes(c -> {
                 int pos = getInteger(c, "pos");
-                CONFIG.client.extra.queueWarning.warningPositions.remove(pos);
                 CONFIG.client.extra.queueWarning.warningPositions.add(pos);
                 CONFIG.client.extra.queueWarning.mentionPositions.remove(pos);
                 c.getSource().getEmbed().title("Added " + pos);
@@ -70,9 +69,7 @@ public class QueueWarningCommand extends Command {
             })
                 .then(literal("mention").executes(c -> {
                     int pos = getInteger(c, "pos");
-                    CONFIG.client.extra.queueWarning.warningPositions.remove(pos);
                     CONFIG.client.extra.queueWarning.warningPositions.add(pos);
-                    CONFIG.client.extra.queueWarning.mentionPositions.remove(pos);
                     CONFIG.client.extra.queueWarning.mentionPositions.add(pos);
                     c.getSource().getEmbed().title("Added " + pos);
                     return OK;
@@ -98,6 +95,7 @@ public class QueueWarningCommand extends Command {
         return CONFIG.client.extra.queueWarning.warningPositions.isEmpty()
             ? "Empty"
             : CONFIG.client.extra.queueWarning.warningPositions.intStream()
+                .sorted()
                 .mapToObj(pos -> pos + (CONFIG.client.extra.queueWarning.mentionPositions.contains(pos) ? " (m)" : ""))
                 .collect(Collectors.joining("\n"));
     }
