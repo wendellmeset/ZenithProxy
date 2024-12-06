@@ -4144,6 +4144,9 @@
       ]
     },
     {
+      "type": "org.cloudburstmc.math.immutable.vector.ImmutableVectorProvider"
+    },
+    {
       "type": "org.geysermc.mcprotocollib.auth.GameProfile",
       "allDeclaredFields": true,
       "methods": [
