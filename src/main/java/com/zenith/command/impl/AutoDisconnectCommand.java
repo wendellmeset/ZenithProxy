@@ -81,14 +81,14 @@ public class AutoDisconnectCommand extends Command {
                       .then(argument("toggle", toggle()).executes(c -> {
                             CONFIG.client.extra.utility.actions.autoDisconnect.cancelAutoReconnect = getToggle(c, "toggle");
                             c.getSource().getEmbed()
-                                .title("AutoDisconnect CancelAutoReconnect " + toggleStrCaps(CONFIG.client.extra.utility.actions.autoDisconnect.cancelAutoReconnect));
+                                .title("AutoDisconnect Cancel AutoReconnect " + toggleStrCaps(CONFIG.client.extra.utility.actions.autoDisconnect.cancelAutoReconnect));
                             return 1;
                       })))
             .then(literal("autoClientDisconnect")
                       .then(argument("toggle", toggle()).executes(c -> {
                             CONFIG.client.extra.utility.actions.autoDisconnect.autoClientDisconnect = getToggle(c, "toggle");
                             c.getSource().getEmbed()
-                                .title("AutoDisconnect AutoClientDisconnect " + toggleStrCaps(CONFIG.client.extra.utility.actions.autoDisconnect.autoClientDisconnect));
+                                .title("AutoDisconnect Auto Client Disconnect " + toggleStrCaps(CONFIG.client.extra.utility.actions.autoDisconnect.autoClientDisconnect));
                             return 1;
                       })))
             .then(literal("thunder")
@@ -102,21 +102,21 @@ public class AutoDisconnectCommand extends Command {
                       .then(argument("toggle", toggle()).executes(c -> {
                           CONFIG.client.extra.utility.actions.autoDisconnect.onUnknownPlayerInVisualRange = getToggle(c, "toggle");
                           c.getSource().getEmbed()
-                              .title("AutoDisconnect UnknownPlayer " + toggleStrCaps(CONFIG.client.extra.utility.actions.autoDisconnect.onUnknownPlayerInVisualRange));
+                              .title("AutoDisconnect Unknown Player " + toggleStrCaps(CONFIG.client.extra.utility.actions.autoDisconnect.onUnknownPlayerInVisualRange));
                           return 1;
                       })))
             .then(literal("whilePlayerConnected")
                       .then(argument("toggle", toggle()).executes(c -> {
                           CONFIG.client.extra.utility.actions.autoDisconnect.whilePlayerConnected = getToggle(c, "toggle");
                           c.getSource().getEmbed()
-                              .title("AutoDisconnect WhilePlayerConnected " + toggleStrCaps(CONFIG.client.extra.utility.actions.autoDisconnect.whilePlayerConnected));
+                              .title("AutoDisconnect While Player Connected " + toggleStrCaps(CONFIG.client.extra.utility.actions.autoDisconnect.whilePlayerConnected));
                           return 1;
                       })))
             .then(literal("totemPop")
                       .then(argument("toggle", toggle()).executes(c -> {
                           CONFIG.client.extra.utility.actions.autoDisconnect.onTotemPop = getToggle(c, "toggle");
                           c.getSource().getEmbed()
-                              .title("AutoDisconnect TotemPop " + toggleStrCaps(CONFIG.client.extra.utility.actions.autoDisconnect.onTotemPop));
+                              .title("AutoDisconnect Totem Pop " + toggleStrCaps(CONFIG.client.extra.utility.actions.autoDisconnect.onTotemPop));
                           return 1;
                       })));
     }
@@ -128,11 +128,11 @@ public class AutoDisconnectCommand extends Command {
             .addField("Health Disconnect", toggleStr(CONFIG.client.extra.utility.actions.autoDisconnect.healthDisconnect), false)
             .addField("Health Level", CONFIG.client.extra.utility.actions.autoDisconnect.health, false)
             .addField("Thunder", toggleStr(CONFIG.client.extra.utility.actions.autoDisconnect.thunder), false)
-            .addField("UnknownPlayer", toggleStr(CONFIG.client.extra.utility.actions.autoDisconnect.onUnknownPlayerInVisualRange), false)
+            .addField("Unknown Player", toggleStr(CONFIG.client.extra.utility.actions.autoDisconnect.onUnknownPlayerInVisualRange), false)
             .addField("Totem Pop", toggleStr(CONFIG.client.extra.utility.actions.autoDisconnect.onTotemPop), false)
-            .addField("WhilePlayerConnected", toggleStr(CONFIG.client.extra.utility.actions.autoDisconnect.whilePlayerConnected), false)
-            .addField("AutoClientDisconnect", toggleStr(CONFIG.client.extra.utility.actions.autoDisconnect.autoClientDisconnect), false)
-            .addField("CancelAutoReconnect", toggleStr(CONFIG.client.extra.utility.actions.autoDisconnect.cancelAutoReconnect), false)
+            .addField("While Player Connected", toggleStr(CONFIG.client.extra.utility.actions.autoDisconnect.whilePlayerConnected), false)
+            .addField("Auto Client Disconnect", toggleStr(CONFIG.client.extra.utility.actions.autoDisconnect.autoClientDisconnect), false)
+            .addField("Cancel AutoReconnect", toggleStr(CONFIG.client.extra.utility.actions.autoDisconnect.cancelAutoReconnect), false)
             .primaryColor();
     }
 }
