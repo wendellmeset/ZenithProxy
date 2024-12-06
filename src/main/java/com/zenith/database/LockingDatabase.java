@@ -1,5 +1,6 @@
 package com.zenith.database;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.zenith.Proxy;
 import com.zenith.event.proxy.RedisRestartEvent;
 import com.zenith.util.Wait;
@@ -77,7 +78,12 @@ public abstract class LockingDatabase extends Database {
         this.lockAcquired.set(false);
         synchronized (this) {
             if (isNull(lockExecutorService)) {
-                lockExecutorService = Executors.newSingleThreadScheduledExecutor();
+                lockExecutorService = Executors.newSingleThreadScheduledExecutor(
+                    new ThreadFactoryBuilder()
+                        .setUncaughtExceptionHandler((t, e) -> DATABASE_LOG.error("Uncaught exception in {} lock thread", getLockKey(), e))
+                        .setNameFormat(getLockKey() + "-lock")
+                        .setDaemon(true)
+                        .build());
             }
         }
         lockExecutorService.scheduleAtFixedRate(this::tryLockProcess, (long) (Math.random() * 10), 10L, TimeUnit.SECONDS);

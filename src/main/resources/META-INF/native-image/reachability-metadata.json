@@ -2130,6 +2130,16 @@
       ]
     },
     {
+      "type": "com.zenith.util.Config$Client$Extra$QueueWarning",
+      "allDeclaredFields": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
       "type": "com.zenith.util.Config$Client$Extra$ReplayMod",
       "allDeclaredFields": true,
       "methods": [
@@ -2398,16 +2408,6 @@
     {
       "type": "com.zenith.util.Config$Discord$ConnectionProxy$ConnectionProxyType",
       "allDeclaredFields": true
-    },
-    {
-      "type": "com.zenith.util.Config$Discord$QueueWarning",
-      "allDeclaredFields": true,
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        }
-      ]
     },
     {
       "type": "com.zenith.util.Config$InGameCommands",
@@ -3028,6 +3028,15 @@
       "fields": [
         {
           "name": "producerLimit"
+        }
+      ]
+    },
+    {
+      "type": "it.unimi.dsi.fastutil.ints.IntArraySet",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
         }
       ]
     },
@@ -4133,6 +4142,9 @@
           "parameterTypes": []
         }
       ]
+    },
+    {
+      "type": "org.cloudburstmc.math.immutable.vector.ImmutableVectorProvider"
     },
     {
       "type": "org.geysermc.mcprotocollib.auth.GameProfile",

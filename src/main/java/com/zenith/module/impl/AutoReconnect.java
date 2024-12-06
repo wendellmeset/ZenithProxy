@@ -1,5 +1,6 @@
 package com.zenith.module.impl;
 
+import com.google.common.collect.Sets;
 import com.zenith.Proxy;
 import com.zenith.event.proxy.AutoReconnectEvent;
 import com.zenith.event.proxy.ConnectEvent;
@@ -9,6 +10,7 @@ import com.zenith.util.Wait;
 import org.geysermc.mcprotocollib.protocol.MinecraftConstants;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Set;
 import java.util.concurrent.Future;
 
 import static com.github.rfresh2.EventConsumer.of;
@@ -71,7 +73,9 @@ public class AutoReconnect extends Module {
     }
 
     public boolean shouldAutoDisconnectCancelAutoReconnect(DisconnectEvent event) {
-        return CONFIG.client.extra.utility.actions.autoDisconnect.enabled && CONFIG.client.extra.utility.actions.autoDisconnect.cancelAutoReconnect && AUTO_DISCONNECT.equals(event.reason());
+        return CONFIG.client.extra.utility.actions.autoDisconnect.enabled
+            && CONFIG.client.extra.utility.actions.autoDisconnect.cancelAutoReconnect
+            && AutoDisconnect.isAutoDisconnectReason(event.reason());
     }
 
     public void handleConnectEvent(ConnectEvent event) {
@@ -106,15 +110,21 @@ public class AutoReconnect extends Module {
         }
     }
 
+    private static final Set<String> RECONNECTABLE_DISCONNECT_REASONS = Sets.newHashSet(
+        SYSTEM_DISCONNECT,
+        MANUAL_DISCONNECT,
+        MinecraftConstants.SERVER_CLOSING_MESSAGE,
+        LOGIN_FAILED,
+        AUTH_REQUIRED,
+        MAX_PT_DISCONNECT
+    );
+
     private boolean isReconnectableDisconnect(final String reason) {
-        if (reason.equals(SYSTEM_DISCONNECT)
-            || reason.equals(MANUAL_DISCONNECT)
-            || reason.equals(MinecraftConstants.SERVER_CLOSING_MESSAGE)
-            || reason.equals(LOGIN_FAILED)
-            || reason.equals(AUTH_REQUIRED)
-        ) {
+        if (RECONNECTABLE_DISCONNECT_REASONS.contains(reason)) {
             return false;
-        } else if (reason.equals(AUTO_DISCONNECT)) {
+        } else if (ActiveHours.isActiveHoursDisconnect(reason)) {
+            return false;
+        } else if (AutoDisconnect.isAutoDisconnectReason(reason)) {
             return (!CONFIG.client.extra.utility.actions.autoDisconnect.cancelAutoReconnect && !Proxy.getInstance().isPrio());
         } else {
             return true;

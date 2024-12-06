@@ -32,6 +32,7 @@ public class ModuleManager {
             new ExtraChat(),
             new KillAura(),
             new PlayerSimulation(),
+            new QueueWarning(),
             new ReplayMod(),
             new Spammer(),
             new Spook(),
