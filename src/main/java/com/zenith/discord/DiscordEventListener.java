@@ -57,6 +57,7 @@ public class DiscordEventListener {
             of(PlayerOnlineEvent.class, this::handlePlayerOnlineEvent),
             of(DisconnectEvent.class, this::handleDisconnectEvent),
             of(QueuePositionUpdateEvent.class, this::handleQueuePositionUpdateEvent),
+            of(QueueWarningEvent.class, this::handleQueueWarning),
             of(AutoEatOutOfFoodEvent.class, this::handleAutoEatOutOfFoodEvent),
             of(QueueCompleteEvent.class, this::handleQueueCompleteEvent),
             of(StartQueueEvent.class, this::handleStartQueueEvent),
@@ -158,14 +159,14 @@ public class DiscordEventListener {
         EXECUTOR.execute(() -> updatePresence(bot.disconnectedPresence));
     }
 
+    private void handleQueueWarning(QueueWarningEvent event) {
+        sendEmbedMessage((event.mention() ? notificationMention() : ""), Embed.builder()
+            .title("Queue Warning")
+            .addField("Queue Position", "[" + queuePositionStr() + "]", false)
+            .inQueueColor());
+    }
+
     public void handleQueuePositionUpdateEvent(QueuePositionUpdateEvent event) {
-        if (CONFIG.discord.queueWarning.enabled) {
-            if (event.position() == CONFIG.discord.queueWarning.position) {
-                bot.sendQueueWarning();
-            } else if (event.position() <= 3) {
-                bot.sendQueueWarning();
-            }
-        }
         updatePresence(bot.getQueuePresence());
     }
 

@@ -3,6 +3,7 @@ package com.zenith.util;
 import com.google.gson.annotations.SerializedName;
 import com.zenith.feature.whitelist.PlayerEntry;
 import com.zenith.module.impl.ActiveHours.ActiveTime;
+import it.unimi.dsi.fastutil.ints.IntArraySet;
 import lombok.Getter;
 import org.geysermc.mcprotocollib.network.ProxyInfo;
 import org.geysermc.mcprotocollib.protocol.data.game.entity.type.EntityType;
@@ -122,6 +123,13 @@ public final class Config {
             public final VisualRange visualRange = new VisualRange();
             public final AutoArmor autoArmor = new AutoArmor();
             public final AutoMend autoMend = new AutoMend();
+            public final QueueWarning queueWarning = new QueueWarning();
+
+            public static final class QueueWarning {
+                public boolean enabled = true;
+                public IntArraySet warningPositions = new IntArraySet(asList(1, 2, 3, 10));
+                public IntArraySet mentionPositions = new IntArraySet();
+            }
 
             public static class AutoMend {
                 public boolean enabled = false;
@@ -575,9 +583,9 @@ public final class Config {
         public boolean manageDescription = true;
         public boolean showNonWhitelistLoginIP = true;
         public boolean isUpdating = false; // internal use for update command state persistence
-        public final QueueWarning queueWarning = new QueueWarning();
         public final ChatRelay chatRelay = new ChatRelay();
         public final ConnectionProxy connectionProxy = new ConnectionProxy();
+
         public static final class ConnectionProxy {
                 public boolean enabled = false;
                 public ConnectionProxyType type = ConnectionProxyType.HTTP;
@@ -589,12 +597,6 @@ public final class Config {
                 public enum ConnectionProxyType {
                     HTTP, SOCKS4, SOCKS5
                 }
-        }
-
-        public static final class QueueWarning {
-            public boolean enabled = true;
-            public int position = 10; // Queue position to send warning message at
-            public boolean mentionRole = false;
         }
 
         public static class ChatRelay {

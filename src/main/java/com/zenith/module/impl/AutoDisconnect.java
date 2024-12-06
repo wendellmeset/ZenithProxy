@@ -14,6 +14,7 @@ import static com.zenith.Shared.*;
 import static java.util.Objects.nonNull;
 
 public class AutoDisconnect extends Module {
+    public static final String AUTODISCONNECT_REASON_PREFIX = "[AutoDisconnect] ";
 
     public AutoDisconnect() {
         super();
@@ -44,7 +45,7 @@ public class AutoDisconnect extends Module {
                  event.newHealth(),
                  CONFIG.client.extra.utility.actions.autoDisconnect.health);
             EVENT_BUS.postAsync(new HealthAutoDisconnectEvent());
-            Proxy.getInstance().disconnect(AUTO_DISCONNECT);
+            doDisconnect("Health <= " + CONFIG.client.extra.utility.actions.autoDisconnect.health);
         }
     }
 
@@ -53,7 +54,8 @@ public class AutoDisconnect extends Module {
         if (CACHE.getChunkCache().isRaining()
             && CACHE.getChunkCache().getThunderStrength() > 0.0f
             && playerConnectedCheck()) {
-            Proxy.getInstance().disconnect(AUTO_DISCONNECT);
+            info("Thunder disconnect");
+            doDisconnect("Thunder");
         }
     }
 
@@ -62,7 +64,7 @@ public class AutoDisconnect extends Module {
         var connection = Proxy.getInstance().getActivePlayer();
         if (nonNull(connection) && connection.getProfileCache().getProfile().equals(event.clientGameProfile())) {
             info("Auto Client Disconnect");
-            Proxy.getInstance().disconnect(AUTO_DISCONNECT);
+            doDisconnect("AutoClientDisconnect");
         }
     }
 
@@ -75,14 +77,14 @@ public class AutoDisconnect extends Module {
             || !playerConnectedCheck()
         ) return;
         info("Unknown player: {} [{}]", event.playerEntry().getProfile());
-        Proxy.getInstance().disconnect(AUTO_DISCONNECT);
+        doDisconnect("UnknownPlayer: " + event.playerEntry().getProfile().getName());
     }
 
     private void handleTotemPopEvent(TotemPopEvent event) {
         if (!CONFIG.client.extra.utility.actions.autoDisconnect.onTotemPop) return;
         if (playerConnectedCheck()) {
             info("Totem popped");
-            Proxy.getInstance().disconnect(AUTO_DISCONNECT);
+            doDisconnect("Totem Pop");
         }
     }
 
@@ -94,5 +96,13 @@ public class AutoDisconnect extends Module {
             return whilePlayerConnected;
         }
         return true;
+    }
+
+    private void doDisconnect(String reason) {
+        Proxy.getInstance().disconnect(AUTODISCONNECT_REASON_PREFIX + reason);
+    }
+
+    public static boolean isAutoDisconnectReason(String reason) {
+        return reason.startsWith(AUTODISCONNECT_REASON_PREFIX);
     }
 }

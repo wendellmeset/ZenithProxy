@@ -212,6 +212,8 @@ public class DiscordManageCommand extends Command {
     @Override
     public void postPopulate(final Embed builder) {
         builder
+            .addField("Discord Bot", toggleStr(CONFIG.discord.enable) + ((CONFIG.discord.enable && !DISCORD.isRunning()) ? " (Not Running)" : ""), false)
+            .addField("Relay", toggleStr(CONFIG.discord.chatRelay.enable), false)
             .addField("Channel ID", getChannelMention(CONFIG.discord.channelId), false)
             .addField("Relay Channel ID", getChannelMention(CONFIG.discord.chatRelay.channelId), false)
             .addField("Manager Role ID", getRoleMention(CONFIG.discord.accountOwnerRoleId), false)
@@ -222,16 +224,22 @@ public class DiscordManageCommand extends Command {
     }
 
     private String getChannelMention(final String channelId) {
+        if (channelId == null || channelId.isEmpty()) {
+            return "";
+        }
         try {
             return MentionUtil.forChannel(Snowflake.of(channelId));
         } catch (final Exception e) {
             // these channels might be unset on purpose
-            DEFAULT_LOG.debug("Invalid channel ID: " + channelId, e);
+            DEFAULT_LOG.debug("Invalid channel ID: {}", channelId, e);
             return "";
         }
     }
 
     private String getRoleMention(final String roleId) {
+        if (roleId == null || roleId.isEmpty()) {
+            return "";
+        }
         try {
             return MentionUtil.forRole(Snowflake.of(roleId));
         } catch (final NumberFormatException e) {

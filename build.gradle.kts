@@ -50,7 +50,7 @@ val shade: Configuration by configurations.creating
 shade.extendsFrom(configurations.implementation.get())
 
 dependencies {
-    implementation("com.github.rfresh2.discord4j:discord4j-core:3.4.4.10") {
+    implementation("com.github.rfresh2.discord4j:discord4j-core:3.4.4.11") {
         exclude(group = "io.netty")
     }
     implementation("com.github.rfresh2:MCProtocolLib:1.21.4.1") {
@@ -84,8 +84,8 @@ dependencies {
     implementation("com.github.rfresh2.fastutil.maps:reference-object-maps:$fastutilVersion")
     implementation("com.github.rfresh2.fastutil.queues:int-queues:$fastutilVersion")
     implementation("net.raphimc:ViaLoader:3.0.4")
-    implementation("com.viaversion:viaversion:5.1.1")
-    implementation("com.viaversion:viabackwards:5.1.1")
+    implementation("com.viaversion:viaversion:5.2.0")
+    implementation("com.viaversion:viabackwards:5.2.0")
     implementation("org.jline:jline:3.27.1")
     implementation("org.jline:jline-terminal-jni:3.27.1")
     implementation("ar.com.hjg:pngj:2.1.0")

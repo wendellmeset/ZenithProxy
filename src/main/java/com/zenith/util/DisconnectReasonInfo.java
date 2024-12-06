@@ -1,10 +1,11 @@
 package com.zenith.util;
 
-import com.zenith.Shared;
+import com.zenith.module.impl.ActiveHours;
+import com.zenith.module.impl.AutoDisconnect;
 import lombok.Getter;
 import lombok.experimental.UtilityClass;
 
-import static com.zenith.Shared.DEFAULT_LOG;
+import static com.zenith.Shared.*;
 import static com.zenith.util.DisconnectReasonInfo.DisconnectCategory.*;
 
 @UtilityClass
@@ -43,15 +44,19 @@ public class DisconnectReasonInfo {
             return CONNECTION_ISSUE;
         } else if (reason.startsWith("An internal error occurred in your connection")) {
             return CONNECTION_ISSUE_2B2T;
-        } else if (reason.startsWith(Shared.LOGIN_FAILED)) {
+        } else if (reason.startsWith(LOGIN_FAILED)) {
             return AUTHENTICATION_FAIL;
-        } else if (reason.equals(Shared.MANUAL_DISCONNECT)) {
+        } else if (reason.equals(MANUAL_DISCONNECT)) {
             return MANUAL;
-        } else if (reason.equals(Shared.AUTO_DISCONNECT)) {
+        } else if (AutoDisconnect.isAutoDisconnectReason(reason)) {
             return ZENITH_MODULE;
-        } else if (reason.equals(Shared.SYSTEM_DISCONNECT)) {
+        } else if (reason.equals(SYSTEM_DISCONNECT)) {
             return ZENITH_MODULE;
-        } else if (reason.equals(Shared.SERVER_RESTARTING)) {
+        } else if (reason.equals(MAX_PT_DISCONNECT)) {
+            return ZENITH_MODULE;
+        } else if (ActiveHours.isActiveHoursDisconnect(reason)) {
+            return ZENITH_MODULE;
+        } else if (reason.equals(SERVER_RESTARTING)) {
             return SERVER_RESTART;
         } else if (reason.startsWith("io.netty.handler.proxy.ProxyConnectException")) {
             return SOCKS_PROXY;

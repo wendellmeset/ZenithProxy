@@ -278,11 +278,11 @@ public class Proxy {
                         
                         If you are actually able to connect to ZenithProxy you can disable this test: `connectionTest testOnStart off`
                         
-                        This test is most likely failing due to your firewall needing to be disabled. Or the configured Proxy IP is incorrect.
+                        This test is most likely failing due to a firewall needing to be disabled.
                         
-                        For instructions on how to disable the firewall consult with your VPS provider. Each provider varies in steps.
+                        If the `proxyIP` is incorrect, set `serverConnection proxyIP <ip>` with the correct IP.
                         
-                        To set the Proxy IP: `serverConnection proxyIP <ip>`
+                        For instructions on how to disable the firewall consult with your VPS provider. Each provider varies in steps and what word they refer to firewalls with.
                         """, address);
                 }
             }, () -> {
@@ -294,7 +294,7 @@ public class Proxy {
     private void maxPlaytimeTick() {
         if (CONFIG.client.maxPlaytimeReconnect && isOnlineForAtLeastDuration(Duration.ofMinutes(CONFIG.client.maxPlaytimeReconnectMins))) {
             CLIENT_LOG.info("Max playtime minutes reached: {}, reconnecting...", CONFIG.client.maxPlaytimeReconnectMins);
-            disconnect(SYSTEM_DISCONNECT);
+            disconnect(MAX_PT_DISCONNECT);
             MODULE.get(AutoReconnect.class).cancelAutoReconnect();
             connect();
         }

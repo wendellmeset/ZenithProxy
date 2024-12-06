@@ -1,15 +1,19 @@
 package com.zenith.command.impl;
 
-import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.zenith.command.Command;
 import com.zenith.command.CommandUsage;
 import com.zenith.command.brigadier.CommandCategory;
 import com.zenith.command.brigadier.CommandContext;
 import com.zenith.discord.Embed;
+import com.zenith.module.impl.QueueWarning;
 
+import java.util.stream.Collectors;
+
+import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
 import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
 import static com.zenith.Shared.CONFIG;
+import static com.zenith.Shared.MODULE;
 import static com.zenith.command.brigadier.ToggleArgumentType.getToggle;
 import static com.zenith.command.brigadier.ToggleArgumentType.toggle;
 import static java.util.Arrays.asList;
@@ -20,11 +24,17 @@ public class QueueWarningCommand extends Command {
         return CommandUsage.args(
             "queueWarning",
             CommandCategory.INFO,
-            "Configure alerts sent when 2b2t queue positions are reached",
+            """
+            Configure warnings sent when 2b2t queue positions are reached.
+            
+            The list of queue positions to send the warnings can be configured, each with an optional mention.
+            """,
             asList(
                 "on/off",
-                "position <integer>",
-                "mention on/off"
+                "list",
+                "clear",
+                "add <position> mention",
+                "del <position>"
             )
         );
     }
@@ -33,32 +43,62 @@ public class QueueWarningCommand extends Command {
     public LiteralArgumentBuilder<CommandContext> register() {
         return command("queueWarning")
             .then(argument("toggle", toggle()).executes(c -> {
-                CONFIG.discord.queueWarning.enabled = getToggle(c, "toggle");
+                CONFIG.client.extra.queueWarning.enabled = getToggle(c, "toggle");
                 c.getSource().getEmbed()
-                    .title("QueueWarning " + toggleStrCaps(CONFIG.discord.queueWarning.enabled));
+                    .title("Queue Warning " + toggleStrCaps(CONFIG.client.extra.queueWarning.enabled));
+                MODULE.get(QueueWarning.class).syncEnabledFromConfig();
                 return OK;
             }))
-            .then(literal("position").then(argument("pos", integer(1, 100)).executes(c -> {
-                CONFIG.discord.queueWarning.position = IntegerArgumentType.getInteger(c, "pos");
+            .then(literal("list").executes(c -> {
                 c.getSource().getEmbed()
-                    .title("Position Updated!");
+                    .title("Queue Warning List");
                 return OK;
-            })))
-            .then(literal("mention")
-                      .then(argument("toggle", toggle()).executes(c -> {
-                            CONFIG.discord.queueWarning.mentionRole = getToggle(c, "toggle");
-                            c.getSource().getEmbed()
-                                .title("Mention " + toggleStrCaps(CONFIG.discord.queueWarning.mentionRole));
-                            return OK;
-                      })));
+            }))
+            .then(literal("clear").executes(c -> {
+                CONFIG.client.extra.queueWarning.warningPositions.clear();
+                CONFIG.client.extra.queueWarning.mentionPositions.clear();
+                c.getSource().getEmbed().title("Cleared All Positions");
+                return OK;
+            }))
+            .then(literal("add").then(argument("pos", integer(1, 1000)).executes(c -> {
+                int pos = getInteger(c, "pos");
+                CONFIG.client.extra.queueWarning.warningPositions.remove(pos);
+                CONFIG.client.extra.queueWarning.warningPositions.add(pos);
+                CONFIG.client.extra.queueWarning.mentionPositions.remove(pos);
+                c.getSource().getEmbed().title("Added " + pos);
+                return OK;
+            })
+                .then(literal("mention").executes(c -> {
+                    int pos = getInteger(c, "pos");
+                    CONFIG.client.extra.queueWarning.warningPositions.remove(pos);
+                    CONFIG.client.extra.queueWarning.warningPositions.add(pos);
+                    CONFIG.client.extra.queueWarning.mentionPositions.remove(pos);
+                    CONFIG.client.extra.queueWarning.mentionPositions.add(pos);
+                    c.getSource().getEmbed().title("Added " + pos);
+                    return OK;
+                }))))
+            .then(literal("del").then(argument("pos", integer(1, 1000)).executes(c -> {
+                int pos = getInteger(c, "pos");
+                CONFIG.client.extra.queueWarning.warningPositions.remove(pos);
+                CONFIG.client.extra.queueWarning.mentionPositions.remove(pos);
+                c.getSource().getEmbed().title("Deleted " + pos);
+                return OK;
+            })));
     }
 
     @Override
     public void postPopulate(final Embed builder) {
         builder
-            .addField("QueueWarning", toggleStr(CONFIG.discord.queueWarning.enabled), false)
-            .addField("Position", CONFIG.discord.queueWarning.position, false)
-            .addField("Mention", toggleStr(CONFIG.discord.queueWarning.mentionRole), false)
+            .addField("Queue Warning", toggleStr(CONFIG.client.extra.queueWarning.enabled), false)
+            .description("**Warn Positions**\n" + getWarnListStr())
             .primaryColor();
+    }
+
+    private String getWarnListStr() {
+        return CONFIG.client.extra.queueWarning.warningPositions.isEmpty()
+            ? "Empty"
+            : CONFIG.client.extra.queueWarning.warningPositions.intStream()
+                .mapToObj(pos -> pos + (CONFIG.client.extra.queueWarning.mentionPositions.contains(pos) ? " (m)" : ""))
+                .collect(Collectors.joining("\n"));
     }
 }
