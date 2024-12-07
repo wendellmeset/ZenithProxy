@@ -97,6 +97,10 @@ def is_nuitka_bundle():
     return "__compiled__" in globals()
 
 
+def is_windows_python_bundle():
+    return os.path.exists("python/python.exe")
+
+
 def executable_path():
     if is_nuitka_bundle():
         return sys.argv[0]

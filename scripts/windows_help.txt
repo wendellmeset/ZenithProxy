@@ -1,0 +1,8 @@
+# Usage Instructions
+
+1. Open cmd or Windows Terminal
+
+2. Switch directories to the location of the launcher files using the "cd" command
+Example: cd "C:\Users\rfresh2\Downloads\ZenithProxy-launcher-windows-python-amd64"
+
+3. Run the launcher: ".\launch.bat"

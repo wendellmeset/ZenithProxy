@@ -18,9 +18,10 @@ def update_launcher_exec(config, api):
     print("Checking for launcher update...")
     try:
         is_pyinstaller = launch_platform.is_pyinstaller_bundle() or launch_platform.is_nuitka_bundle()
+        is_windows_python = not is_pyinstaller and launch_platform.is_windows_python_bundle()
         os_platform = launch_platform.get_platform_os()
         os_arch = launch_platform.get_platform_arch()
-        launcher_asset_file_name = get_launcher_asset_zip_file_name(is_pyinstaller, os_platform, os_arch)
+        launcher_asset_file_name = get_launcher_asset_zip_file_name(is_pyinstaller, is_windows_python, os_platform, os_arch)
         current_executable_name = get_current_launcher_executable_name(is_pyinstaller)
         expected_executable_name = get_expected_launcher_executable_name(is_pyinstaller)
         hashes_list = get_launcher_hashes(api)
@@ -60,9 +61,11 @@ def update_launcher_exec(config, api):
         print("Error during launcher updater check, skipping update:", e)
 
 
-def get_launcher_asset_zip_file_name(is_pyinstaller, os_platform, os_arch):
+def get_launcher_asset_zip_file_name(is_pyinstaller, is_windows_python, os_platform, os_arch):
     if is_pyinstaller:
         return f"ZenithProxy-launcher-{os_platform.value}-{os_arch.value}.zip"
+    elif is_windows_python:
+        return "ZenithProxy-launcher-windows-python-amd64.zip"
     else:
         return "ZenithProxy-launcher-python.zip"
 
