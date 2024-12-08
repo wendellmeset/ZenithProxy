@@ -1,5 +1,7 @@
 # Usage Instructions
 
+Full Guide With Screenshots: https://github.com/rfresh2/ZenithProxy/wiki/Windows-Python-Launcher-Guide
+
 1. Open cmd or Windows Terminal
 
 2. Switch directories to the location of the launcher files using the "cd" command
