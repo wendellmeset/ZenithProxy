@@ -124,6 +124,16 @@ public final class Config {
             public final AutoArmor autoArmor = new AutoArmor();
             public final AutoMend autoMend = new AutoMend();
             public final QueueWarning queueWarning = new QueueWarning();
+            public final Wander wander = new Wander();
+
+            public static final class Wander {
+                public boolean enabled = false;
+                public boolean turn = true;
+                public int turnDelaySeconds = 5;
+                public boolean jump = true;
+                public int jumpDelaySeconds = 5;
+                public boolean sneak = false;
+            }
 
             public static final class QueueWarning {
                 public boolean enabled = true;
@@ -324,6 +334,7 @@ public final class Config {
 
             public static final class Spammer {
                 public boolean enabled = false;
+                public boolean whilePlayerConnected = false;
                 public boolean whisper = false;
                 public long delayTicks = 200;
                 public boolean randomOrder = false;

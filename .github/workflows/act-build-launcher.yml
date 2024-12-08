@@ -90,10 +90,42 @@ jobs:
           name: launcher-python.sha1
           path: ZenithProxy-launcher-python.sha1
 
+  # same as python package but with a custom bat script that bootstraps the python interpreter
+  package-windows-python:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Create Python executable zip
+        run: zip -j launcher-py.zip src/launcher/*.py
+
+      - name: Rename launch_windows.bat
+        run: cp src/launcher/launch_windows.bat launch.bat
+
+      - name: Create release zip
+        run: zip -j ZenithProxy-launcher-windows-python-amd64.zip launcher-py.zip src/launcher/requirements.txt launch.bat scripts/windows_help.txt
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: launcher-windows-python-amd64
+          path: ZenithProxy-launcher-windows-python-amd64.zip
+
+      - name: Get Binary Hash
+        run: sha1sum -b launcher-py.zip | cut -d" " -f 1 > ZenithProxy-launcher-windows-python-amd64.sha1
+
+      - name: Upload Launcher Hash Version
+        uses: actions/upload-artifact@v4
+        with:
+          name: launcher-windows-python-amd64.sha1
+          path: ZenithProxy-launcher-windows-python-amd64.sha1
+
   release-artifacts:
     needs:
       - build-matrix
       - package-python
+      - package-windows-python
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository

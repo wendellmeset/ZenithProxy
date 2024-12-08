@@ -97,6 +97,7 @@ public class CommandManager {
         new UnsupportedCommand(),
         new ViaVersionCommand(),
         new VisualRangeCommand(),
+        new WanderCommand(),
         new WhitelistCommand()
     );
     private final CommandDispatcher<CommandContext> dispatcher;
