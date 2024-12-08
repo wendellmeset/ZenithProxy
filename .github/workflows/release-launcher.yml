@@ -90,8 +90,7 @@ jobs:
         with:
           nuitka-version: main
           script-name: src/launcher/__main__.py
-          standalone: true
-          onefile: true
+          mode: onefile
           windows-icon-from-ico: src/launcher/icon.ico
           output-file: "launch"
           output-dir: "dist"
