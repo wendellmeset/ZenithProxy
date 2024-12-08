@@ -72,49 +72,6 @@ jobs:
           name: ${{ matrix.artifact-name }}.sha1
           path: ZenithProxy-${{ matrix.artifact-name }}.sha1
 
-  build-windows:
-    runs-on: windows-2019
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.python_version }}
-
-      - name: Install Dependencies
-        run: |
-          pip install -r ./src/launcher/requirements.txt
-
-      - uses: Nuitka/Nuitka-Action@main
-        with:
-          nuitka-version: main
-          script-name: src/launcher/__main__.py
-          standalone: true
-          onefile: true
-          windows-icon-from-ico: src/launcher/icon.ico
-          output-file: "launch"
-          output-dir: "dist"
-
-      - name: Create zip
-        run: |
-          Compress-Archive -Path .\dist\launch.exe -DestinationPath .\dist\ZenithProxy-launcher-windows-amd64.zip
-
-      - name: Upload Binary
-        uses: actions/upload-artifact@v4
-        with:
-          name: launcher-windows-amd64
-          path: dist/ZenithProxy-launcher-windows-amd64.zip
-
-      - name: Get Binary Hash
-        run: (Get-FileHash -Path dist\launch.exe -Algorithm sha1).Hash.ToLower() > ZenithProxy-launcher-windows-amd64.sha1
-
-      - name: Upload Launcher Hash Version
-        uses: actions/upload-artifact@v4
-        with:
-          name: launcher-windows-amd64.sha1
-          path: ZenithProxy-launcher-windows-amd64.sha1
-
   build-linux-aarch64:
     runs-on: 'ubuntu-latest'
     steps:
@@ -192,12 +149,43 @@ jobs:
           name: launcher-python.sha1
           path: ZenithProxy-launcher-python.sha1
 
+  # same as python package but with a custom bat script that bootstraps the python interpreter
+  package-windows-python:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Create Python executable zip
+        run: zip -j launcher-py.zip src/launcher/*.py
+
+      - name: Rename launch_windows.bat
+        run: cp src/launcher/launch_windows.bat launch.bat
+
+      - name: Create release zip
+        run: zip -j ZenithProxy-launcher-windows-python-amd64.zip launcher-py.zip src/launcher/requirements.txt launch.bat scripts/windows_help.txt
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: launcher-windows-python-amd64
+          path: ZenithProxy-launcher-windows-python-amd64.zip
+
+      - name: Get Binary Hash
+        run: sha1sum -b launcher-py.zip | cut -d" " -f 1 > ZenithProxy-launcher-windows-python-amd64.sha1
+
+      - name: Upload Launcher Hash Version
+        uses: actions/upload-artifact@v4
+        with:
+          name: launcher-windows-python-amd64.sha1
+          path: ZenithProxy-launcher-windows-python-amd64.sha1
+
   release-artifacts:
     needs:
       - build-matrix
-      - build-windows
       - build-linux-aarch64
       - package-python
+      - package-windows-python
     runs-on: ubuntu-latest
     steps:
       - name: Download job artifacts

@@ -90,12 +90,12 @@ This project is also used for the [2b2t.vc API](https://api.2b2t.vc) and [Discor
 ### Launcher
 
 1. Download [the launcher zip](https://github.com/rfresh2/ZenithProxy/releases/launcher-v3) for your system
+    * Windows Setup Guide: https://github.com/rfresh2/ZenithProxy/wiki/Windows-Python-Launcher-Guide
     * For other systems, download the Python version (Universal). Requires [Python 3.10+](https://www.python.org/downloads/)
 2. Unzip the file.
-3. Double click or run the launcher executable in a terminal:
-   * Windows: `.\launch.exe`
+3. Run the launcher executable in a terminal:
    * Linux/Mac: `./launch`
-   * (Terminal Only) Python Universal: `./launch.sh` (Linux/Mac) or `.\launch.bat` (Windows)
+   * Python: `./launch.sh` (Linux/Mac) or `.\launch.bat` (Windows)
 
 <details>
     <summary>How do I download a file from a Linux terminal?</summary>

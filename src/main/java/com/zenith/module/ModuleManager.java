@@ -36,7 +36,8 @@ public class ModuleManager {
             new ReplayMod(),
             new Spammer(),
             new Spook(),
-            new VisualRange()
+            new VisualRange(),
+            new Wander()
         ).forEach(m -> {
             addModule(m);
             m.syncEnabledFromConfig();
