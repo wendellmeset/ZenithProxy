@@ -55,7 +55,7 @@ def update_launcher_exec(config, api):
         if is_pyinstaller:
             relaunch_executable(os_platform, current_executable_name)
         else:
-            replace_extra_python_launcher_files(os_platform, current_launcher_sha1)
+            replace_extra_python_launcher_files(os_platform, is_windows_python, current_launcher_sha1)
             relaunch_python(os_platform, current_executable_name)
     except Exception as e:
         print("Error during launcher updater check, skipping update:", e)
@@ -147,10 +147,11 @@ def replace_launcher_executable(os_platform, exec_name, new_exec_name, current_s
         os.replace(new_exec_name, exec_name)
 
 
-def replace_extra_python_launcher_files(os_platform, current_sha1):
+def replace_extra_python_launcher_files(os_platform, is_windows_python, current_sha1):
     os.replace("launcher/requirements.txt", "requirements.txt")
     # todo: handle the case where users change the script's name
-    os.replace("launcher/launch.sh", "launch.sh")
+    if not is_windows_python:
+        os.replace("launcher/launch.sh", "launch.sh")
     if os_platform == OperatingSystem.WINDOWS:
         os.rename("launch.bat", tempfile.gettempdir() + "/launch-" + current_sha1 + ".bat.old")
         os.rename("launcher/launch.bat", "launch.bat")
