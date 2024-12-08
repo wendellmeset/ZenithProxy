@@ -33,6 +33,7 @@ public class SpammerCommand extends Command {
             asList(
                 "on/off",
                 "whisper on/off",
+                "whilePlayerConnected on/off",
                 "delayTicks <int>",
                 "randomOrder on/off",
                 "appendRandom on/off",
@@ -40,7 +41,8 @@ public class SpammerCommand extends Command {
                 "clear",
                 "add <message>",
                 "addAt <index> <message>",
-                "del <index>"),
+                "del <index>"
+            ),
             asList("spam")
         );
     }
@@ -60,6 +62,13 @@ public class SpammerCommand extends Command {
                             CONFIG.client.extra.spammer.whisper = getToggle(c, "toggle");
                             c.getSource().getEmbed()
                                 .title("Whisper " + toggleStrCaps(CONFIG.client.extra.spammer.whisper));
+                            return OK;
+                      })))
+            .then(literal("whilePlayerConnected")
+                      .then(argument("toggle", toggle()).executes(c -> {
+                            CONFIG.client.extra.spammer.whilePlayerConnected = getToggle(c, "toggle");
+                            c.getSource().getEmbed()
+                                .title("While Player Connected " + toggleStrCaps(CONFIG.client.extra.spammer.whilePlayerConnected));
                             return OK;
                       })))
             .then(literal("delayTicks")
@@ -140,6 +149,7 @@ public class SpammerCommand extends Command {
         addListDescription(builder)
             .addField("Spammer", toggleStr(CONFIG.client.extra.spammer.enabled), false)
             .addField("Whisper", toggleStr(CONFIG.client.extra.spammer.whisper), false)
+            .addField("While Player Connected", toggleStr(CONFIG.client.extra.spammer.whilePlayerConnected), false)
             .addField("Delay", CONFIG.client.extra.spammer.delayTicks, false)
             .addField("Random Order", toggleStr(CONFIG.client.extra.spammer.randomOrder), false)
             .addField("Append Random", toggleStr(CONFIG.client.extra.spammer.appendRandom), false)
