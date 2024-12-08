@@ -41,11 +41,11 @@ public class AutoDisconnect extends Module {
         if (!CONFIG.client.extra.utility.actions.autoDisconnect.healthDisconnect) return;
         if (event.newHealth() <= CONFIG.client.extra.utility.actions.autoDisconnect.health
             && playerConnectedCheck()) {
-            info("Health disconnect: {} < {}",
+            info("Health: {} < {}",
                  event.newHealth(),
                  CONFIG.client.extra.utility.actions.autoDisconnect.health);
             EVENT_BUS.postAsync(new HealthAutoDisconnectEvent());
-            doDisconnect("Health <= " + CONFIG.client.extra.utility.actions.autoDisconnect.health);
+            doDisconnect("Health: " + event.newHealth() + " <= " + CONFIG.client.extra.utility.actions.autoDisconnect.health);
         }
     }
 
@@ -64,7 +64,7 @@ public class AutoDisconnect extends Module {
         var connection = Proxy.getInstance().getActivePlayer();
         if (nonNull(connection) && connection.getProfileCache().getProfile().equals(event.clientGameProfile())) {
             info("Auto Client Disconnect");
-            doDisconnect("AutoClientDisconnect");
+            doDisconnect("Auto Client Disconnect");
         }
     }
 
@@ -76,8 +76,8 @@ public class AutoDisconnect extends Module {
             || PLAYER_LISTS.getSpectatorWhitelist().contains(playerUUID)
             || !playerConnectedCheck()
         ) return;
-        info("Unknown player: {} [{}]", event.playerEntry().getProfile());
-        doDisconnect("UnknownPlayer: " + event.playerEntry().getProfile().getName());
+        info("Unknown Player: {} [{}]", event.playerEntry().getProfile());
+        doDisconnect("Unknown Player: " + event.playerEntry().getProfile().getName());
     }
 
     private void handleTotemPopEvent(TotemPopEvent event) {
