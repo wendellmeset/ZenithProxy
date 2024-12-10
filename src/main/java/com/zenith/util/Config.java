@@ -133,6 +133,7 @@ public final class Config {
                 public boolean jump = true;
                 public int jumpDelaySeconds = 5;
                 public boolean sneak = false;
+                public boolean alwaysJumpInWater = true;
             }
 
             public static final class QueueWarning {

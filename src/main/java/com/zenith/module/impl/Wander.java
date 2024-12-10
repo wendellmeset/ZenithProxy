@@ -43,6 +43,10 @@ public class Wander extends Module {
             var input = Pathing.forwardInput();
             input.jumping = true;
             PATHING.move(input, MOVEMENT_PRIORITY);
+        } else if (CONFIG.client.extra.wander.jump && CONFIG.client.extra.wander.alwaysJumpInWater && MODULE.get(PlayerSimulation.class).isTouchingWater()) {
+            var input = Pathing.forwardInput();
+            input.jumping = true;
+            PATHING.move(input, MOVEMENT_PRIORITY);
         } else {
             PATHING.move(defaultInput, MOVEMENT_PRIORITY);
         }
