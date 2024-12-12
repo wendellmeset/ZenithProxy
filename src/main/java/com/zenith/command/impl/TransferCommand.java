@@ -31,11 +31,23 @@ public class TransferCommand extends Command {
                 String address = getString(ctx, "address");
                 int port = getInteger(ctx, "port");
                 var connections = Proxy.getInstance().getActiveConnections().getArray();
+                if (connections.length == 0) {
+                    ctx.getSource().getEmbed()
+                        .title("Error")
+                        .errorColor()
+                        .description("No players connected");
+                    return OK;
+                }
                 for (int i = 0; i < connections.length; i++) {
                     var connection = connections[i];
                     connection.transfer(address, port);
                 }
-                return 1;
+                ctx.getSource().getEmbed()
+                    .title("Transferred")
+                    .primaryColor()
+                    .addField("Address", address, false)
+                    .addField("Port", port, false);
+                return OK;
             })));
     }
 }
