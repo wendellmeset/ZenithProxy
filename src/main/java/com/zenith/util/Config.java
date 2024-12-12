@@ -276,6 +276,7 @@ public final class Config {
                 public int maxRecordingTimeMins = 0;
                 public AutoRecordMode autoRecordMode = AutoRecordMode.NONE;
                 public int replayRecordingHealthThreshold = 5;
+                public boolean fileIOUploadIfTooLarge = true;
 
                 @Getter
                 public enum AutoRecordMode {

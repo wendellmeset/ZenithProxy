@@ -7,6 +7,7 @@ import com.zenith.event.proxy.chat.DeathMessageChatEvent;
 import com.zenith.event.proxy.chat.PublicChatEvent;
 import com.zenith.event.proxy.chat.SystemChatEvent;
 import com.zenith.event.proxy.chat.WhisperChatEvent;
+import com.zenith.feature.api.fileio.FileIOApi;
 import com.zenith.feature.deathmessages.DeathMessageParseResult;
 import com.zenith.feature.deathmessages.KillerType;
 import com.zenith.feature.queue.Queue;
@@ -795,10 +796,22 @@ public class DiscordEventListener {
         if (replayFile != null && CONFIG.client.extra.replayMod.sendRecordingsToDiscord) {
             try (InputStream in = new BufferedInputStream(new FileInputStream(replayFile))) {
                 // 25MB discord file attachment size limit
-                if (replayFile.length() > 24 * 1024 * 1024)
-                    embed.description("Replay too large to upload to discord: " + (replayFile.length() / (1024 * 1024)) + "mb");
-                else
+                long replaySizeMb = replayFile.length() / (1024 * 1024);
+                if (replaySizeMb > 24) {
+                    if (CONFIG.client.extra.replayMod.fileIOUploadIfTooLarge) {
+                        DISCORD_LOG.info("Uploading large replay to file.io with size: {}", replayFile.length());
+                        var fileIOResponse = FileIOApi.INSTANCE.uploadFile(replayFile.getName(), in);
+                        if (fileIOResponse.isEmpty() || !fileIOResponse.get().success()) {
+                            embed.description("Failed uploading to file.io and replay too large to upload to discord: " + replaySizeMb + "mb");
+                        } else {
+                            embed.description("Download `" + replayFile.getName() + "`: " + fileIOResponse.get().link());
+                        }
+                    } else {
+                        embed.description("Replay too large to upload to discord: " + replaySizeMb + "mb");
+                    }
+                } else {
                     embed.fileAttachment(new Embed.FileAttachment(replayFile.getName(), in.readAllBytes()));
+                }
             } catch (final Exception e) {
                 DISCORD_LOG.error("Failed to read replay file", e);
                 embed.description("Error reading replay file: " + e.getMessage());
