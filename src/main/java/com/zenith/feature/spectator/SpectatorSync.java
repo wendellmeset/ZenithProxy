@@ -139,6 +139,7 @@ public final class SpectatorSync {
     }
 
     public static void checkSpectatorPositionOutOfRender(final ServerSession spectConnection) {
+        if (spectConnection.hasCameraTarget()) return;
         final int spectX = (int) spectConnection.getSpectatorPlayerCache().getX() >> 4;
         final int spectZ = (int) spectConnection.getSpectatorPlayerCache().getZ() >> 4;
         final int playerX = (int) CACHE.getPlayerCache().getX() >> 4;
@@ -228,6 +229,7 @@ public final class SpectatorSync {
         if (!spectatorConnections.isEmpty()) {
             for (int i = 0; i < spectatorConnections.size(); i++) {
                 var connection = spectatorConnections.get(i);
+                if (connection.hasCameraTarget()) continue;
                 final int spectX = (int) connection.getSpectatorPlayerCache().getX() >> 4;
                 final int spectZ = (int) connection.getSpectatorPlayerCache().getZ() >> 4;
                 if ((spectX == chunkX || spectX + 1 == chunkX || spectX - 1 == chunkX)
