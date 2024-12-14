@@ -18,10 +18,14 @@ public class QueueStatusCommand extends Command {
 
     @Override
     public CommandUsage commandUsage() {
-        return CommandUsage.simpleAliases(
+        return CommandUsage.full(
             "queueStatus",
             CommandCategory.INFO,
             "Gets the current 2b2t queue length and wait ETA",
+            asList(
+                "",
+                "refresh"
+            ),
             asList(
                 "queue",
                 "q"
@@ -45,7 +49,22 @@ public class QueueStatusCommand extends Command {
                 c.getSource().getEmbed()
                     .addField("Position", queuePosition + " [ETA: " + Queue.getQueueEta(queuePosition) + "]", false)
                     .addField("Current Wait Duration", MathHelper.formatDuration(currentWaitDuration), false);
-            }
-        });
+            }})
+            .then(literal("refresh").executes(c -> {
+                try {
+                    Queue.updateQueueStatusNow();
+                    Queue.updateQueueEtaEquation();
+                } catch (final Throwable e) {
+                    c.getSource().getEmbed()
+                        .title("Error")
+                        .description("Failed to refresh queue status\n" + e.getMessage())
+                        .errorColor();
+                    return;
+                }
+                c.getSource().getEmbed()
+                    .title("Success")
+                    .description("Queue status refreshed")
+                    .successColor();
+            }));
     }
 }
