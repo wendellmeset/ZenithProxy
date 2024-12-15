@@ -12,9 +12,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-
-      - name: Gradle Wrapper Verification
-        uses: gradle/actions/wrapper-validation@v4
+        with:
+          persist-credentials: false
 
       - name: Setup JDK
         uses: actions/setup-java@v4
@@ -49,6 +48,7 @@ jobs:
         with:
           repository: ${{ github.repository }}.wiki
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Print Wiki Repo
         run: |
