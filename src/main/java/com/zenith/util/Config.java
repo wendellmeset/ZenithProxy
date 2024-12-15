@@ -574,6 +574,7 @@ public final class Config {
         public String accountOwnerRoleId = "";
         public String notificationMentionRoleId = "";
         public String prefix = ".";
+        public boolean ignoreOtherBots = true;
         public boolean reportCoords = true;
         public boolean mentionRoleOnConnect = false;
         public boolean mentionRoleOnPlayerOnline = false;

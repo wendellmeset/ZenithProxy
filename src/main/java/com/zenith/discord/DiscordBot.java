@@ -206,7 +206,7 @@ public class DiscordBot {
     }
 
     private void handleDiscordMessageCreateEvent(final MessageCreateEvent event) {
-        if (event.getMember().map(Member::isBot).orElse(false)) return;
+        if (event.getMember().map(Member::isBot).orElse(false) && CONFIG.discord.ignoreOtherBots) return;
         if (event.getMember().map(Member::getId).filter(id -> id.equals(this.client.getSelfId())).isPresent()) return;
         if (CONFIG.discord.chatRelay.enable
             && !CONFIG.discord.chatRelay.channelId.isEmpty()
