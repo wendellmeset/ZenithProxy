@@ -102,7 +102,8 @@ public class AutoTotem extends AbstractInventoryModule {
             delay = doInventoryActions();
         }
         if (CONFIG.client.extra.autoTotem.noTotemsAlert
-            && lastNoTotemsAlert.plus(noTotemsAlertCooldown).isBefore(Instant.now())) {
+            && lastNoTotemsAlert.plus(noTotemsAlertCooldown).isBefore(Instant.now())
+            && Proxy.getInstance().isOnlineForAtLeastDuration(Duration.ofSeconds(5))) {
             var totemCount = countTotems();
             if (totemCount < 1) {
                 lastNoTotemsAlert = Instant.now();
