@@ -17,6 +17,7 @@ import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.inventory.S
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static com.github.rfresh2.EventConsumer.of;
 import static com.zenith.Shared.*;
@@ -115,9 +116,12 @@ public class AutoTotem extends AbstractInventoryModule {
 
     private void onTotemPopEvent(TotemPopEvent totemPopEvent) {
         if (totemPopEvent.entityId() == CACHE.getPlayerCache().getEntityId()) {
-            var totemCount = countTotems();
-            EVENT_BUS.postAsync(new PlayerTotemPopAlertEvent(totemCount));
-            info("Player Totem Popped - {} remaining", totemCount);
+            // delay execution to allow inventory to update
+            EXECUTOR.schedule(() -> {
+                var totemCount = countTotems();
+                EVENT_BUS.postAsync(new PlayerTotemPopAlertEvent(totemCount));
+                info("Player Totem Popped - {} remaining", totemCount);
+            }, 1, TimeUnit.SECONDS);
         }
     }
 
