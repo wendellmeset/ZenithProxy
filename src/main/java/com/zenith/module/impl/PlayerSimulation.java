@@ -1,10 +1,12 @@
 package com.zenith.module.impl;
 
 import com.zenith.event.module.ClientBotTick;
+import com.zenith.feature.pathing.PlayerInteractionManager;
 import com.zenith.feature.world.Input;
 import com.zenith.feature.world.MovementInputRequest;
 import com.zenith.feature.world.Pathing;
 import com.zenith.feature.world.World;
+import com.zenith.feature.world.raycast.RaycastHelper;
 import com.zenith.mc.block.*;
 import com.zenith.mc.dimension.DimensionRegistry;
 import com.zenith.module.Module;
@@ -17,6 +19,7 @@ import org.geysermc.mcprotocollib.protocol.data.game.entity.attribute.AttributeT
 import org.geysermc.mcprotocollib.protocol.data.game.entity.attribute.ModifierOperation;
 import org.geysermc.mcprotocollib.protocol.data.game.entity.metadata.type.ByteEntityMetadata;
 import org.geysermc.mcprotocollib.protocol.data.game.entity.player.GameMode;
+import org.geysermc.mcprotocollib.protocol.data.game.entity.player.Hand;
 import org.geysermc.mcprotocollib.protocol.data.game.entity.player.PlayerState;
 import org.geysermc.mcprotocollib.protocol.data.game.entity.type.EntityType;
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.level.ClientboundExplodePacket;
@@ -73,6 +76,8 @@ public class PlayerSimulation extends Module {
     private int jumpingCooldown;
     private boolean horizontalCollision = false;
     private boolean verticalCollision = false;
+    private final PlayerInteractionManager interactions = new PlayerInteractionManager(this);
+    public boolean holdLeftClickOverride = false;
 
     @Override
     public void subscribeEvents() {
@@ -94,6 +99,7 @@ public class PlayerSimulation extends Module {
 
     public synchronized void handleClientTickStarting(final ClientBotTick.Starting event) {
         syncFromCache(false);
+        this.holdLeftClickOverride = false;
     }
 
     public synchronized void handleClientTickStopped(final ClientBotTick.Stopped event) {
@@ -103,6 +109,7 @@ public class PlayerSimulation extends Module {
         if (isSprinting) {
             sendClientPacketAsync(new ServerboundPlayerCommandPacket(CACHE.getPlayerCache().getEntityId(), PlayerState.STOP_SPRINTING));
         }
+        this.holdLeftClickOverride = false;
     }
 
     public void doRotate(float yaw, float pitch) {
@@ -127,7 +134,9 @@ public class PlayerSimulation extends Module {
         boolean pressingRight,
         boolean jumping,
         boolean sneaking,
-        boolean sprinting
+        boolean sprinting,
+        boolean leftClick,
+        boolean rightClick
     ) {
         if (!pressingForward || !pressingBack) {
             this.movementInput.pressingForward = pressingForward;
@@ -143,6 +152,8 @@ public class PlayerSimulation extends Module {
         if (movementInput.sprinting && (movementInput.pressingBack || movementInput.sneaking)) {
             movementInput.sprinting = false;
         }
+        this.movementInput.leftClick = leftClick;
+        this.movementInput.rightClick = rightClick;
     }
 
     public synchronized void doMovementInput(final Input input) {
@@ -153,7 +164,9 @@ public class PlayerSimulation extends Module {
             input.pressingRight,
             input.jumping,
             input.sneaking,
-            input.sprinting
+            input.sprinting,
+            input.leftClick,
+            input.rightClick
         );
     }
 
@@ -164,6 +177,39 @@ public class PlayerSimulation extends Module {
         }
     }
 
+    private void interactionTick() {
+        try {
+            if (movementInput.isLeftClick() || holdLeftClickOverride) {
+                var raycast = RaycastHelper.playerBlockOrEntityRaycast(4.5);
+                if (raycast.hit() && raycast.isBlock()) {
+                    if (!interactions.isDestroying()) {
+                        debug("Starting destroy block at: [{}, {}, {}]", raycast.block().x(), raycast.block().y(), raycast.block().z());
+                        interactions.startDestroyBlock(
+                            MathHelper.floorI(raycast.block().x()),
+                            MathHelper.floorI(raycast.block().y()),
+                            MathHelper.floorI(raycast.block().z()),
+                            raycast.block().direction());
+                        sendClientPacketAsync(new ServerboundSwingPacket(Hand.MAIN_HAND));
+                    }
+//                    debug("Continue destroy block at: [{}, {}, {}]", raycast.block().x(), raycast.block().y(), raycast.block().z());
+                    if (interactions.continueDestroyBlock(
+                        MathHelper.floorI(raycast.block().x()),
+                        MathHelper.floorI(raycast.block().y()),
+                        MathHelper.floorI(raycast.block().z()),
+                        raycast.block().direction())) {
+                        sendClientPacketAsync(new ServerboundSwingPacket(Hand.MAIN_HAND));
+                        return;
+                    }
+                } else if (raycast.hit() && raycast.isEntity()) {
+                    interactions.attackEntity(raycast.entity());
+                }
+            }
+            interactions.stopDestroyBlock();
+        } catch (final Exception e) {
+            CLIENT_LOG.error("Error during interaction tick", e);
+        }
+    }
+
     private synchronized void tick(final ClientBotTick event) {
         if (this.jumpingCooldown > 0) --this.jumpingCooldown;
         if (!CACHE.getChunkCache().isChunkLoaded((int) x >> 4, (int) z >> 4)) return;
@@ -171,6 +217,8 @@ public class PlayerSimulation extends Module {
         if (waitTicks < 0) waitTicks = 0;
 
         if (resyncTeleport()) return;
+
+        interactionTick();
 
         if (Math.abs(velocity.getX()) < 0.003) velocity.setX(0);
         if (Math.abs(velocity.getY()) < 0.003) velocity.setY(0);
@@ -818,7 +866,7 @@ public class PlayerSimulation extends Module {
         this.sneakSpeed = getAttributeValue(AttributeType.Builtin.PLAYER_SNEAKING_SPEED, 0.3f);
     }
 
-    private float getAttributeValue(final AttributeType.Builtin attributeType, float defaultValue) {
+    public float getAttributeValue(final AttributeType.Builtin attributeType, float defaultValue) {
         var attribute = CACHE.getPlayerCache().getThePlayer().getAttributes().get(attributeType);
         if (attribute == null) return defaultValue;
         double v1 = attribute.getValue();
@@ -839,5 +887,9 @@ public class PlayerSimulation extends Module {
             }
         }
         return (float) v2;
+    }
+
+    public double getEyeY() {
+        return playerCollisionBox.maxY() - 0.18;
     }
 }

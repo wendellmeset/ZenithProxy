@@ -1,0 +1,12 @@
+package com.zenith.mc.block;
+
+public enum BlockTags {
+    MINEABLE_WITH_AXE,
+    MINEABLE_WITH_HOE,
+    MINEABLE_WITH_PICKAXE,
+    MINEABLE_WITH_SHOVEL,
+    SWORD_EFFICIENT,
+    NEEDS_DIAMOND_TOOL,
+    NEEDS_IRON_TOOL,
+    NEEDS_STONE_TOOL
+}
