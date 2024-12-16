@@ -82,6 +82,7 @@ public class AutoDisconnect extends Module {
 
     private void handleTotemPopEvent(TotemPopEvent event) {
         if (!CONFIG.client.extra.utility.actions.autoDisconnect.onTotemPop) return;
+        if (event.entityId() != CACHE.getPlayerCache().getEntityId()) return;
         if (playerConnectedCheck()) {
             info("Totem popped");
             doDisconnect("Totem Pop");
