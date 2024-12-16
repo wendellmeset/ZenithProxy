@@ -77,9 +77,9 @@ public class AntiAFK extends Module {
     }
 
     private void sneakTick() {
-        PATHING.move(
-                new Input(false, false, false, false, false, true, false),
-                MOVEMENT_PRIORITY - 1);
+        var sneakInput = new Input();
+        sneakInput.sneaking = true;
+        PATHING.move(sneakInput, MOVEMENT_PRIORITY - 1);
     }
 
     public void handleDeathEvent(final DeathEvent event) {

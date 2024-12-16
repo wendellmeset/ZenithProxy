@@ -1338,6 +1338,19 @@
       ]
     },
     {
+      "type": "com.zenith.feature.api.fileio.model.FileIOResponse",
+      "allDeclaredFields": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "boolean",
+            "java.lang.String"
+          ]
+        }
+      ]
+    },
+    {
       "type": "com.zenith.feature.api.mcsrvstatus.model.MCSrvStatusResponse",
       "allDeclaredFields": true,
       "methods": [

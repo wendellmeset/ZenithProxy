@@ -115,7 +115,7 @@ public class Queue {
         }
     }
 
-    private static void updateQueueEtaEquation() {
+    public static void updateQueueEtaEquation() {
         if (!CONFIG.server.dynamicQueueEtaEquation) return;
         if (lastQueueEtaEquationUpdate.isAfter(Instant.now().minus(Duration.ofHours(1)))) return;
         try {

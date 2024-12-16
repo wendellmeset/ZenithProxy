@@ -1704,65 +1704,65 @@ public final class ItemRegistry {
 
     public static final ItemData NETHERITE_SCRAP = REGISTRY.register(new ItemData(848, "netherite_scrap", 64));
 
-    public static final ItemData WOODEN_SWORD = REGISTRY.register(new ItemData(849, "wooden_sword", 1));
+    public static final ItemData WOODEN_SWORD = REGISTRY.register(new ItemData(849, "wooden_sword", 1, new ToolTag(ToolTier.WOOD, ToolType.SWORD)));
 
-    public static final ItemData WOODEN_SHOVEL = REGISTRY.register(new ItemData(850, "wooden_shovel", 1));
+    public static final ItemData WOODEN_SHOVEL = REGISTRY.register(new ItemData(850, "wooden_shovel", 1, new ToolTag(ToolTier.WOOD, ToolType.SHOVEL)));
 
-    public static final ItemData WOODEN_PICKAXE = REGISTRY.register(new ItemData(851, "wooden_pickaxe", 1));
+    public static final ItemData WOODEN_PICKAXE = REGISTRY.register(new ItemData(851, "wooden_pickaxe", 1, new ToolTag(ToolTier.WOOD, ToolType.PICKAXE)));
 
-    public static final ItemData WOODEN_AXE = REGISTRY.register(new ItemData(852, "wooden_axe", 1));
+    public static final ItemData WOODEN_AXE = REGISTRY.register(new ItemData(852, "wooden_axe", 1, new ToolTag(ToolTier.WOOD, ToolType.AXE)));
 
-    public static final ItemData WOODEN_HOE = REGISTRY.register(new ItemData(853, "wooden_hoe", 1));
+    public static final ItemData WOODEN_HOE = REGISTRY.register(new ItemData(853, "wooden_hoe", 1, new ToolTag(ToolTier.WOOD, ToolType.HOE)));
 
-    public static final ItemData STONE_SWORD = REGISTRY.register(new ItemData(854, "stone_sword", 1));
+    public static final ItemData STONE_SWORD = REGISTRY.register(new ItemData(854, "stone_sword", 1, new ToolTag(ToolTier.STONE, ToolType.SWORD)));
 
-    public static final ItemData STONE_SHOVEL = REGISTRY.register(new ItemData(855, "stone_shovel", 1));
+    public static final ItemData STONE_SHOVEL = REGISTRY.register(new ItemData(855, "stone_shovel", 1, new ToolTag(ToolTier.STONE, ToolType.SHOVEL)));
 
-    public static final ItemData STONE_PICKAXE = REGISTRY.register(new ItemData(856, "stone_pickaxe", 1));
+    public static final ItemData STONE_PICKAXE = REGISTRY.register(new ItemData(856, "stone_pickaxe", 1, new ToolTag(ToolTier.STONE, ToolType.PICKAXE)));
 
-    public static final ItemData STONE_AXE = REGISTRY.register(new ItemData(857, "stone_axe", 1));
+    public static final ItemData STONE_AXE = REGISTRY.register(new ItemData(857, "stone_axe", 1, new ToolTag(ToolTier.STONE, ToolType.AXE)));
 
-    public static final ItemData STONE_HOE = REGISTRY.register(new ItemData(858, "stone_hoe", 1));
+    public static final ItemData STONE_HOE = REGISTRY.register(new ItemData(858, "stone_hoe", 1, new ToolTag(ToolTier.STONE, ToolType.HOE)));
 
-    public static final ItemData GOLDEN_SWORD = REGISTRY.register(new ItemData(859, "golden_sword", 1));
+    public static final ItemData GOLDEN_SWORD = REGISTRY.register(new ItemData(859, "golden_sword", 1, new ToolTag(ToolTier.GOLD, ToolType.SWORD)));
 
-    public static final ItemData GOLDEN_SHOVEL = REGISTRY.register(new ItemData(860, "golden_shovel", 1));
+    public static final ItemData GOLDEN_SHOVEL = REGISTRY.register(new ItemData(860, "golden_shovel", 1, new ToolTag(ToolTier.GOLD, ToolType.SHOVEL)));
 
-    public static final ItemData GOLDEN_PICKAXE = REGISTRY.register(new ItemData(861, "golden_pickaxe", 1));
+    public static final ItemData GOLDEN_PICKAXE = REGISTRY.register(new ItemData(861, "golden_pickaxe", 1, new ToolTag(ToolTier.GOLD, ToolType.PICKAXE)));
 
-    public static final ItemData GOLDEN_AXE = REGISTRY.register(new ItemData(862, "golden_axe", 1));
+    public static final ItemData GOLDEN_AXE = REGISTRY.register(new ItemData(862, "golden_axe", 1, new ToolTag(ToolTier.GOLD, ToolType.AXE)));
 
-    public static final ItemData GOLDEN_HOE = REGISTRY.register(new ItemData(863, "golden_hoe", 1));
+    public static final ItemData GOLDEN_HOE = REGISTRY.register(new ItemData(863, "golden_hoe", 1, new ToolTag(ToolTier.GOLD, ToolType.HOE)));
 
-    public static final ItemData IRON_SWORD = REGISTRY.register(new ItemData(864, "iron_sword", 1));
+    public static final ItemData IRON_SWORD = REGISTRY.register(new ItemData(864, "iron_sword", 1, new ToolTag(ToolTier.IRON, ToolType.SWORD)));
 
-    public static final ItemData IRON_SHOVEL = REGISTRY.register(new ItemData(865, "iron_shovel", 1));
+    public static final ItemData IRON_SHOVEL = REGISTRY.register(new ItemData(865, "iron_shovel", 1, new ToolTag(ToolTier.IRON, ToolType.SHOVEL)));
 
-    public static final ItemData IRON_PICKAXE = REGISTRY.register(new ItemData(866, "iron_pickaxe", 1));
+    public static final ItemData IRON_PICKAXE = REGISTRY.register(new ItemData(866, "iron_pickaxe", 1, new ToolTag(ToolTier.IRON, ToolType.PICKAXE)));
 
-    public static final ItemData IRON_AXE = REGISTRY.register(new ItemData(867, "iron_axe", 1));
+    public static final ItemData IRON_AXE = REGISTRY.register(new ItemData(867, "iron_axe", 1, new ToolTag(ToolTier.IRON, ToolType.AXE)));
 
-    public static final ItemData IRON_HOE = REGISTRY.register(new ItemData(868, "iron_hoe", 1));
+    public static final ItemData IRON_HOE = REGISTRY.register(new ItemData(868, "iron_hoe", 1, new ToolTag(ToolTier.IRON, ToolType.HOE)));
 
-    public static final ItemData DIAMOND_SWORD = REGISTRY.register(new ItemData(869, "diamond_sword", 1));
+    public static final ItemData DIAMOND_SWORD = REGISTRY.register(new ItemData(869, "diamond_sword", 1, new ToolTag(ToolTier.DIAMOND, ToolType.SWORD)));
 
-    public static final ItemData DIAMOND_SHOVEL = REGISTRY.register(new ItemData(870, "diamond_shovel", 1));
+    public static final ItemData DIAMOND_SHOVEL = REGISTRY.register(new ItemData(870, "diamond_shovel", 1, new ToolTag(ToolTier.DIAMOND, ToolType.SHOVEL)));
 
-    public static final ItemData DIAMOND_PICKAXE = REGISTRY.register(new ItemData(871, "diamond_pickaxe", 1));
+    public static final ItemData DIAMOND_PICKAXE = REGISTRY.register(new ItemData(871, "diamond_pickaxe", 1, new ToolTag(ToolTier.DIAMOND, ToolType.PICKAXE)));
 
-    public static final ItemData DIAMOND_AXE = REGISTRY.register(new ItemData(872, "diamond_axe", 1));
+    public static final ItemData DIAMOND_AXE = REGISTRY.register(new ItemData(872, "diamond_axe", 1, new ToolTag(ToolTier.DIAMOND, ToolType.AXE)));
 
-    public static final ItemData DIAMOND_HOE = REGISTRY.register(new ItemData(873, "diamond_hoe", 1));
+    public static final ItemData DIAMOND_HOE = REGISTRY.register(new ItemData(873, "diamond_hoe", 1, new ToolTag(ToolTier.DIAMOND, ToolType.HOE)));
 
-    public static final ItemData NETHERITE_SWORD = REGISTRY.register(new ItemData(874, "netherite_sword", 1));
+    public static final ItemData NETHERITE_SWORD = REGISTRY.register(new ItemData(874, "netherite_sword", 1, new ToolTag(ToolTier.NETHERITE, ToolType.SWORD)));
 
-    public static final ItemData NETHERITE_SHOVEL = REGISTRY.register(new ItemData(875, "netherite_shovel", 1));
+    public static final ItemData NETHERITE_SHOVEL = REGISTRY.register(new ItemData(875, "netherite_shovel", 1, new ToolTag(ToolTier.NETHERITE, ToolType.SHOVEL)));
 
-    public static final ItemData NETHERITE_PICKAXE = REGISTRY.register(new ItemData(876, "netherite_pickaxe", 1));
+    public static final ItemData NETHERITE_PICKAXE = REGISTRY.register(new ItemData(876, "netherite_pickaxe", 1, new ToolTag(ToolTier.NETHERITE, ToolType.PICKAXE)));
 
-    public static final ItemData NETHERITE_AXE = REGISTRY.register(new ItemData(877, "netherite_axe", 1));
+    public static final ItemData NETHERITE_AXE = REGISTRY.register(new ItemData(877, "netherite_axe", 1, new ToolTag(ToolTier.NETHERITE, ToolType.AXE)));
 
-    public static final ItemData NETHERITE_HOE = REGISTRY.register(new ItemData(878, "netherite_hoe", 1));
+    public static final ItemData NETHERITE_HOE = REGISTRY.register(new ItemData(878, "netherite_hoe", 1, new ToolTag(ToolTier.NETHERITE, ToolType.HOE)));
 
     public static final ItemData STICK = REGISTRY.register(new ItemData(879, "stick", 64));
 

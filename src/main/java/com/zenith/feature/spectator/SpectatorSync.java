@@ -13,6 +13,8 @@ import org.geysermc.mcprotocollib.network.packet.Packet;
 import org.geysermc.mcprotocollib.protocol.data.game.entity.metadata.MetadataType;
 import org.geysermc.mcprotocollib.protocol.data.game.entity.metadata.type.ByteEntityMetadata;
 import org.geysermc.mcprotocollib.protocol.data.game.entity.metadata.type.FloatEntityMetadata;
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundSetCameraPacket;
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundRemoveEntitiesPacket;
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundRotateHeadPacket;
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundSetEntityDataPacket;
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundTeleportEntityPacket;
@@ -140,6 +142,7 @@ public final class SpectatorSync {
     }
 
     public static void checkSpectatorPositionOutOfRender(final ServerSession spectConnection) {
+        if (spectConnection.hasCameraTarget()) return;
         final int spectX = (int) spectConnection.getSpectatorPlayerCache().getX() >> 4;
         final int spectZ = (int) spectConnection.getSpectatorPlayerCache().getZ() >> 4;
         final int playerX = (int) CACHE.getPlayerCache().getX() >> 4;
@@ -210,6 +213,19 @@ public final class SpectatorSync {
                 data.addAll(cachedData);
                 data.add(connection.getSpectatorPlayerCache());
                 SpectatorSync.initSpectator(connection, () -> data);
+                // reset playercam back to previous state if any
+                if (connection.hasCameraTarget()) {
+                    if (connection.getCameraTarget() == CACHE.getPlayerCache().getThePlayer()) {
+                        connection.sendAsync(new ClientboundSetCameraPacket(CACHE.getPlayerCache().getEntityId()));
+                        var connections = Proxy.getInstance().getActiveConnections().getArray();
+                        for (int j = 0; j < connections.length; j++) {
+                            var session = connections[j];
+                            session.sendAsync(new ClientboundRemoveEntitiesPacket(new int[]{connection.getSpectatorEntityId()}));
+                        }
+                    } else { // don't try to go back to playercam if its to a different entity
+                        connection.setCameraTarget(null);
+                    }
+                }
             }
         }
     }
@@ -219,6 +235,7 @@ public final class SpectatorSync {
         if (!spectatorConnections.isEmpty()) {
             for (int i = 0; i < spectatorConnections.size(); i++) {
                 var connection = spectatorConnections.get(i);
+                if (connection.hasCameraTarget()) continue;
                 final int spectX = (int) connection.getSpectatorPlayerCache().getX() >> 4;
                 final int spectZ = (int) connection.getSpectatorPlayerCache().getZ() >> 4;
                 if ((spectX == chunkX || spectX + 1 == chunkX || spectX - 1 == chunkX)

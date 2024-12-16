@@ -45,6 +45,7 @@ public class CommandManager {
         new AutoUpdateCommand(),
         new ChatHistoryCommand(),
         new ChatRelayCommand(),
+        new ClickCommand(),
         new ClientConnectionCommand(),
         new CommandConfigCommand(),
         new ConnectCommand(),

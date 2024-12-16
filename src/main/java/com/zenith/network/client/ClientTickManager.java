@@ -13,8 +13,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.github.rfresh2.EventConsumer.of;
-import static com.zenith.Shared.CLIENT_LOG;
-import static com.zenith.Shared.EVENT_BUS;
+import static com.zenith.Shared.*;
 import static java.util.Objects.nonNull;
 
 public class ClientTickManager {
@@ -64,6 +63,9 @@ public class ClientTickManager {
         try {
             EVENT_BUS.post(ClientTickEvent.INSTANCE);
             if (doBotTicks.get()) {
+                if (CONFIG.debug.packetLog.enabled) {
+                    CLIENT_LOG.debug("Tick");
+                }
                 EVENT_BUS.post(ClientBotTick.INSTANCE);
             }
         } catch (final Throwable e) {

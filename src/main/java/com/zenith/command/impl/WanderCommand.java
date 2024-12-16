@@ -28,9 +28,10 @@ public class WanderCommand extends Command {
             asList(
                 "on/off",
                 "turn on/off",
-                "turnDelaySeconds <integer>",
+                "turn delay <seconds>",
                 "jump on/off",
-                "jumpDelaySeconds <integer>",
+                "jump delay <seconds>",
+                "jump inWater on/off",
                 "sneak on/off"
             )
         );
@@ -46,30 +47,38 @@ public class WanderCommand extends Command {
                 MODULE.get(Wander.class).syncEnabledFromConfig();
                 return OK;
             }))
-            .then(literal("turn").then(argument("toggle", toggle()).executes(c -> {
-                CONFIG.client.extra.wander.turn = getToggle(c, "toggle");
-                c.getSource().getEmbed()
-                    .title("Turn " + toggleStrCaps(CONFIG.client.extra.wander.turn));
-                return OK;
-            })))
-            .then(literal("turnDelaySeconds").then(argument("turnDelaySeconds", integer(1, 1000)).executes(c -> {
-                CONFIG.client.extra.wander.turnDelaySeconds = getInteger(c, "turnDelaySeconds");
-                c.getSource().getEmbed()
-                    .title("Turn Delay Seconds Set");
-                return OK;
-            })))
-            .then(literal("jump").then(argument("toggle", toggle()).executes(c -> {
-                CONFIG.client.extra.wander.jump = getToggle(c, "toggle");
-                c.getSource().getEmbed()
-                    .title("Jump " + toggleStrCaps(CONFIG.client.extra.wander.jump));
-                return OK;
-            })))
-            .then(literal("jumpDelaySeconds").then(argument("jumpDelaySeconds", integer(1, 1000)).executes(c -> {
-                CONFIG.client.extra.wander.jumpDelaySeconds = getInteger(c, "jumpDelaySeconds");
-                c.getSource().getEmbed()
-                    .title("Jump Delay Seconds Set");
-                return OK;
-            })))
+            .then(literal("turn")
+                      .then(argument("toggle", toggle()).executes(c -> {
+                            CONFIG.client.extra.wander.turn = getToggle(c, "toggle");
+                            c.getSource().getEmbed()
+                                .title("Turn " + toggleStrCaps(CONFIG.client.extra.wander.turn));
+                            return OK;
+                        }))
+                      .then(literal("delay").then(argument("turnDelaySeconds", integer(1, 1000)).executes(c -> {
+                            CONFIG.client.extra.wander.turnDelaySeconds = getInteger(c, "turnDelaySeconds");
+                            c.getSource().getEmbed()
+                                .title("Turn Delay Seconds Set");
+                            return OK;
+                      }))))
+            .then(literal("jump")
+                      .then(argument("toggle", toggle()).executes(c -> {
+                            CONFIG.client.extra.wander.jump = getToggle(c, "toggle");
+                            c.getSource().getEmbed()
+                                .title("Jump " + toggleStrCaps(CONFIG.client.extra.wander.jump));
+                            return OK;
+                      }))
+                      .then(literal("delay").then(argument("jumpDelaySeconds", integer(1, 1000)).executes(c -> {
+                            CONFIG.client.extra.wander.jumpDelaySeconds = getInteger(c, "jumpDelaySeconds");
+                            c.getSource().getEmbed()
+                                .title("Jump Delay Seconds Set");
+                            return OK;
+                      })))
+                      .then(literal("inWater").then(argument("toggle", toggle()).executes(c -> {
+                            CONFIG.client.extra.wander.alwaysJumpInWater = getToggle(c, "toggle");
+                            c.getSource().getEmbed()
+                                .title("Jump In Water " + toggleStrCaps(CONFIG.client.extra.wander.alwaysJumpInWater));
+                            return OK;
+                      }))))
             .then(literal("sneak").then(argument("toggle", toggle()).executes(c -> {
                 CONFIG.client.extra.wander.sneak = getToggle(c, "toggle");
                 c.getSource().getEmbed()
@@ -86,6 +95,7 @@ public class WanderCommand extends Command {
             .addField("Turn Delay Seconds", CONFIG.client.extra.wander.turnDelaySeconds, false)
             .addField("Jump", toggleStr(CONFIG.client.extra.wander.jump), false)
             .addField("Jump Delay Seconds", CONFIG.client.extra.wander.jumpDelaySeconds, false)
+            .addField("Jump In Water", toggleStr(CONFIG.client.extra.wander.alwaysJumpInWater), false)
             .addField("Sneak", toggleStr(CONFIG.client.extra.wander.sneak), false)
             .primaryColor();
     }

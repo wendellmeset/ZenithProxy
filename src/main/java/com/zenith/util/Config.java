@@ -133,6 +133,7 @@ public final class Config {
                 public boolean jump = true;
                 public int jumpDelaySeconds = 5;
                 public boolean sneak = false;
+                public boolean alwaysJumpInWater = true;
             }
 
             public static final class QueueWarning {
@@ -275,6 +276,7 @@ public final class Config {
                 public int maxRecordingTimeMins = 0;
                 public AutoRecordMode autoRecordMode = AutoRecordMode.NONE;
                 public int replayRecordingHealthThreshold = 5;
+                public boolean fileIOUploadIfTooLarge = true;
 
                 @Getter
                 public enum AutoRecordMode {
@@ -572,6 +574,7 @@ public final class Config {
         public String accountOwnerRoleId = "";
         public String notificationMentionRoleId = "";
         public String prefix = ".";
+        public boolean ignoreOtherBots = true;
         public boolean reportCoords = true;
         public boolean mentionRoleOnConnect = false;
         public boolean mentionRoleOnPlayerOnline = false;

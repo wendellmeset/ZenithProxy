@@ -17,6 +17,7 @@ import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.inventory.S
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static com.github.rfresh2.EventConsumer.of;
 import static com.zenith.Shared.*;
@@ -102,7 +103,8 @@ public class AutoTotem extends AbstractInventoryModule {
             delay = doInventoryActions();
         }
         if (CONFIG.client.extra.autoTotem.noTotemsAlert
-            && lastNoTotemsAlert.plus(noTotemsAlertCooldown).isBefore(Instant.now())) {
+            && lastNoTotemsAlert.plus(noTotemsAlertCooldown).isBefore(Instant.now())
+            && Proxy.getInstance().isOnlineForAtLeastDuration(Duration.ofSeconds(5))) {
             var totemCount = countTotems();
             if (totemCount < 1) {
                 lastNoTotemsAlert = Instant.now();
@@ -114,9 +116,12 @@ public class AutoTotem extends AbstractInventoryModule {
 
     private void onTotemPopEvent(TotemPopEvent totemPopEvent) {
         if (totemPopEvent.entityId() == CACHE.getPlayerCache().getEntityId()) {
-            var totemCount = countTotems();
-            EVENT_BUS.postAsync(new PlayerTotemPopAlertEvent(totemCount));
-            info("Player Totem Popped - {} remaining", totemCount);
+            // delay execution to allow inventory to update
+            EXECUTOR.schedule(() -> {
+                var totemCount = countTotems();
+                EVENT_BUS.postAsync(new PlayerTotemPopAlertEvent(totemCount));
+                info("Player Totem Popped - {} remaining", totemCount);
+            }, 1, TimeUnit.SECONDS);
         }
     }
 

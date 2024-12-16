@@ -46,7 +46,8 @@ public class DiscordManageCommand extends Command {
                 "manageProfileImage on/off",
                 "manageNickname on/off",
                 "manageDescription on/off",
-                "showNonWhitelistIP on/off"
+                "showNonWhitelistIP on/off",
+                "ignoreOtherBots on/off"
             )
         );
     }
@@ -202,7 +203,15 @@ public class DiscordManageCommand extends Command {
                                          .primaryColor()
                                          .title("Show Non-Whitelist IP " + toggleStrCaps(CONFIG.discord.showNonWhitelistLoginIP));
                             return 1;
-                      })));
+                      })))
+            .then(literal("ignoreOtherBots")
+                      .then(argument("toggle", toggle()).executes(c -> {
+                          CONFIG.discord.ignoreOtherBots = getToggle(c, "toggle");
+                          c.getSource().getEmbed()
+                              .primaryColor()
+                              .title("Ignore Other Bots " + toggleStrCaps(CONFIG.discord.ignoreOtherBots));
+                          return OK;
+            })));
     }
 
     private static boolean validateTerminalSource(CommandContext c) {
@@ -220,7 +229,8 @@ public class DiscordManageCommand extends Command {
             .addField("Manage Profile Image", toggleStr(CONFIG.discord.manageProfileImage), false)
             .addField("Manage Nickname", toggleStr(CONFIG.discord.manageNickname), false)
             .addField("Manage Description", toggleStr(CONFIG.discord.manageDescription), false)
-            .addField("Show Non-Whitelist IP", toggleStr(CONFIG.discord.showNonWhitelistLoginIP), false);
+            .addField("Show Non-Whitelist IP", toggleStr(CONFIG.discord.showNonWhitelistLoginIP), false)
+            .addField("Ignore Other Bots", toggleStr(CONFIG.discord.ignoreOtherBots), false);
     }
 
     private String getChannelMention(final String channelId) {

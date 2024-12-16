@@ -53,7 +53,7 @@ dependencies {
     implementation("com.github.rfresh2.discord4j:discord4j-core:3.4.4.11") {
         exclude(group = "io.netty")
     }
-    implementation("com.github.rfresh2:MCProtocolLib:1.21.4.3") {
+    implementation("com.github.rfresh2:MCProtocolLib:1.21.4.4") {
         exclude(group = "io.netty")
     }
     val nettyVersion = "4.1.115.Final"
@@ -185,7 +185,7 @@ tasks {
         }
     }
     processResources{ finalizedBy(commitHashTask, releaseTagTask) }
-    jar { enabled = true }
+    jar { enabled = false }
     shadowJar {
         from(collectReachabilityMetadata)
         archiveBaseName = project.name
