@@ -26,7 +26,7 @@ public class ClickCommand extends Command {
                 "hold",
                 "stop",
                 "left"
-//                "right"
+//                "right" // todo: implement right click
             )
         );
     }
@@ -35,31 +35,59 @@ public class ClickCommand extends Command {
     public LiteralArgumentBuilder<CommandContext> register() {
         return command("click")
             .then(literal("hold").executes(c -> {
-                c.getSource().setNoOutput(true);
-                if (!Proxy.getInstance().isConnected()) return OK;
+                if (!Proxy.getInstance().isConnected()) {
+                    c.getSource().getEmbed()
+                        .title("Not Connected")
+                        .errorColor();
+                    return OK;
+                }
                 MODULE.get(PlayerSimulation.class).holdLeftClickOverride = true;
+                c.getSource().getEmbed()
+                    .title("Click Hold On")
+                    .primaryColor();
                 return OK;
             }))
             .then(literal("stop").executes(c -> {
-                c.getSource().setNoOutput(true);
-                if (!Proxy.getInstance().isConnected()) return OK;
+                if (!Proxy.getInstance().isConnected()) {
+                    c.getSource().getEmbed()
+                        .title("Not Connected")
+                        .errorColor();
+                    return OK;
+                }
                 MODULE.get(PlayerSimulation.class).holdLeftClickOverride = false;
+                c.getSource().getEmbed()
+                    .title("Click Hold Off")
+                    .primaryColor();
                 return OK;
             }))
             .then(literal("left").executes(c -> {
-                c.getSource().setNoOutput(true);
-                if (!Proxy.getInstance().isConnected()) return 1;
+                if (!Proxy.getInstance().isConnected()) {
+                    c.getSource().getEmbed()
+                        .title("Not Connected")
+                        .errorColor();
+                    return OK;
+                }
                 var input = new Input();
                 input.leftClick = true;
                 PATHING.move(input, 100000);
+                c.getSource().getEmbed()
+                    .title("Left Clicked")
+                    .primaryColor();
                 return 1;
             }))
             .then(literal("right").executes(c -> {
-                c.getSource().setNoOutput(true);
-                if (!Proxy.getInstance().isConnected()) return 1;
+                if (!Proxy.getInstance().isConnected()) {
+                    c.getSource().getEmbed()
+                        .title("Not Connected")
+                        .errorColor();
+                    return OK;
+                }
                 var input = new Input();
                 input.rightClick = true;
                 PATHING.move(input, 100000);
+                c.getSource().getEmbed()
+                    .title("Right Clicked")
+                    .primaryColor();
                 return 1;
             }));
     }
