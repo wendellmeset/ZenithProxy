@@ -29,6 +29,7 @@ import org.geysermc.mcprotocollib.protocol.data.game.item.component.DataComponen
 import org.geysermc.mcprotocollib.protocol.data.game.item.component.ItemEnchantments;
 import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.player.ServerboundInteractPacket;
 import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.player.ServerboundPlayerActionPacket;
+import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.player.ServerboundSetCarriedItemPacket;
 import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.player.ServerboundSwingPacket;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,8 +45,10 @@ public class PlayerInteractionManager {
     private double destroyProgress;
     private double destroyTicks;
     private int destroyDelay;
+    private final int destroyDelayInterval = 6;
     private boolean isDestroying;
     private final PlayerSimulation player;
+    private int carriedIndex;
 
     public PlayerInteractionManager(final PlayerSimulation playerSimulation) {
         this.player = playerSimulation;
@@ -63,6 +66,7 @@ public class PlayerInteractionManager {
 
     public boolean startDestroyBlock(final int x, final int y, final int z, Direction face) {
         if (CACHE.getPlayerCache().getGameMode() == GameMode.CREATIVE) {
+            player.debug("[{}] [{}, {}, {}] StartDestroyBlock START: Creative break", System.currentTimeMillis(), x, y, z);
             Proxy.getInstance().getClient().sendAsync(
                 new ServerboundPlayerActionPacket(
                     PlayerAction.START_DIGGING,
@@ -71,9 +75,11 @@ public class PlayerInteractionManager {
                     CACHE.getPlayerCache().getSeqId().incrementAndGet()
                 )
             );
-            this.destroyDelay = 5;
+            destroyBlock(x, y, z);
+            this.destroyDelay = destroyDelayInterval;
         } else if (!this.isDestroying || !this.sameDestroyTarget(x, y, z)) {
             if (this.isDestroying) {
+                player.debug("[{}] [{}, {}, {}] StartDestroyBlock CANCEL: Changed destroy target", System.currentTimeMillis(), x, y, z);
                 Proxy.getInstance().getClient().sendAsync(
                     new ServerboundPlayerActionPacket(
                         PlayerAction.CANCEL_DIGGING,
@@ -93,6 +99,10 @@ public class PlayerInteractionManager {
                 this.destroyingItem = CACHE.getPlayerCache().getEquipment(EquipmentSlot.MAIN_HAND);
                 this.destroyProgress = 0.0;
                 this.destroyTicks = 0.0F;
+                player.debug("[{}] [{}, {}, {}] StartDestroyBlock START: Start multi-tick break", System.currentTimeMillis(), x, y, z);
+            } else {
+                destroyBlock(x, y, z);
+                player.debug("[{}] [{}, {}, {}] StartDestroyBlock START: Instant break", System.currentTimeMillis(), x, y, z);
             }
 
             Proxy.getInstance().getClient().send(
@@ -108,6 +118,7 @@ public class PlayerInteractionManager {
 
     public void stopDestroyBlock() {
         if (this.isDestroying) {
+            player.debug("[{}] [{}, {}, {}] StopDestroyBlock CANCEL", System.currentTimeMillis(), this.destroyBlockPosX, this.destroyBlockPosY, this.destroyBlockPosZ);
             Proxy.getInstance().getClient()
                 .send(new ServerboundPlayerActionPacket(
                     PlayerAction.CANCEL_DIGGING,
@@ -118,8 +129,6 @@ public class PlayerInteractionManager {
         }
         this.isDestroying = false;
         this.destroyProgress = 0;
-        this.destroyTicks = 0;
-        this.destroyDelay = 0;
     }
 
     public boolean continueDestroyBlock(final int x, final int y, final int z, Direction directionFacing) {
@@ -127,7 +136,7 @@ public class PlayerInteractionManager {
             --this.destroyDelay;
             return true;
         } else if (CACHE.getPlayerCache().getGameMode() == GameMode.CREATIVE) {
-            this.destroyDelay = 5;
+            this.destroyDelay = destroyDelayInterval;
             Proxy.getInstance().getClient().send(
                 new ServerboundPlayerActionPacket(
                     PlayerAction.START_DIGGING,
@@ -135,6 +144,8 @@ public class PlayerInteractionManager {
                     directionFacing,
                     CACHE.getPlayerCache().getSeqId().incrementAndGet()
                 ));
+            destroyBlock(x, y, z);
+            player.debug("[{}] [{}, {}, {}] ContinueDestroyBlock START: Creative Break", System.currentTimeMillis(), x, y, z);
             return true;
         } else if (this.sameDestroyTarget(x, y, z)) {
             BlockState blockState = World.getBlockState(x, y, z);
@@ -153,9 +164,11 @@ public class PlayerInteractionManager {
                             directionFacing,
                             CACHE.getPlayerCache().getSeqId().incrementAndGet()
                         ));
+                    destroyBlock(x, y, z);
                     this.destroyProgress = 0.0F;
                     this.destroyTicks = 0.0F;
-                    this.destroyDelay = 5;
+                    this.destroyDelay = destroyDelayInterval;
+                    player.debug("[{}] [{}, {}, {}] ContinueDestroyBlock FINISH", System.currentTimeMillis(), x, y, z);
                 }
                 return true;
             }
@@ -280,7 +293,22 @@ public class PlayerInteractionManager {
         return speed;
     }
 
+    private void destroyBlock(int x, int y, int z) {
+        CACHE.getChunkCache().getChunkSection(x, y, z)
+            .setBlock(x & 15, y & 15, z & 15, BlockRegistry.AIR.id());
+    }
+
+    public void ensureHasSentCarriedItem() {
+        int heldItemSlot = CACHE.getPlayerCache().getHeldItemSlot();
+        if (carriedIndex != heldItemSlot) {
+            player.debug("[{}] Syncing held item slot: {} -> {}", System.currentTimeMillis(), carriedIndex, heldItemSlot);
+            carriedIndex = heldItemSlot;
+            Proxy.getInstance().getClient().send(new ServerboundSetCarriedItemPacket(carriedIndex));
+        }
+    }
+
     public void attackEntity(final EntityRaycastResult entity) {
+        player.debug("[{}] [{}, {}, {}] Attack Entity", System.currentTimeMillis(), entity.entity().getX(), entity.entity().getY(), entity.entity().getZ());
         Proxy.getInstance().getClient().sendAsync(new ServerboundInteractPacket(entity.entity().getEntityId(), InteractAction.ATTACK, false));
         Proxy.getInstance().getClient().sendAsync(new ServerboundSwingPacket(Hand.MAIN_HAND));
     }

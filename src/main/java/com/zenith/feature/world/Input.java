@@ -40,5 +40,7 @@ public class Input {
         jumping = false;
         sneaking = false;
         sprinting = false;
+        leftClick = false;
+        rightClick = false;
     }
 }
