@@ -10,6 +10,7 @@ import com.zenith.feature.world.raycast.RaycastHelper;
 import com.zenith.mc.block.*;
 import com.zenith.mc.dimension.DimensionRegistry;
 import com.zenith.module.Module;
+import com.zenith.util.Timer;
 import com.zenith.util.math.MathHelper;
 import com.zenith.util.math.MutableVec3d;
 import lombok.Getter;
@@ -60,6 +61,7 @@ public class PlayerSimulation extends Module {
     private final MutableVec3d stuckSpeedMultiplier = new MutableVec3d(0, 0, 0);
     private final MutableVec3d velocity = new MutableVec3d(0, 0, 0);
     private boolean wasLeftClicking = false;
+    private final Timer entityAttackTimer = Timer.createTickTimer();
     private final Input movementInput = new Input();
     private int waitTicks = 0;
     private static final CollisionBox STANDING_COLLISION_BOX = new CollisionBox(-0.3, 0.3, 0, 1.8, -0.3, 0.3);
@@ -206,9 +208,14 @@ public class PlayerSimulation extends Module {
                         return;
                     }
                     wasLeftClicking = false;
-                } else if (raycast.hit() && raycast.isEntity()) {
-                    interactions.ensureHasSentCarriedItem();
-                    interactions.attackEntity(raycast.entity());
+                } else if (raycast.hit() && raycast.isEntity() && entityAttackTimer.tick(CONFIG.client.extra.killAura.attackDelayTicks)) {
+                    // todo: reduce entity raycast range to 3.5
+                    var rangeSq = Math.pow(CONFIG.client.extra.killAura.attackRange, 2);
+                    double distanceSqToSelf = CACHE.getPlayerCache().distanceSqToSelf(raycast.entity().entity());
+                    if (distanceSqToSelf <= rangeSq) {
+                        interactions.ensureHasSentCarriedItem();
+                        interactions.attackEntity(raycast.entity());
+                    }
                 }
             }
             interactions.stopDestroyBlock();
