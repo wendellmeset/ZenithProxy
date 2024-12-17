@@ -87,7 +87,7 @@ public class ReplayCommand extends Command {
                     .title("Discord Upload " + toggleStrCaps(CONFIG.client.extra.replayMod.sendRecordingsToDiscord));
                 return 1;
             })))
-            .then(literal("fileIoUploadIfTooLarge").requires(Command::validateAccountOwner).then(argument("toggle", toggle()).executes(c -> {
+            .then(literal("fileIoUpload").requires(Command::validateAccountOwner).then(argument("toggle", toggle()).executes(c -> {
                 CONFIG.client.extra.replayMod.fileIOUploadIfTooLarge = getToggle(c, "toggle");
                 c.getSource().getEmbed()
                     .title("file.io Upload " + toggleStrCaps(CONFIG.client.extra.replayMod.fileIOUploadIfTooLarge));
