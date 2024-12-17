@@ -12,18 +12,23 @@ public class SetHealthHandler implements ClientEventLoopPacketHandler<Clientboun
 
     @Override
     public boolean applyAsync(@NonNull ClientboundSetHealthPacket packet, @NonNull ClientSession session) {
-        if (packet.getHealth() != CACHE.getPlayerCache().getThePlayer().getHealth()) {
+        var player = CACHE.getPlayerCache().getThePlayer();
+        if (packet.getHealth() != player.getHealth()) {
             EVENT_BUS.postAsync(
-                new PlayerHealthChangedEvent(packet.getHealth(), CACHE.getPlayerCache().getThePlayer().getHealth()));
+                new PlayerHealthChangedEvent(packet.getHealth(), player.getHealth()));
         }
 
-        CACHE.getPlayerCache().getThePlayer()
-                .setFood(packet.getFood())
-                .setSaturation(packet.getSaturation())
-                .setHealth(packet.getHealth());
-        CACHE_LOG.debug("Player food: {}", packet.getFood());
-        CACHE_LOG.debug("Player saturation: {}", packet.getSaturation());
-        CACHE_LOG.debug("Player health: {}", packet.getHealth());
+        if (packet.getFood() != player.getFood())
+            CACHE_LOG.debug("Player food: {}", packet.getFood());
+        if (packet.getSaturation() != player.getSaturation())
+            CACHE_LOG.debug("Player saturation: {}", packet.getSaturation());
+        if (packet.getHealth() != player.getHealth())
+            CACHE_LOG.debug("Player health: {}", packet.getHealth());
+
+        player
+            .setFood(packet.getFood())
+            .setSaturation(packet.getSaturation())
+            .setHealth(packet.getHealth());
         return true;
     }
 }

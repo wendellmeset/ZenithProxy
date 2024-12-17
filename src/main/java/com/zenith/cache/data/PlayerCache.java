@@ -133,6 +133,8 @@ public class PlayerCache implements CachedData {
             this.doLimitedCrafting = false;
             this.teleportQueue.clear();
             this.teleportQueue.trim();
+            this.actionId.set(0);
+            this.seqId.set(0);
         }
         if (type == CacheResetType.LOGIN) {
             this.teleportQueue.clear();

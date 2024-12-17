@@ -59,6 +59,7 @@ public class PlayerSimulation extends Module {
     private int ticksSinceLastPositionPacketSent;
     private final MutableVec3d stuckSpeedMultiplier = new MutableVec3d(0, 0, 0);
     private final MutableVec3d velocity = new MutableVec3d(0, 0, 0);
+    private boolean wasLeftClicking = false;
     private final Input movementInput = new Input();
     private int waitTicks = 0;
     private static final CollisionBox STANDING_COLLISION_BOX = new CollisionBox(-0.3, 0.3, 0, 1.8, -0.3, 0.3);
@@ -182,7 +183,9 @@ public class PlayerSimulation extends Module {
             if (movementInput.isLeftClick() || holdLeftClickOverride) {
                 var raycast = RaycastHelper.playerBlockOrEntityRaycast(4.5);
                 if (raycast.hit() && raycast.isBlock()) {
-                    if (!interactions.isDestroying()) {
+                    // ensure synced
+                    interactions.ensureHasSentCarriedItem();
+                    if (!wasLeftClicking && !interactions.isDestroying()) {
                         debug("Starting destroy block at: [{}, {}, {}]", raycast.block().x(), raycast.block().y(), raycast.block().z());
                         interactions.startDestroyBlock(
                             MathHelper.floorI(raycast.block().x()),
@@ -190,6 +193,7 @@ public class PlayerSimulation extends Module {
                             MathHelper.floorI(raycast.block().z()),
                             raycast.block().direction());
                         sendClientPacketAsync(new ServerboundSwingPacket(Hand.MAIN_HAND));
+                        wasLeftClicking = true;
                     }
 //                    debug("Continue destroy block at: [{}, {}, {}]", raycast.block().x(), raycast.block().y(), raycast.block().z());
                     if (interactions.continueDestroyBlock(
@@ -198,13 +202,17 @@ public class PlayerSimulation extends Module {
                         MathHelper.floorI(raycast.block().z()),
                         raycast.block().direction())) {
                         sendClientPacketAsync(new ServerboundSwingPacket(Hand.MAIN_HAND));
+                        wasLeftClicking = true;
                         return;
                     }
+                    wasLeftClicking = false;
                 } else if (raycast.hit() && raycast.isEntity()) {
+                    interactions.ensureHasSentCarriedItem();
                     interactions.attackEntity(raycast.entity());
                 }
             }
             interactions.stopDestroyBlock();
+            wasLeftClicking = false;
         } catch (final Exception e) {
             CLIENT_LOG.error("Error during interaction tick", e);
         }
