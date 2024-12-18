@@ -23,6 +23,7 @@ import org.geysermc.mcprotocollib.protocol.data.game.entity.EntityEvent;
 import org.geysermc.mcprotocollib.protocol.data.game.entity.EquipmentSlot;
 import org.geysermc.mcprotocollib.protocol.data.game.entity.metadata.GlobalPos;
 import org.geysermc.mcprotocollib.protocol.data.game.entity.player.GameMode;
+import org.geysermc.mcprotocollib.protocol.data.game.entity.player.Hand;
 import org.geysermc.mcprotocollib.protocol.data.game.inventory.ContainerActionType;
 import org.geysermc.mcprotocollib.protocol.data.game.inventory.ContainerType;
 import org.geysermc.mcprotocollib.protocol.data.game.inventory.CreativeGrabAction;
@@ -194,6 +195,13 @@ public class PlayerCache implements CachedData {
             case OFF_HAND -> inventory.getItemStack(45);
             case MAIN_HAND -> inventory.getItemStack(heldItemSlot + 36);
             default -> null; // EquipmentSlot.BODY doesn't apply to players, only entities like horses
+        };
+    }
+
+    public ItemStack getEquipment(Hand hand) {
+        return switch (hand) {
+            case Hand.MAIN_HAND -> getEquipment(MAIN_HAND);
+            case Hand.OFF_HAND -> getEquipment(OFF_HAND);
         };
     }
 

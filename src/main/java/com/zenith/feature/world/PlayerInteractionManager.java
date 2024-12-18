@@ -1,8 +1,8 @@
-package com.zenith.feature.pathing;
+package com.zenith.feature.world;
 
 import com.zenith.Proxy;
 import com.zenith.cache.data.inventory.Container;
-import com.zenith.feature.world.World;
+import com.zenith.feature.world.raycast.BlockRaycastResult;
 import com.zenith.feature.world.raycast.EntityRaycastResult;
 import com.zenith.mc.block.Block;
 import com.zenith.mc.block.BlockRegistry;
@@ -27,10 +27,7 @@ import org.geysermc.mcprotocollib.protocol.data.game.item.ItemStack;
 import org.geysermc.mcprotocollib.protocol.data.game.item.component.DataComponentType;
 import org.geysermc.mcprotocollib.protocol.data.game.item.component.DataComponents;
 import org.geysermc.mcprotocollib.protocol.data.game.item.component.ItemEnchantments;
-import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.player.ServerboundInteractPacket;
-import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.player.ServerboundPlayerActionPacket;
-import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.player.ServerboundSetCarriedItemPacket;
-import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.player.ServerboundSwingPacket;
+import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.player.*;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -296,6 +293,53 @@ public class PlayerInteractionManager {
     private void destroyBlock(int x, int y, int z) {
         CACHE.getChunkCache().getChunkSection(x, y, z)
             .setBlock(x & 15, y & 15, z & 15, BlockRegistry.AIR.id());
+    }
+
+    public InteractionResult interact(Hand hand, EntityRaycastResult ray) {
+        Proxy.getInstance().getClient().send(new ServerboundInteractPacket(
+            ray.entity().getEntityId(),
+            InteractAction.INTERACT,
+            0, 0, 0,
+            hand,
+            player.isSneaking()
+        ));
+        return InteractionResult.PASS;
+    }
+
+    public InteractionResult interactAt(Hand hand, EntityRaycastResult ray) {
+        Proxy.getInstance().getClient().send(new ServerboundInteractPacket(
+            ray.entity().getEntityId(),
+            InteractAction.INTERACT_AT,
+            0, 0, 0,
+            hand,
+            player.isSneaking()
+        ));
+        return InteractionResult.PASS;
+    }
+
+    public InteractionResult useItemOn(Hand hand, BlockRaycastResult ray) {
+        Proxy.getInstance().getClient().send(new ServerboundUseItemOnPacket(
+            ray.x(), ray.y(), ray.z(),
+            ray.direction(),
+            hand,
+            // todo: cursor raytrace
+            0, 0, 0,
+            false,
+            CACHE.getPlayerCache().getSeqId().incrementAndGet()
+        ));
+        // todo: check if we are placing a block
+        //  if so, add the block to the world so we don't have a brief desync
+        return InteractionResult.PASS;
+    }
+
+    public InteractionResult useItem(Hand hand) {
+        Proxy.getInstance().getClient().send(new ServerboundUseItemPacket(
+            hand,
+            CACHE.getPlayerCache().getSeqId().incrementAndGet(),
+            player.getYaw(),
+            player.getPitch()
+        ));
+        return InteractionResult.PASS;
     }
 
     public void ensureHasSentCarriedItem() {

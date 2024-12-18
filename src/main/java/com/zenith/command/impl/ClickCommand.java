@@ -20,13 +20,14 @@ public class ClickCommand extends Command {
             "click",
             CommandCategory.MODULE,
             """
-            Clicks the block in front of you
+            Simulates a click to the block or entity in front of you
             """,
             asList(
-                "hold",
-                "stop",
-                "left"
-//                "right" // todo: implement right click
+                "left",
+                "left hold",
+                "right",
+                "right hold",
+                "stop"
             )
         );
     }
@@ -34,19 +35,6 @@ public class ClickCommand extends Command {
     @Override
     public LiteralArgumentBuilder<CommandContext> register() {
         return command("click")
-            .then(literal("hold").executes(c -> {
-                if (!Proxy.getInstance().isConnected()) {
-                    c.getSource().getEmbed()
-                        .title("Not Connected")
-                        .errorColor();
-                    return OK;
-                }
-                MODULE.get(PlayerSimulation.class).holdLeftClickOverride = true;
-                c.getSource().getEmbed()
-                    .title("Click Hold On")
-                    .primaryColor();
-                return OK;
-            }))
             .then(literal("stop").executes(c -> {
                 if (!Proxy.getInstance().isConnected()) {
                     c.getSource().getEmbed()
@@ -55,6 +43,7 @@ public class ClickCommand extends Command {
                     return OK;
                 }
                 MODULE.get(PlayerSimulation.class).holdLeftClickOverride = false;
+                MODULE.get(PlayerSimulation.class).holdRightClickOverride = false;
                 c.getSource().getEmbed()
                     .title("Click Hold Off")
                     .primaryColor();
@@ -74,7 +63,21 @@ public class ClickCommand extends Command {
                     .title("Left Clicked")
                     .primaryColor();
                 return 1;
-            }))
+            })
+                      .then(literal("hold").executes(c -> {
+                          if (!Proxy.getInstance().isConnected()) {
+                              c.getSource().getEmbed()
+                                  .title("Not Connected")
+                                  .errorColor();
+                              return OK;
+                          }
+                          MODULE.get(PlayerSimulation.class).holdLeftClickOverride = true;
+                          MODULE.get(PlayerSimulation.class).holdRightClickOverride = false;
+                          c.getSource().getEmbed()
+                              .title("Left Click Hold")
+                              .primaryColor();
+                          return OK;
+                      })))
             .then(literal("right").executes(c -> {
                 if (!Proxy.getInstance().isConnected()) {
                     c.getSource().getEmbed()
@@ -89,6 +92,20 @@ public class ClickCommand extends Command {
                     .title("Right Clicked")
                     .primaryColor();
                 return 1;
-            }));
+            })
+                      .then(literal("hold").executes(c -> {
+                          if (!Proxy.getInstance().isConnected()) {
+                              c.getSource().getEmbed()
+                                  .title("Not Connected")
+                                  .errorColor();
+                              return OK;
+                          }
+                          MODULE.get(PlayerSimulation.class).holdLeftClickOverride = false;
+                          MODULE.get(PlayerSimulation.class).holdRightClickOverride = true;
+                          c.getSource().getEmbed()
+                              .title("Right Click Hold")
+                              .primaryColor();
+                          return OK;
+                      })));
     }
 }

@@ -1,11 +1,7 @@
 package com.zenith.module.impl;
 
 import com.zenith.event.module.ClientBotTick;
-import com.zenith.feature.pathing.PlayerInteractionManager;
-import com.zenith.feature.world.Input;
-import com.zenith.feature.world.MovementInputRequest;
-import com.zenith.feature.world.Pathing;
-import com.zenith.feature.world.World;
+import com.zenith.feature.world.*;
 import com.zenith.feature.world.raycast.RaycastHelper;
 import com.zenith.mc.block.*;
 import com.zenith.mc.dimension.DimensionRegistry;
@@ -47,7 +43,7 @@ public class PlayerSimulation extends Module {
     private float lastPitch;
     @Getter private boolean onGround;
     private boolean lastOnGround;
-    private boolean isSneaking;
+    @Getter private boolean isSneaking;
     private boolean wasSneaking;
     private boolean isSprinting;
     private boolean lastSprinting;
@@ -81,6 +77,8 @@ public class PlayerSimulation extends Module {
     private boolean verticalCollision = false;
     private final PlayerInteractionManager interactions = new PlayerInteractionManager(this);
     public boolean holdLeftClickOverride = false;
+    public boolean holdRightClickOverride = false;
+    private final Timer rightClickOverrideTimer = Timer.createTickTimer();
 
     @Override
     public void subscribeEvents() {
@@ -103,6 +101,7 @@ public class PlayerSimulation extends Module {
     public synchronized void handleClientTickStarting(final ClientBotTick.Starting event) {
         syncFromCache(false);
         this.holdLeftClickOverride = false;
+        this.holdRightClickOverride = false;
     }
 
     public synchronized void handleClientTickStopped(final ClientBotTick.Stopped event) {
@@ -113,6 +112,7 @@ public class PlayerSimulation extends Module {
             sendClientPacketAsync(new ServerboundPlayerCommandPacket(CACHE.getPlayerCache().getEntityId(), PlayerState.STOP_SPRINTING));
         }
         this.holdLeftClickOverride = false;
+        this.holdRightClickOverride = false;
     }
 
     public void doRotate(float yaw, float pitch) {
@@ -216,6 +216,21 @@ public class PlayerSimulation extends Module {
                         interactions.ensureHasSentCarriedItem();
                         interactions.attackEntity(raycast.entity());
                     }
+                }
+            } else if (movementInput.isRightClick() || (holdRightClickOverride && rightClickOverrideTimer.tick(10))) {
+                var raycast = RaycastHelper.playerBlockOrEntityRaycast(4.5);
+                if (raycast.hit() && raycast.isBlock()) {
+                    interactions.ensureHasSentCarriedItem();
+                    interactions.useItemOn(Hand.MAIN_HAND, raycast.block());
+                    sendClientPacketAsync(new ServerboundSwingPacket(Hand.MAIN_HAND));
+                } else if (raycast.hit() && raycast.isEntity()) {
+                    interactions.ensureHasSentCarriedItem();
+                    interactions.interactAt(Hand.MAIN_HAND, raycast.entity());
+                    sendClientPacketAsync(new ServerboundSwingPacket(Hand.MAIN_HAND));
+                } else if (!raycast.hit()) {
+                    interactions.ensureHasSentCarriedItem();
+                    interactions.useItem(Hand.MAIN_HAND);
+                    sendClientPacketAsync(new ServerboundSwingPacket(Hand.MAIN_HAND));
                 }
             }
             interactions.stopDestroyBlock();
