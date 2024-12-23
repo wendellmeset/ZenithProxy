@@ -6,6 +6,8 @@ import com.zenith.util.Wait;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static com.zenith.Shared.*;
+
 import static com.zenith.Shared.DEFAULT_LOG;
 
 public class ConnectConcurrencyTest {
@@ -21,7 +23,7 @@ public class ConnectConcurrencyTest {
         Wait.wait(20);
         for (int i = 0; i < 64; i++) {
             executor.execute(() -> {
-                Proxy.getInstance().connectAndCatchExceptions();
+                Proxy.getInstance().connectAndCatchExceptions(CONFIG.client.server.address, CONFIG.client.server.port);
                 Proxy.getInstance().disconnect();
             });
             Wait.wait(ThreadLocalRandom.current().nextInt(0, 5));
