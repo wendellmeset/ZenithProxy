@@ -86,7 +86,7 @@ public class ActiveHours extends Module {
                             return;
                         }
                     }
-                    proxy.connectAndCatchExceptions();
+                    proxy.connectAndCatchExceptions(CONFIG.client.server.address, CONFIG.client.server.port);
                     return;
                 }
             }
