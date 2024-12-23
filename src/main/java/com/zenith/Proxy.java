@@ -369,19 +369,19 @@ public class Proxy {
         client.disconnect(reason, cause);
     }
 
-    public void connectAndCatchExceptions() {
+    public void connectAndCatchExceptions(String serverIP, int serverPort) {
         try {
-            this.connect();
+            this.connect(serverIP, serverPort);  // Use the provided arguments here
         } catch (final Exception e) {
-            DEFAULT_LOG.error("Error connecting", e);
+            DEFAULT_LOG.error("Error connecting to {}:{}", serverIP, serverPort, e);
         }
     }
 
     /**
      * @throws IllegalStateException if already connected
      */
-    public synchronized void connect() {
-        connect(CONFIG.client.server.address, CONFIG.client.server.port);
+    public synchronized void connect(String serverIP, int serverPort) {
+        connect(serverIP, serverPort);  // Call the method with the provided serverIP and serverPort
     }
 
     public synchronized void connect(final String address, final int port) {
